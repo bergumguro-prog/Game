@@ -171,3 +171,38 @@ def test_motion_timings_are_theme_variables():
     theme = open("static/css/theme.css").read()
     for var in ["--scene-enter-ms", "--scene-leave-ms", "--hover-ms", "--hover-lift"]:
         assert f"{var}:" in theme
+
+
+def test_every_game_object_can_be_reached_on_foot():
+    """Walk the room from the start (flood fill over every free spot) and
+    check the player can get close enough to press E at each game object."""
+    from collections import deque
+
+    hx, hy, hw, hh = objects.PLAYER_HITBOX
+    solids = [o.hitbox_rect for o in objects.OBJECTS if o.solid]
+
+    def free(x, y):
+        feet = (x + hx, y + hy, hw, hh)
+        if feet[0] < 0 or feet[1] < objects.WALL_HEIGHT:
+            return False
+        if feet[0] + hw > objects.ROOM_WIDTH or feet[1] + hh > objects.ROOM_HEIGHT:
+            return False
+        return not any(overlaps(feet, s) for s in solids)
+
+    seen = {objects.PLAYER_START}
+    queue = deque(seen)
+    while queue:
+        x, y = queue.popleft()
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nxt = (x + dx, y + dy)
+            if nxt not in seen and free(*nxt):
+                seen.add(nxt)
+                queue.append(nxt)
+
+    r = objects.INTERACT_REACH
+    for o in objects.OBJECTS:
+        if o.game:
+            assert any(
+                overlaps((x + hx - r, y + hy - r, hw + 2 * r, hh + 2 * r), o.hitbox_rect)
+                for x, y in seen
+            ), f"can't reach {o.id}"
