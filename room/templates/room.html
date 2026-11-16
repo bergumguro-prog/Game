@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}The Room{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('room.static', filename='room.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <div id="room" class="room"
+       data-width="{{ room_width }}" data-height="{{ room_height }}"
+       style="--room-w: {{ room_width }}px; --room-h: {{ room_height }}px;">
+
+    {% for obj in objects %}
+    <div class="object object-{{ obj.id }}{% if obj.solid %} solid{% endif %}"
+         data-x="{{ obj.x }}" data-y="{{ obj.y }}"
+         data-w="{{ obj.width }}" data-h="{{ obj.height }}"
+         style="--x: {{ obj.x }}px; --y: {{ obj.y }}px; --w: {{ obj.width }}px; --h: {{ obj.height }}px;">
+      {% if obj.label %}<span class="object-label">{{ obj.label }}</span>{% endif %}
+    </div>
+    {% endfor %}
+
+    <div id="player" class="player" data-facing="down"
+         data-x="{{ player_start[0] }}" data-y="{{ player_start[1] }}"
+         data-size="{{ player_size }}" data-speed="{{ player_speed }}"
+         style="--size: {{ player_size }}px;"></div>
+  </div>
+
+  <p class="hint">Move with arrow keys or WASD</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('room.static', filename='player.js') }}"></script>
+{% endblock %}
