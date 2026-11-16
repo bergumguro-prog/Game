@@ -2,6 +2,8 @@
 
 {% block title %}The Room{% endblock %}
 
+{% block scene %}room{% endblock %}
+
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('room.static', filename='room.css') }}">
 {% endblock %}
@@ -10,7 +12,7 @@
 <main class="scene">
   <div class="room-frame">
     <div id="room" class="room"
-         data-width="{{ room.w }}" data-height="{{ room.h }}" data-floor-top="{{ room.wall_h }}"
+         data-width="{{ room.w }}" data-height="{{ room.h }}" data-floor-top="{{ room.wall_h }}" data-reach="{{ room.reach }}"
          style="--room-w: {{ room.w }}px; --room-h: {{ room.h }}px; --wall-h: {{ room.wall_h }}px;">
 
       <div class="wall">{{ wall_svg }}</div>
@@ -19,6 +21,7 @@
       {% for obj in objects %}
       <div class="object object-{{ obj.id }}{% if obj.solid %} solid{% endif %}"
            data-layer="{{ obj.layer }}"
+           {% if obj.url %}data-url="{{ obj.url }}" data-prompt="{{ obj.prompt }}"{% endif %}
            data-hit-x="{{ obj.hit[0] }}" data-hit-y="{{ obj.hit[1] }}"
            data-hit-w="{{ obj.hit[2] }}" data-hit-h="{{ obj.hit[3] }}"
            style="--x: {{ obj.x }}px; --y: {{ obj.y }}px; --w: {{ obj.w }}px; --h: {{ obj.h }}px; --z: {{ obj.z }};">
@@ -36,10 +39,12 @@
           {{ player.down }}{{ player.up }}{{ player.side }}
         </div>
       </div>
+
+      <div id="prompt" class="prompt" hidden>Press <kbd>E</kbd> to <span class="prompt-text"></span></div>
     </div>
   </div>
 
-  <p class="hint">Move with arrow keys or WASD</p>
+  <p class="hint">Move with arrow keys or WASD &middot; <kbd>E</kbd> to interact</p>
 </main>
 {% endblock %}
 

@@ -138,3 +138,36 @@
   0% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
+
+/* --- Interacting --- */
+
+/* The object you can interact with gets a soft white glow. */
+.object.near .sprite {
+  filter:
+    drop-shadow(4px 0 0 var(--px-white))
+    drop-shadow(-4px 0 0 var(--px-white))
+    drop-shadow(0 4px 0 var(--px-white))
+    drop-shadow(0 -4px 0 var(--px-white));
+}
+
+/* "Press E to ..." bubble above the player's head. player.js positions it. */
+.prompt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 100000;
+  padding: 4px 10px;
+  background: var(--color-panel);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+  color: var(--px-outline);
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.prompt[hidden] {
+  display: none;
+}
+.prompt kbd {
+  background: var(--px-pink-light);
+}
