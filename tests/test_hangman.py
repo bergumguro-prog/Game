@@ -142,3 +142,42 @@ def test_broken_session_starts_fresh(client):
 
 def test_room_bookshelf_opens_hangman(client):
     assert 'data-url="/games/hangman/"' in client.get("/").data.decode()
+
+
+# --- Drawing (issue #6) ---
+
+from games.hangman import drawing  # noqa: E402
+from room import sprites  # noqa: E402
+
+
+def test_there_is_a_picture_for_every_number_of_wrong_guesses():
+    for wrong in range(logic.MAX_WRONG + 1):
+        rows = sprites.SPRITES[f"hangman-{wrong}"]
+        assert len(rows) == drawing.HEIGHT
+        assert all(len(r) == drawing.WIDTH for r in rows)
+
+
+def test_each_wrong_guess_adds_something_to_the_picture():
+    pictures = [drawing.picture(w) for w in range(logic.MAX_WRONG + 1)]
+    for before, after in zip(pictures, pictures[1:]):
+        assert before != after
+        filled = lambda rows: sum(ch != "." for row in rows for ch in row)  # noqa: E731
+        assert filled(after) > filled(before)
+
+
+def test_gallows_only_at_the_start():
+    start = drawing.picture(0)
+    assert not any("s" in row for row in start), "no person before a wrong guess"
+
+
+def test_page_shows_the_picture_for_the_current_wrong_count(client):
+    assert "sprite-hangman-0" in client.get("/games/hangman/").data.decode()
+    client.post("/games/hangman/guess", data={"letter": "z"})
+    client.post("/games/hangman/guess", data={"letter": "q"})
+    assert "sprite-hangman-2" in client.get("/games/hangman/").data.decode()
+
+
+def test_new_word_resets_the_picture(client):
+    client.post("/games/hangman/guess", data={"letter": "z"})
+    client.post("/games/hangman/new")
+    assert "sprite-hangman-0" in client.get("/games/hangman/").data.decode()
