@@ -19,6 +19,7 @@ from games.chess import ai, logic, pieces
 from room import sprites
 
 SESSION_KEY = "chess"
+SOUND_KEY = "chess_sound"  # sound to play on the next page load
 MODES = ("computer", "friend")
 
 
@@ -74,6 +75,18 @@ def computer_reply(board, state):
         state["moves"].append(move.uci())
 
 
+def move_sound(board, mode):
+    """Sound after a move: "move", or win/lose/draw if the game just ended."""
+    outcome = board.outcome(claim_draw=True)
+    if outcome is None:
+        return "move"
+    if outcome.winner is None:
+        return "draw"
+    if mode == "computer" and outcome.winner == chess.BLACK:
+        return "lose"
+    return "win"
+
+
 def square_views(board, selected, status):
     """Everything the template needs to draw the 64 squares, top-left first."""
     selected_sq = logic.parse_square(selected) if selected else None
@@ -117,6 +130,7 @@ class Chess(MiniGame):
                 status=status,
                 move_count=len(state["moves"]),
                 mode=state["mode"],
+                sound=session.pop(SOUND_KEY, None),
             )
 
         @bp.route("/click", methods=["POST"])
@@ -129,6 +143,7 @@ class Chess(MiniGame):
             if not logic.status(board)["over"]:
                 if handle_click(board, state, square):
                     computer_reply(board, state)
+                    session[SOUND_KEY] = move_sound(board, state["mode"])
             save_state(state)
             return redirect(url_for(".index"))
 
