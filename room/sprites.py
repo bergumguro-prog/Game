@@ -434,6 +434,27 @@ def _herringbone_tile(unit=4):
     return rows
 
 
+def _tictactoe_table():
+    """A low table with a tic-tac-toe grid painted on top."""
+    marks = {(0, 0): "r", (1, 1): "M", (2, 0): "M", (0, 2): "r", (2, 2): "r"}
+    grid = []
+    for gy in range(11):
+        row = ""
+        for gx in range(11):
+            if gx in (3, 7) or gy in (3, 7):
+                row += "P"  # grid lines
+            elif gx % 4 == 1 and gy % 4 == 1:
+                row += marks.get((gx // 4, gy // 4), "c")  # X (rose) / O (mint)
+            else:
+                row += "c"
+        grid.append(row)
+    return (
+        ["o" * 15, "o" + "c" * 13 + "o"]
+        + ["oc" + row + "co" for row in grid]
+        + ["o" + "c" * 13 + "o", "o" + "C" * 13 + "o", "o" * 15, ".oo.........oo."]
+    )
+
+
 WALLPAPER = [
     "444444444444",
     "444544444444",
@@ -468,6 +489,7 @@ SPRITES = {
     "window": WINDOW,
     "wreath": WREATH,
     "wall-shelf": WALL_SHELF,
+    "tictactoe-table": _tictactoe_table(),
     "rug-bed": _rug(36, 24, "M", "m", "l", "p"),
     "rug-tea": _rug(50, 26, "M", "m", "l", "p"),
     "rug-pink": _rug(36, 20, "P", "p", "w", "y"),

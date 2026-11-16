@@ -101,3 +101,49 @@ def test_minigame_requires_slug_and_title():
 
     with pytest.raises(ValueError):
         Nameless()
+
+
+# --- Interacting with objects (issue #2) ---
+
+def test_games_are_discovered_automatically():
+    app = create_app()
+    assert "placeholder" in app.extensions["games"]
+
+
+def test_placeholder_scene_shows_the_game_name():
+    client = create_app().test_client()
+    response = client.get("/games/placeholder/?game=Chess")
+    assert response.status_code == 200
+    assert b"Chess" in response.data
+    assert b"js/scenes.js" in response.data  # Esc goes back to the room
+    assert b'data-scene="game"' in response.data
+
+
+def test_room_is_marked_as_the_room_scene():
+    client = create_app().test_client()
+    assert b'data-scene="room"' in client.get("/").data
+
+
+def test_interactable_objects_link_to_their_game_or_placeholder():
+    app = create_app()
+    client = app.test_client()
+    html = client.get("/").data.decode()
+    for o in objects.OBJECTS:
+        if o.game:
+            assert o.prompt
+            if o.game in app.extensions["games"]:
+                expected = app.extensions["games"][o.game].url
+            else:
+                expected = "/games/placeholder/?game="
+            assert f'data-url="{expected}' in html, o.id
+
+
+def test_every_planned_game_has_an_object_in_the_room():
+    slugs = {o.game for o in objects.OBJECTS if o.game}
+    assert {"tictactoe", "hangman", "chess"} <= slugs
+
+
+def test_interactable_objects_are_solid_furniture():
+    for o in objects.OBJECTS:
+        if o.game:
+            assert o.solid, o.id
