@@ -49,6 +49,43 @@
   // --- Sounds requested by the page itself ---
   document.querySelectorAll("[data-sound]").forEach((el) => play(el.dataset.sound));
 
+  // --- Game moves without reloading the page ---
+  // Every POST form (a move, a guess, "New game") is sent in the background.
+  // The server answers with the full page as usual; we swap in its <main>.
+  // No flicker, and sounds play reliably because the page never reloads.
+  // If anything fails, the form is submitted the normal way instead.
+  let busy = false;
+  document.addEventListener("submit", async (e) => {
+    const form = e.target;
+    if (form.method.toLowerCase() !== "post" || form.dataset.noLive) return;
+    if (new URL(form.action, window.location.href).origin !== window.location.origin) return;
+    e.preventDefault();
+    if (busy) return; // ignore double clicks while a move is on its way
+    busy = true;
+    const submitter = e.submitter;
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form, submitter), // includes the clicked button's value
+      });
+      const page = new DOMParser().parseFromString(await response.text(), "text/html");
+      const newMain = page.querySelector("main");
+      const oldMain = document.querySelector("main");
+      if (!response.ok || !newMain || !oldMain) throw new Error("unexpected response");
+      document.body.classList.remove("scene-enter"); // don't replay the fade-in
+      oldMain.replaceWith(document.adoptNode(newMain));
+      if (response.url && response.url !== window.location.href) {
+        window.history.replaceState(null, "", response.url);
+      }
+      newMain.querySelectorAll("[data-sound]").forEach((el) => play(el.dataset.sound));
+    } catch (err) {
+      form.dataset.noLive = "1";
+      form.requestSubmit(submitter);
+    } finally {
+      busy = false;
+    }
+  });
+
   // --- Links to other scenes fade too ---
   document.addEventListener("click", (e) => {
     const link = e.target.closest("a[href]");
