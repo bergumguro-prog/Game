@@ -7,6 +7,7 @@ that defines `game = SomeMiniGame()` is registered. Adding a game never
 requires changing this file.
 """
 import importlib
+import os
 import pkgutil
 
 from flask import Flask
@@ -28,6 +29,9 @@ def discover_games():
 
 def create_app():
     app = Flask(__name__)
+    # Signs the session cookie where mini-games keep their state.
+    # Set SECRET_KEY in the environment if the game is ever put online.
+    app.secret_key = os.environ.get("SECRET_KEY", "dev-only-not-secret")
     app.register_blueprint(room_bp)
     registry = {}
     for game in discover_games():

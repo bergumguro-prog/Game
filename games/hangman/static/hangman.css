@@ -1,0 +1,103 @@
+/* Hangman. Colors come from static/css/theme.css. */
+
+.hm-panel {
+  max-width: 560px;
+}
+
+.hm-lives strong {
+  color: var(--px-rose);
+}
+
+/* The word: one underlined box per letter. */
+.hm-word {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.hm-letter {
+  width: 32px;
+  height: 44px;
+  border-bottom: 4px solid var(--px-outline);
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  line-height: 44px;
+  text-transform: uppercase;
+}
+.hm-letter-missed {
+  color: var(--px-rose);
+}
+
+.hm-result {
+  font-size: var(--font-size-title);
+  font-weight: 700;
+}
+.hm-result-won {
+  color: var(--px-mint-dark);
+}
+.hm-result-lost {
+  color: var(--px-rose);
+}
+
+/* On-screen keyboard */
+.hm-keyboard {
+  display: grid;
+  grid-template-columns: repeat(9, 40px);
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+}
+.hm-key {
+  height: 40px;
+  padding: 0;
+  background: var(--px-cream);
+  border: 3px solid var(--px-outline);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--px-outline);
+  color: var(--px-outline);
+  font: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.hm-key-open:enabled {
+  cursor: pointer;
+}
+.hm-key-open:enabled:hover {
+  background: var(--px-pink-light);
+}
+.hm-key:active:enabled {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+.hm-key-right {
+  background: var(--px-mint);
+}
+.hm-key-wrong {
+  background: var(--px-pink-dark);
+  opacity: 0.6;
+}
+.hm-key:disabled {
+  box-shadow: none;
+  transform: translateY(3px);
+}
+
+.hm-actions {
+  display: flex;
+  gap: 12px;
+}
+.hm-actions form {
+  margin: 0;
+}
+
+/* The hangman picture (games/hangman/drawing.py) */
+.hm-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 24px 8px;
+  background: var(--px-mint-light);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+}

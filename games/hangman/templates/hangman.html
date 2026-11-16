@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Hangman{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('hangman.static', filename='hangman.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel hm-panel">
+    <h1 class="panel-title">Hangman</h1>
+
+    <figure class="hm-figure">
+      {{ figure }}
+      <figcaption class="hm-lives">Wrong guesses: <strong>{{ wrong }}</strong> / {{ max_wrong }}</figcaption>
+    </figure>
+
+    <p class="hm-word" aria-label="The word"{% if sound %} data-sound="{{ sound }}"{% endif %}>
+      {% for letter in letters %}
+      <span class="hm-letter{% if letter and letter in missed %} hm-letter-missed{% endif %}">{{ letter or "" }}</span>
+      {% endfor %}
+    </p>
+
+    {% if won %}
+    <p class="hm-result hm-result-won">You got it!</p>
+    {% elif lost %}
+    <p class="hm-result hm-result-lost">Out of guesses!</p>
+    {% endif %}
+
+    <form id="hm-keyboard" class="hm-keyboard" method="post" action="{{ url_for('hangman.guess') }}">
+      {% for key in keys %}
+      <button class="hm-key hm-key-{{ key.state }}" type="submit" name="letter" value="{{ key.letter }}"
+              {% if key.state != "open" or over %}disabled{% endif %}>{{ key.letter }}</button>
+      {% endfor %}
+    </form>
+
+    <div class="hm-actions">
+      <form method="post" action="{{ url_for('hangman.new_game') }}">
+        <button class="button{% if not over %} button-mint{% endif %}" type="submit">New word</button>
+      </form>
+      <a class="button button-mint" href="/">Back to the room</a>
+    </div>
+  </section>
+  <p class="hint">Click or type letters &middot; <kbd>Esc</kbd> to return to the room</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('hangman.static', filename='hangman.js') }}"></script>
+{% endblock %}
