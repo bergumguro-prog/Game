@@ -49,18 +49,28 @@ def color_name(color):
     return "White" if color == chess.WHITE else "Black"
 
 
-def status(board):
-    """What to show above the board: {"text", "over", "check_square"}."""
+def status(board, mode="friend"):
+    """What to show above the board: {"text", "over", "check_square"}.
+
+    In "computer" mode the texts talk about "you" (white) and "the computer".
+    """
     outcome = board.outcome(claim_draw=True)
     check_square = board.king(board.turn) if board.is_check() else None
     if outcome is None:
-        text = f"{color_name(board.turn)} to move"
+        if mode == "computer":
+            text = "Your move" if board.turn == chess.WHITE else "The computer is thinking..."
+        else:
+            text = f"{color_name(board.turn)} to move"
         if board.is_check():
             text = f"Check! {text}"
         return {"text": text, "over": False, "check_square": check_square}
 
     if outcome.termination == chess.Termination.CHECKMATE:
-        text = f"Checkmate! {color_name(outcome.winner)} wins"
+        if mode == "computer":
+            text = "Checkmate! You win" if outcome.winner == chess.WHITE \
+                else "Checkmate! The computer wins"
+        else:
+            text = f"Checkmate! {color_name(outcome.winner)} wins"
     elif outcome.termination == chess.Termination.STALEMATE:
         text = "Stalemate! It's a draw"
     elif outcome.termination == chess.Termination.INSUFFICIENT_MATERIAL:

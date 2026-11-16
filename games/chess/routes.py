@@ -6,16 +6,20 @@ The game state lives in the Flask session as the list of moves played.
 
     GET  /games/chess/        show the board
     POST /games/chess/click   click a square (form field "square", e.g. "e2")
-    POST /games/chess/new     start a new game
+    POST /games/chess/new     start a new game (form field "mode")
+
+Two modes: "computer" (you play white, games/chess/ai.py plays black) and
+"friend" (two people share the board).
 """
 import chess
 from flask import redirect, render_template, request, session, url_for
 
 from core.game_base import MiniGame
-from games.chess import logic, pieces
+from games.chess import ai, logic, pieces
 from room import sprites
 
 SESSION_KEY = "chess"
+MODES = ("computer", "friend")
 
 
 def load_state():
@@ -31,7 +35,8 @@ def load_state():
     selected = state.get("selected")
     if not isinstance(selected, str) or selected not in chess.SQUARE_NAMES:
         selected = None
-    return board, {"moves": moves, "selected": selected}
+    mode = state.get("mode") if state.get("mode") in MODES else "computer"
+    return board, {"moves": moves, "selected": selected, "mode": mode}
 
 
 def save_state(state):
@@ -39,18 +44,34 @@ def save_state(state):
 
 
 def handle_click(board, state, square):
-    """Select a piece, move the selected piece, or clear the selection."""
+    """Select a piece, move the selected piece, or clear the selection.
+
+    Returns True if a move was played.
+    """
     if state["selected"]:
         move = logic.find_move(board, logic.parse_square(state["selected"]), square)
         if move:
             board.push(move)
             state["moves"].append(move.uci())
             state["selected"] = None
-            return
+            return True
+    if state["mode"] == "computer" and board.turn == chess.BLACK:
+        state["selected"] = None  # black's pieces belong to the computer
+        return False
     if logic.is_own_piece(board, square) and chess.square_name(square) != state["selected"]:
         state["selected"] = chess.square_name(square)
     else:
         state["selected"] = None
+    return False
+
+
+def computer_reply(board, state):
+    """In computer mode, let the AI play black's move."""
+    if state["mode"] == "computer" and board.turn == chess.BLACK \
+            and not logic.status(board)["over"]:
+        move = ai.choose_move(board)
+        board.push(move)
+        state["moves"].append(move.uci())
 
 
 def square_views(board, selected, status):
@@ -88,13 +109,14 @@ class Chess(MiniGame):
         @bp.route("/")
         def index():
             board, state = load_state()
-            status = logic.status(board)
+            status = logic.status(board, state["mode"])
             return render_template(
                 "chess.html",
                 game=self,
                 squares=square_views(board, state["selected"], status),
                 status=status,
                 move_count=len(state["moves"]),
+                mode=state["mode"],
             )
 
         @bp.route("/click", methods=["POST"])
@@ -105,13 +127,20 @@ class Chess(MiniGame):
             except ValueError:
                 return redirect(url_for(".index"))
             if not logic.status(board)["over"]:
-                handle_click(board, state, square)
+                if handle_click(board, state, square):
+                    computer_reply(board, state)
             save_state(state)
             return redirect(url_for(".index"))
 
         @bp.route("/new", methods=["POST"])
         def new_game():
-            save_state({"moves": [], "selected": None})
+            _, state = load_state()
+            mode = request.form.get("mode", state["mode"])
+            save_state({
+                "moves": [],
+                "selected": None,
+                "mode": mode if mode in MODES else state["mode"],
+            })
             return redirect(url_for(".index"))
 
 

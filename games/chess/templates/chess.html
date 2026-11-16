@@ -10,6 +10,13 @@
 <main class="scene">
   <section class="panel chess-panel">
     <h1 class="panel-title">Chess</h1>
+
+    <form class="chess-modes" method="post" action="{{ url_for('chess.new_game') }}">
+      <button class="chess-mode{% if mode == 'computer' %} chess-mode-active{% endif %}"
+              type="submit" name="mode" value="computer">vs Computer</button>
+      <button class="chess-mode{% if mode == 'friend' %} chess-mode-active{% endif %}"
+              type="submit" name="mode" value="friend">vs Friend</button>
+    </form>
     <p class="chess-status{% if status.over %} chess-status-over{% endif %}">{{ status.text }}</p>
 
     <form class="chess-board" method="post" action="{{ url_for('chess.click') }}">
