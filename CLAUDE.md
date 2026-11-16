@@ -4,7 +4,10 @@ A game where the player walks around a room and interacts with objects that open
 mini-games (chess, hangman, tic-tac-toe, more later).
 
 ## Tech stack
-- Python (Flask) backend, HTML/CSS frontend, minimal JavaScript (movement/input only).
+- Python (Flask) backend, HTML/CSS frontend.
+- Game rules and state live in Python. JavaScript is fine wherever it makes the
+  game work or feel better (movement, input, sending moves without reloading,
+  sounds). Everything working well matters more than keeping JavaScript minimal.
 - python-chess for chess rules.
 - All styling lives in CSS files. Colors and fonts are CSS variables in one
   theme file so the whole look can be changed in one place.
