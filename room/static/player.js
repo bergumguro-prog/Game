@@ -1,23 +1,26 @@
 // Player movement and collisions in the room.
-// The room size, player settings and furniture all come from the HTML
-// (which gets them from room/objects.py), so nothing is hardcoded here.
+// Everything (room size, hitboxes, speed) comes from the HTML, which gets it
+// from room/objects.py, so nothing is hardcoded here. All values are in
+// screen pixels.
 (() => {
   const room = document.getElementById("room");
   const player = document.getElementById("player");
+  const num = (el, key) => Number(el.dataset[key]);
 
-  const roomW = Number(room.dataset.width);
-  const roomH = Number(room.dataset.height);
-  const size = Number(player.dataset.size);
-  const speed = Number(player.dataset.speed);
-  let x = Number(player.dataset.x);
-  let y = Number(player.dataset.y);
+  const roomW = num(room, "width");
+  const roomH = num(room, "height");
+  const floorTop = num(room, "floorTop");
+
+  const speed = num(player, "speed");
+  const spriteH = num(player, "h");
+  // The player's hitbox is only the feet, offset inside the sprite.
+  const hit = { x: num(player, "hitX"), y: num(player, "hitY"), w: num(player, "hitW"), h: num(player, "hitH") };
+  let x = num(player, "x");
+  let y = num(player, "y");
 
   // Rectangles the player can't walk through.
   const solids = [...room.querySelectorAll(".object.solid")].map((el) => ({
-    x: Number(el.dataset.x),
-    y: Number(el.dataset.y),
-    w: Number(el.dataset.w),
-    h: Number(el.dataset.h),
+    x: num(el, "hitX"), y: num(el, "hitY"), w: num(el, "hitW"), h: num(el, "hitH"),
   }));
 
   const KEY_TO_DIRECTION = {
@@ -40,11 +43,13 @@
   // Releasing a key while the window is unfocused would leave it "stuck".
   window.addEventListener("blur", () => held.clear());
 
-  // Would the player overlap a wall or solid object at (px, py)?
+  // Would the player's feet overlap a wall or solid object at (px, py)?
   function blocked(px, py) {
-    if (px < 0 || py < 0 || px + size > roomW || py + size > roomH) return true;
+    const fx = px + hit.x;
+    const fy = py + hit.y;
+    if (fx < 0 || fy < floorTop || fx + hit.w > roomW || fy + hit.h > roomH) return true;
     return solids.some(
-      (o) => px < o.x + o.w && px + size > o.x && py < o.y + o.h && py + size > o.y
+      (o) => fx < o.x + o.w && fx + hit.w > o.x && fy < o.y + o.h && fy + hit.h > o.y
     );
   }
 
@@ -66,6 +71,8 @@
 
   function draw() {
     player.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+    // Things lower in the room are drawn in front (same rule as objects.py).
+    player.style.zIndex = 1000 + Math.round(y + spriteH);
   }
 
   let last = performance.now();
@@ -75,6 +82,7 @@
 
     let dx = (held.has("right") ? 1 : 0) - (held.has("left") ? 1 : 0);
     let dy = (held.has("down") ? 1 : 0) - (held.has("up") ? 1 : 0);
+    player.dataset.moving = dx || dy ? "true" : "false";
 
     if (dx || dy) {
       // Same speed diagonally as straight.

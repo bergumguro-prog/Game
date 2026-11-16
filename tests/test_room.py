@@ -1,9 +1,10 @@
-"""Tests for the room: the page loads and the layout in objects.py makes sense."""
+"""Tests for the room: the page loads, the sprites are valid and the layout
+in objects.py makes sense."""
 import pytest
 
 from app import create_app
 from core.game_base import MiniGame
-from room import objects
+from room import objects, sprites
 
 
 def overlaps(a, b):
@@ -12,8 +13,9 @@ def overlaps(a, b):
     return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
 
 
-def rect(obj):
-    return (obj.x, obj.y, obj.width, obj.height)
+def player_feet(x, y):
+    dx, dy, w, h = objects.PLAYER_HITBOX
+    return (x + dx, y + dy, w, h)
 
 
 def test_room_page_loads():
@@ -25,11 +27,33 @@ def test_room_page_loads():
         assert f"object-{obj.id}".encode() in response.data
 
 
-def test_room_static_files_are_served():
+def test_static_files_are_served():
     client = create_app().test_client()
-    assert client.get("/room/static/player.js").status_code == 200
-    assert client.get("/room/static/room.css").status_code == 200
-    assert client.get("/static/css/theme.css").status_code == 200
+    for url in [
+        "/room/static/player.js",
+        "/room/static/room.css",
+        "/static/css/theme.css",
+        "/static/css/pixels.css",
+        "/static/fonts/PixelifySans.ttf",
+    ]:
+        assert client.get(url).status_code == 200, url
+
+
+@pytest.mark.parametrize("name", sorted(sprites.SPRITES))
+def test_sprite_rows_have_equal_width_and_known_colors(name):
+    rows = sprites.SPRITES[name]
+    assert all(len(row) == len(rows[0]) for row in rows)
+    for row in rows:
+        for ch in row:
+            assert ch == "." or ch in sprites.PALETTE, f"unknown letter {ch!r}"
+
+
+def test_every_palette_color_has_a_css_class_and_variable():
+    css = open("static/css/pixels.css").read()
+    theme = open("static/css/theme.css").read()
+    for color in sprites.PALETTE.values():
+        assert f".px-{color} " in css
+        assert f"--px-{color}:" in theme
 
 
 def test_object_ids_are_unique():
@@ -37,22 +61,37 @@ def test_object_ids_are_unique():
     assert len(ids) == len(set(ids))
 
 
+def test_objects_use_known_sprites_and_layers():
+    by_id = {o.id: o for o in objects.OBJECTS}
+    for o in objects.OBJECTS:
+        assert o.sprite in sprites.SPRITES
+        assert o.layer in objects.LAYERS
+        if o.layer == "on-top":
+            assert by_id[o.on].layer == "furniture"
+
+
 def test_objects_are_inside_the_room():
     for o in objects.OBJECTS:
-        assert o.x >= 0 and o.y >= 0
-        assert o.x + o.width <= objects.ROOM_WIDTH
-        assert o.y + o.height <= objects.ROOM_HEIGHT
+        w, h = o.size
+        assert o.x >= 0 and o.y >= 0, o.id
+        assert o.x + w <= objects.ROOM_WIDTH, o.id
+        assert o.y + h <= objects.ROOM_HEIGHT, o.id
 
 
-def test_player_starts_in_a_free_spot():
-    px, py = objects.PLAYER_START
-    player = (px, py, objects.PLAYER_SIZE, objects.PLAYER_SIZE)
-    assert px >= 0 and py >= 0
-    assert px + objects.PLAYER_SIZE <= objects.ROOM_WIDTH
-    assert py + objects.PLAYER_SIZE <= objects.ROOM_HEIGHT
+def test_player_starts_in_a_free_spot_on_the_floor():
+    feet = player_feet(*objects.PLAYER_START)
+    assert feet[1] >= objects.WALL_HEIGHT
+    assert feet[0] + feet[2] <= objects.ROOM_WIDTH
+    assert feet[1] + feet[3] <= objects.ROOM_HEIGHT
     for o in objects.OBJECTS:
         if o.solid:
-            assert not overlaps(player, rect(o)), f"player starts inside {o.id}"
+            assert not overlaps(feet, o.hitbox_rect), f"player starts inside {o.id}"
+
+
+def test_lower_furniture_is_drawn_in_front():
+    by_id = {o.id: o for o in objects.OBJECTS}
+    assert objects.z_index(by_id["bookshelf-left"], by_id) > objects.z_index(by_id["bed"], by_id)
+    assert objects.z_index(by_id["cake"], by_id) > objects.z_index(by_id["tea-table"], by_id)
 
 
 def test_minigame_requires_slug_and_title():

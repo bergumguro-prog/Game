@@ -1,37 +1,127 @@
-"""The room layout: its size, where the player starts, and all furniture.
+"""The room layout: its size, the player, and every object in the room.
 
-All positions and sizes are in pixels, measured from the top-left corner of
-the floor. To move or add furniture, edit OBJECTS below - the page and the
-collision code both read from here.
+All positions and sizes here are in ART PIXELS. One art pixel is drawn as a
+SCALE x SCALE block on screen (see room/sprites.py). (0, 0) is the top-left
+corner of the room, including the back wall.
+
+To move or add things, edit OBJECTS below. The page and the collision code
+both read from here.
 """
 from dataclasses import dataclass
 
-ROOM_WIDTH = 640
-ROOM_HEIGHT = 448
+from room import sprites
 
-PLAYER_SIZE = 28         # the player is a square hitbox of this size
-PLAYER_SPEED = 180       # pixels per second
-PLAYER_START = (306, 300)  # (x, y) of the player's top-left corner
+ROOM_WIDTH = 176
+ROOM_HEIGHT = 128
+WALL_HEIGHT = 26  # the back wall along the top; the floor starts below it
+
+PLAYER_SPEED = 48           # art pixels per second
+PLAYER_START = (82, 66)     # top-left corner of the player sprite
+# Only the player's feet collide, so the head can overlap things behind them.
+PLAYER_HITBOX = (2, 11, 8, 5)  # (x offset, y offset, width, height)
+
+# Layers decide how things are drawn and whether they block the player:
+#   "wall"      - hangs on the back wall, never blocks
+#   "floor"     - lies flat on the floor (rugs), never blocks
+#   "furniture" - stands on the floor and blocks the player
+#   "on-top"    - sits on a piece of furniture (set `on`), never blocks
+LAYERS = ("wall", "floor", "furniture", "on-top")
 
 
 @dataclass(frozen=True)
 class RoomObject:
-    id: str          # unique name, also used as a CSS class (.object-<id>)
-    label: str       # text shown on the object
+    id: str                 # unique name
+    sprite: str             # a key in sprites.SPRITES
     x: int
     y: int
-    width: int
-    height: int
-    solid: bool = True  # solid objects block the player; rugs etc. don't
+    layer: str = "furniture"
+    hitbox: tuple = None    # (dx, dy, w, h) inside the sprite; None = all of it
+    on: str = None          # for "on-top": the id of the furniture it sits on
+
+    @property
+    def size(self):
+        return sprites.size(self.sprite)
+
+    @property
+    def solid(self):
+        return self.layer == "furniture"
+
+    @property
+    def hitbox_rect(self):
+        """The blocking rectangle in room coordinates: (x, y, w, h)."""
+        w, h = self.size
+        dx, dy, hw, hh = self.hitbox or (0, 0, w, h)
+        return (self.x + dx, self.y + dy, hw, hh)
 
 
 OBJECTS = [
-    RoomObject("bed",       "Bed",       x=24,  y=24,  width=110, height=160),
-    RoomObject("nightstand", "",         x=142, y=24,  width=44,  height=44),
-    RoomObject("bookshelf", "Bookshelf", x=250, y=0,   width=150, height=48),
-    RoomObject("desk",      "Desk",      x=480, y=24,  width=136, height=72),
-    RoomObject("chair",     "",          x=530, y=104, width=36,  height=36),
-    RoomObject("table",     "Table",     x=420, y=250, width=120, height=80),
-    RoomObject("plant",     "",          x=24,  y=384, width=40,  height=40),
-    RoomObject("rug",       "",          x=220, y=200, width=200, height=140, solid=False),
+    # --- On the back wall ---
+    RoomObject("wreath", "wreath", 18, 3, layer="wall"),
+    RoomObject("window-left", "window", 56, 6, layer="wall"),
+    RoomObject("window-right", "window", 78, 6, layer="wall"),
+    RoomObject("wall-shelf", "wall-shelf", 102, 13, layer="wall"),
+    RoomObject("shelf-plant", "plant-small", 106, 6, layer="wall"),
+    RoomObject("shelf-flowers", "flower-pot", 116, 4, layer="wall"),
+
+    # --- Rugs ---
+    RoomObject("rug-bed", "rug-bed", 6, 36, layer="floor"),
+    RoomObject("doily-top", "doily", 70, 30, layer="floor"),
+    RoomObject("rug-tea", "rug-tea", 114, 40, layer="floor"),
+    RoomObject("rug-books", "round-rug-small", 22, 74, layer="floor"),
+    RoomObject("rug-pink", "rug-pink", 6, 98, layer="floor"),
+    RoomObject("doily-door", "doily", 76, 102, layer="floor"),
+    RoomObject("rug-round", "round-rug", 130, 104, layer="floor"),
+
+    # --- Bedroom corner ---
+    RoomObject("bed", "bed", 12, 16),
+    RoomObject("nightstand", "nightstand", 40, 20),
+    RoomObject("nightstand-flowers", "flower-pot", 42, 13, layer="on-top", on="nightstand"),
+
+    # --- Poufs ---
+    RoomObject("pouf-top-pink", "pouf-pink", 72, 36),
+    RoomObject("pouf-top-mint", "pouf-mint", 84, 42),
+    RoomObject("pouf-books", "pouf-mint", 24, 76),
+    RoomObject("pouf-corner-pink", "pouf-pink", 12, 104),
+    RoomObject("pouf-corner-mint", "pouf-mint", 28, 110),
+    RoomObject("pouf-round", "pouf-pink", 137, 109),
+
+    # --- Fireplace corner ---
+    RoomObject("fireplace", "fireplace", 134, 14),
+    RoomObject("mantel-plant", "plant-small", 138, 7, layer="on-top", on="fireplace"),
+    RoomObject("mantel-flowers", "flower-pot", 150, 5, layer="on-top", on="fireplace"),
+    RoomObject("plant-fireplace", "plant-big", 163, 18, hitbox=(1, 6, 8, 8)),
+
+    # --- Tea table ---
+    RoomObject("bench-left", "bench", 119, 43),
+    RoomObject("tea-table", "tea-table", 128, 44),
+    RoomObject("bench-right", "bench", 152, 43),
+    RoomObject("cake", "cake", 135, 46, layer="on-top", on="tea-table"),
+    RoomObject("teacup", "teacup", 145, 51, layer="on-top", on="tea-table"),
+
+    # --- Reading corner ---
+    RoomObject("bookshelf-left", "bookshelf", 6, 62),
+    RoomObject("bookshelf-right", "bookshelf", 38, 62),
+    RoomObject("plant-books", "plant-big", 56, 100, hitbox=(1, 6, 8, 8)),
+
+    # --- Bottom right ---
+    RoomObject("plant-right-a", "plant-big", 124, 76, hitbox=(1, 6, 8, 8)),
+    RoomObject("flower-stand", "nightstand", 138, 78),
+    RoomObject("flower-stand-pot", "flower-pot", 140, 71, layer="on-top", on="flower-stand"),
+    RoomObject("plant-right-b", "plant-big", 156, 76, hitbox=(1, 6, 8, 8)),
+
+    # --- By the door ---
+    RoomObject("door-pot-left", "flower-pot", 66, 116),
+    RoomObject("door-pot-right", "flower-pot", 102, 116),
 ]
+
+
+def z_index(obj, by_id):
+    """Drawing order: things lower in the room are drawn in front."""
+    if obj.layer == "wall":
+        return 2
+    if obj.layer == "floor":
+        return 1
+    if obj.layer == "on-top":
+        return z_index(by_id[obj.on], by_id) + 1
+    _, h = obj.size
+    return 1000 + (obj.y + h) * sprites.SCALE
