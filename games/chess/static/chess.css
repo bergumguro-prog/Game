@@ -1,0 +1,108 @@
+/* Chess board: pink and cream squares. Colors come from theme.css. */
+
+.chess-panel {
+  gap: 12px;
+  padding: 20px 28px;
+}
+
+.chess-status {
+  font-weight: 700;
+}
+.chess-status-over {
+  color: var(--px-rose);
+  font-size: var(--font-size-title);
+}
+
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 52px);
+  grid-template-rows: repeat(8, 52px);
+  margin: 0;
+  border: 4px solid var(--px-outline);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.chess-square {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+.chess-square:disabled {
+  cursor: default;
+}
+.chess-light { background: var(--px-cream); }
+.chess-dark { background: var(--px-pink); }
+
+.chess-square:enabled:hover {
+  box-shadow: inset 0 0 0 4px var(--px-white);
+}
+
+/* The pieces are 16x16 pixel art; draw them at 3x. */
+.chess-square .sprite {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Last move played */
+.chess-last.chess-light { background: var(--px-mint-light); }
+.chess-last.chess-dark { background: var(--px-mint); }
+
+/* Selected piece */
+.chess-selected.chess-light,
+.chess-selected.chess-dark {
+  background: var(--px-yellow);
+}
+
+/* Where the selected piece can go: a dot, or a ring around a capture. */
+.chess-target::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--px-mint-dark);
+  border: 3px solid var(--px-outline);
+  border-radius: 50%;
+  z-index: 2;
+  opacity: 0.85;
+}
+.chess-capture::after {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 4px solid var(--px-rose);
+  z-index: 0;
+}
+
+/* King in check */
+.chess-check.chess-light,
+.chess-check.chess-dark {
+  background: var(--px-rose);
+}
+
+/* a-h and 1-8 in the corners */
+.chess-coord {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--px-outline);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.chess-rank { top: 2px; left: 3px; }
+.chess-file { bottom: 1px; right: 3px; }
+
+.chess-actions {
+  display: flex;
+  gap: 12px;
+}
+.chess-actions form {
+  margin: 0;
+}

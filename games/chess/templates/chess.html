@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Chess{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('chess.static', filename='chess.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel chess-panel">
+    <h1 class="panel-title">Chess</h1>
+    <p class="chess-status{% if status.over %} chess-status-over{% endif %}">{{ status.text }}</p>
+
+    <form class="chess-board" method="post" action="{{ url_for('chess.click') }}">
+      {% for sq in squares %}
+      <button type="submit" name="square" value="{{ sq.name }}"
+              class="chess-square {{ 'chess-light' if sq.light else 'chess-dark' }}
+                     {%- if sq.selected %} chess-selected{% endif %}
+                     {%- if sq.target %} chess-target{% endif %}
+                     {%- if sq.capture %} chess-capture{% endif %}
+                     {%- if sq.last %} chess-last{% endif %}
+                     {%- if sq.check %} chess-check{% endif %}"
+              aria-label="{{ sq.name }}{% if sq.piece %}: {{ 'white' if sq.piece.color else 'black' }} {{ sq.label }}{% endif %}"
+              {% if status.over %}disabled{% endif %}>
+        {{ sq.svg }}
+        {% if sq.rank_label %}<span class="chess-coord chess-rank">{{ sq.rank_label }}</span>{% endif %}
+        {% if sq.file_label %}<span class="chess-coord chess-file">{{ sq.file_label }}</span>{% endif %}
+      </button>
+      {% endfor %}
+    </form>
+
+    <div class="chess-actions">
+      <form method="post" action="{{ url_for('chess.new_game') }}">
+        <button class="button{% if not status.over %} button-mint{% endif %}" type="submit">New game</button>
+      </form>
+      <a class="button button-mint" href="/">Back to the room</a>
+    </div>
+  </section>
+  <p class="hint">Click a piece, then a dot to move &middot; <kbd>Esc</kbd> to return to the room</p>
+</main>
+{% endblock %}
