@@ -38,7 +38,8 @@ See [SETUP.md](SETUP.md) for details, tests and the project structure.
 - **Python + Flask** serve the room and the mini-games.
 - **HTML + CSS** for everything you see. All colors and fonts are variables
   in `static/css/theme.css`.
-- **A little JavaScript**, only for movement and input.
+- **JavaScript** for walking around, keyboard input, sounds and sending moves
+  without reloading the page. The game rules themselves are in Python.
 - **python-chess** handles the chess rules.
 - **Pixel art** is drawn in code: each sprite is a grid of letters in
   `room/sprites.py`, rendered as SVG.
