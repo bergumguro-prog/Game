@@ -20,6 +20,10 @@ PLAYER_START = (82, 66)     # top-left corner of the player sprite
 # Only the player's feet collide, so the head can overlap things behind them.
 PLAYER_HITBOX = (2, 11, 8, 5)  # (x offset, y offset, width, height)
 
+# How close (in art pixels) the player's feet must be to an object's hitbox
+# to interact with it.
+INTERACT_REACH = 5
+
 # Layers decide how things are drawn and whether they block the player:
 #   "wall"      - hangs on the back wall, never blocks
 #   "floor"     - lies flat on the floor (rugs), never blocks
@@ -37,6 +41,8 @@ class RoomObject:
     layer: str = "furniture"
     hitbox: tuple = None    # (dx, dy, w, h) inside the sprite; None = all of it
     on: str = None          # for "on-top": the id of the furniture it sits on
+    game: str = None        # slug of the mini-game this object opens (press E)
+    prompt: str = None      # text shown when near, e.g. "play chess"
 
     @property
     def size(self):
@@ -77,9 +83,13 @@ OBJECTS = [
     RoomObject("nightstand", "nightstand", 40, 20),
     RoomObject("nightstand-flowers", "flower-pot", 42, 13, layer="on-top", on="nightstand"),
 
+    # --- Game corner ---
+    RoomObject("tictactoe-table", "tictactoe-table", 75, 33,
+               game="tictactoe", prompt="play tic-tac-toe"),
+    RoomObject("pouf-top-pink", "pouf-pink", 62, 40),
+    RoomObject("pouf-top-mint", "pouf-mint", 93, 40),
+
     # --- Poufs ---
-    RoomObject("pouf-top-pink", "pouf-pink", 72, 36),
-    RoomObject("pouf-top-mint", "pouf-mint", 84, 42),
     RoomObject("pouf-books", "pouf-mint", 24, 76),
     RoomObject("pouf-corner-pink", "pouf-pink", 12, 104),
     RoomObject("pouf-corner-mint", "pouf-mint", 28, 110),
@@ -93,13 +103,15 @@ OBJECTS = [
 
     # --- Tea table ---
     RoomObject("bench-left", "bench", 119, 43),
-    RoomObject("tea-table", "tea-table", 128, 44),
+    RoomObject("tea-table", "tea-table", 128, 44,
+               game="chess", prompt="play chess"),
     RoomObject("bench-right", "bench", 152, 43),
     RoomObject("cake", "cake", 135, 46, layer="on-top", on="tea-table"),
     RoomObject("teacup", "teacup", 145, 51, layer="on-top", on="tea-table"),
 
     # --- Reading corner ---
-    RoomObject("bookshelf-left", "bookshelf", 6, 62),
+    RoomObject("bookshelf-left", "bookshelf", 6, 62,
+               game="hangman", prompt="play hangman"),
     RoomObject("bookshelf-right", "bookshelf", 38, 62),
     RoomObject("plant-books", "plant-big", 56, 100, hitbox=(1, 6, 8, 8)),
 
