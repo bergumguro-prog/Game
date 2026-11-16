@@ -1,4 +1,6 @@
 """Tests for tic-tac-toe: the rules in logic.py and the web routes."""
+import random
+
 import pytest
 
 from app import create_app
@@ -67,6 +69,15 @@ def test_board_validation():
 
 @pytest.fixture
 def client():
+    """A browser playing in two-player ("friend") mode."""
+    c = create_app().test_client()
+    c.post("/games/tictactoe/new", data={"mode": "friend"})
+    return c
+
+
+@pytest.fixture
+def computer_client():
+    """A browser playing against the computer (the default mode)."""
     return create_app().test_client()
 
 
@@ -123,3 +134,87 @@ def test_broken_session_starts_fresh(client):
 def test_room_object_now_opens_the_real_game(client):
     html = client.get("/").data.decode()
     assert 'data-url="/games/tictactoe/"' in html
+
+
+# --- Computer opponent (issue #4) ---
+
+def test_computer_takes_a_winning_move():
+    # O to move, O has 0 and 1 -> should take 2
+    board = "OO.XX...X"
+    assert logic.current_player(board) == "O"
+    assert logic.computer_move(board) == 2
+
+
+def test_computer_blocks_the_players_win():
+    # X threatens the top row; O must block at 2
+    board = "XX..O...."
+    assert logic.computer_move(board) == 2
+
+
+def test_computer_prefers_winning_over_blocking():
+    # X threatens the top row (2), but O can win the middle row at 5
+    board = "XX.OO.X.."
+    assert logic.computer_move(board) == 5
+
+
+def test_computer_takes_center_then_corner():
+    assert logic.computer_move("X........") == 4
+    assert logic.computer_move("....X....", rng=random.Random(1)) in logic.CORNERS
+
+
+def test_computer_never_misses_a_win_or_a_block():
+    rng = random.Random(42)
+    for _ in range(300):
+        board = logic.EMPTY_BOARD
+        while not logic.is_over(board):
+            if logic.current_player(board) == "X":
+                board = logic.play(board, rng.choice(logic.legal_moves(board)))
+                continue
+            move = logic.computer_move(board, rng)
+            after = logic.play(board, move)
+            can_win = any(logic.winner(logic.play(board, m)) == "O"
+                          for m in logic.legal_moves(board))
+            if can_win:
+                assert logic.winner(after) == "O", board
+            elif not logic.is_over(after):
+                # X must not be able to win on the very next move...
+                threats = [m for m in logic.legal_moves(board)
+                           if logic.winner(board[:m] + "X" + board[m + 1:]) == "X"]
+                # ...unless X had two threats at once (a fork), which can't all be blocked.
+                if len(threats) == 1:
+                    assert move == threats[0], board
+            board = after
+
+
+def test_computer_always_returns_a_legal_move():
+    rng = random.Random(7)
+    for _ in range(200):
+        board = logic.EMPTY_BOARD
+        while not logic.is_over(board):
+            move = logic.computer_move(board, rng)
+            assert move in logic.legal_moves(board)
+            board = logic.play(board, move)
+
+
+def test_computer_answers_after_your_move(computer_client):
+    computer_client.post("/games/tictactoe/move", data={"cell": "0"})
+    with computer_client.session_transaction() as s:
+        board = s["tictactoe"]["board"]
+    assert board[0] == "X"
+    assert board.count("O") == 1
+    assert board[4] == "O"  # it takes the center
+
+
+def test_computer_mode_is_default_and_labels_change(computer_client):
+    html = computer_client.get("/games/tictactoe/").data.decode()
+    assert "Your turn" in html
+    assert "Computer" in html
+
+
+def test_switching_mode_resets_score(client):
+    for cell in [0, 3, 1, 4, 2]:
+        client.post("/games/tictactoe/move", data={"cell": str(cell)})
+    client.post("/games/tictactoe/new", data={"mode": "computer"})
+    with client.session_transaction() as s:
+        assert s["tictactoe"]["mode"] == "computer"
+        assert s["tictactoe"]["score"] == {"X": 0, "O": 0, "draw": 0}

@@ -5,7 +5,10 @@ game works with plain HTML forms and no JavaScript:
 
     GET  /games/tictactoe/       show the board
     POST /games/tictactoe/move   take a square (form field "cell")
-    POST /games/tictactoe/new    start a new game
+    POST /games/tictactoe/new    start a new game (form field "mode")
+
+Two modes: "computer" (you are X, the computer is O) and "friend"
+(two people take turns on the same computer).
 """
 from flask import redirect, render_template, request, session, url_for
 
@@ -14,6 +17,7 @@ from games.tictactoe import logic, pieces  # noqa: F401  (pieces registers the X
 from room import sprites
 
 SESSION_KEY = "tictactoe"
+MODES = ("computer", "friend")
 
 
 def load_state():
@@ -22,8 +26,10 @@ def load_state():
     if not logic.is_valid_board(board):
         board = logic.EMPTY_BOARD
     score = state.get("score") or {}
+    mode = state.get("mode") if state.get("mode") in MODES else "computer"
     return {
         "board": board,
+        "mode": mode,
         "score": {k: int(score.get(k, 0)) for k in (logic.X, logic.O, "draw")},
     }
 
@@ -41,13 +47,23 @@ def record_result(state):
         state["score"]["draw"] += 1
 
 
-def status_text(board):
+def status_text(board, mode):
     win = logic.winner(board)
-    if win:
-        return f"{win} wins!"
     if logic.is_draw(board):
         return "It's a draw!"
+    if mode == "computer":
+        if win:
+            return "You win!" if win == logic.X else "The computer wins!"
+        return "Your turn"
+    if win:
+        return f"{win} wins!"
     return f"{logic.current_player(board)}'s turn"
+
+
+def score_labels(mode):
+    if mode == "computer":
+        return {logic.X: "You", logic.O: "Computer"}
+    return {logic.X: "X", logic.O: "O"}
 
 
 class TicTacToe(MiniGame):
@@ -74,9 +90,11 @@ class TicTacToe(MiniGame):
                 "tictactoe.html",
                 game=self,
                 cells=cells,
-                status=status_text(board),
+                status=status_text(board, state["mode"]),
                 over=logic.is_over(board),
                 score=state["score"],
+                labels=score_labels(state["mode"]),
+                mode=state["mode"],
                 x_svg=sprites.render("tictactoe-x"),
                 o_svg=sprites.render("tictactoe-o"),
             )
@@ -90,6 +108,11 @@ class TicTacToe(MiniGame):
             except ValueError:
                 pass  # ignore illegal or garbled moves
             else:
+                # The computer answers right away (it always plays O).
+                board = state["board"]
+                if state["mode"] == "computer" and logic.current_player(board) == logic.O \
+                        and not logic.is_over(board):
+                    state["board"] = logic.play(board, logic.computer_move(board))
                 if logic.is_over(state["board"]):
                     record_result(state)
             save_state(state)
@@ -98,6 +121,13 @@ class TicTacToe(MiniGame):
         @bp.route("/new", methods=["POST"])
         def new_game():
             state = load_state()
+            mode = request.form.get("mode", state["mode"])
+            if mode not in MODES:
+                mode = state["mode"]
+            if mode != state["mode"]:
+                # switching opponent starts the score over
+                state["score"] = {logic.X: 0, logic.O: 0, "draw": 0}
+            state["mode"] = mode
             state["board"] = logic.EMPTY_BOARD
             save_state(state)
             return redirect(url_for(".index"))
