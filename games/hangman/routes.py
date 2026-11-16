@@ -15,6 +15,7 @@ from games.hangman import drawing, logic  # noqa: F401  (drawing registers the p
 from room import sprites
 
 SESSION_KEY = "hangman"
+SOUND_KEY = "hangman_sound"  # sound to play on the next page load
 WORDS = logic.load_words()
 
 
@@ -69,6 +70,7 @@ class Hangman(MiniGame):
                 won=won,
                 lost=lost,
                 over=over,
+                sound=session.pop(SOUND_KEY, None),
             )
 
         @bp.route("/guess", methods=["POST"])
@@ -79,6 +81,14 @@ class Hangman(MiniGame):
                     state["word"], state["guessed"], request.form.get("letter"))
             except ValueError:
                 pass  # ignore repeats, non-letters and guesses after the end
+            else:
+                word, guessed = state["word"], state["guessed"]
+                if logic.is_won(word, guessed):
+                    session[SOUND_KEY] = "win"
+                elif logic.is_lost(word, guessed):
+                    session[SOUND_KEY] = "lose"
+                else:
+                    session[SOUND_KEY] = "select" if guessed[-1] in word else "move"
             session[SESSION_KEY] = state
             return redirect(url_for(".index"))
 
