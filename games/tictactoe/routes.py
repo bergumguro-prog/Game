@@ -17,6 +17,7 @@ from games.tictactoe import logic, pieces  # noqa: F401  (pieces registers the X
 from room import sprites
 
 SESSION_KEY = "tictactoe"
+SOUND_KEY = "tictactoe_sound"  # sound to play on the next page load
 MODES = ("computer", "friend")
 
 
@@ -45,6 +46,15 @@ def record_result(state):
         state["score"][logic.winner(board)] += 1
     elif logic.is_draw(board):
         state["score"]["draw"] += 1
+
+
+def result_sound(board, mode):
+    """Sound for a finished game: win, lose or draw (from your point of view)."""
+    if logic.is_draw(board):
+        return "draw"
+    if mode == "computer" and logic.winner(board) == logic.O:
+        return "lose"
+    return "win"
 
 
 def status_text(board, mode):
@@ -95,6 +105,7 @@ class TicTacToe(MiniGame):
                 score=state["score"],
                 labels=score_labels(state["mode"]),
                 mode=state["mode"],
+                sound=session.pop(SOUND_KEY, None),
                 x_svg=sprites.render("tictactoe-x"),
                 o_svg=sprites.render("tictactoe-o"),
             )
@@ -115,6 +126,9 @@ class TicTacToe(MiniGame):
                     state["board"] = logic.play(board, logic.computer_move(board))
                 if logic.is_over(state["board"]):
                     record_result(state)
+                    session[SOUND_KEY] = result_sound(state["board"], state["mode"])
+                else:
+                    session[SOUND_KEY] = "move"
             save_state(state)
             return redirect(url_for(".index"))
 
