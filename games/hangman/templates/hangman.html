@@ -16,7 +16,7 @@
       <figcaption class="hm-lives">Wrong guesses: <strong>{{ wrong }}</strong> / {{ max_wrong }}</figcaption>
     </figure>
 
-    <p class="hm-word" aria-label="The word">
+    <p class="hm-word" aria-label="The word"{% if sound %} data-sound="{{ sound }}"{% endif %}>
       {% for letter in letters %}
       <span class="hm-letter{% if letter and letter in missed %} hm-letter-missed{% endif %}">{{ letter or "" }}</span>
       {% endfor %}

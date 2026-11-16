@@ -181,3 +181,31 @@ def test_new_word_resets_the_picture(client):
     client.post("/games/hangman/guess", data={"letter": "z"})
     client.post("/games/hangman/new")
     assert "sprite-hangman-0" in client.get("/games/hangman/").data.decode()
+
+
+# --- Sounds (issue #9) ---
+
+def sound_on_next_page(client):
+    import re
+    found = re.search(r'data-sound="(\w+)"', client.get("/games/hangman/").data.decode())
+    return found.group(1) if found else None
+
+
+def test_right_and_wrong_guess_sounds(client):
+    client.post("/games/hangman/guess", data={"letter": "t"})
+    assert sound_on_next_page(client) == "select"
+    assert sound_on_next_page(client) is None  # only once
+    client.post("/games/hangman/guess", data={"letter": "z"})
+    assert sound_on_next_page(client) == "move"
+
+
+def test_win_and_lose_sounds(client):
+    for letter in "teacup":
+        client.post("/games/hangman/guess", data={"letter": letter})
+    assert sound_on_next_page(client) == "win"
+    client.post("/games/hangman/new")
+    with client.session_transaction() as s:
+        s["hangman"] = {"word": "teacup", "guessed": ""}
+    for letter in "bdfghi":
+        client.post("/games/hangman/guess", data={"letter": letter})
+    assert sound_on_next_page(client) == "lose"
