@@ -1,0 +1,107 @@
+/* Tic-tac-toe board. Colors come from static/css/theme.css. */
+
+.ttt-status {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+}
+.ttt-status-over {
+  color: var(--px-rose);
+  font-size: var(--font-size-title);
+}
+
+/* 3x3 grid; the gaps show the pink background as grid lines. */
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, 84px);
+  grid-template-rows: repeat(3, 84px);
+  gap: 8px;
+  padding: 8px;
+  background: var(--px-pink-dark);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+}
+
+.ttt-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--px-cream);
+  border: none;
+  border-radius: 4px;
+  font: inherit;
+}
+.ttt-cell:enabled {
+  cursor: pointer;
+}
+.ttt-cell:enabled:hover {
+  background: var(--px-pink-light);
+}
+.ttt-cell:disabled {
+  color: inherit;
+}
+.ttt-cell-winning {
+  background: var(--px-mint-light);
+}
+
+.ttt-cell .sprite {
+  width: 60px;
+  height: 60px;
+}
+
+.ttt-score {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+}
+.ttt-score div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ttt-score dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+.ttt-score dd {
+  margin: 0;
+  font-size: var(--font-size-title);
+  font-weight: 700;
+}
+
+.ttt-actions {
+  display: flex;
+  gap: 12px;
+}
+.ttt-actions form {
+  margin: 0;
+}
+
+/* "vs Computer / vs Friend" switch */
+.ttt-modes {
+  display: flex;
+  margin: 0;
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ttt-mode {
+  padding: 6px 14px;
+  background: var(--px-cream);
+  border: none;
+  color: var(--px-outline);
+  font: inherit;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+.ttt-mode + .ttt-mode {
+  border-left: 4px solid var(--px-outline);
+}
+.ttt-mode:hover {
+  background: var(--px-pink-light);
+}
+.ttt-mode-active,
+.ttt-mode-active:hover {
+  background: var(--px-mint);
+  font-weight: 700;
+}
