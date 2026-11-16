@@ -1,0 +1,38 @@
+/* Colors for pixel-art sprites (room/sprites.py).
+   Each sprite pixel is an SVG <rect class="px-<name>">; the actual colors
+   are the --px-<name> variables in theme.css. */
+.sprite {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.px-outline { fill: var(--px-outline); }
+.px-pink { fill: var(--px-pink); }
+.px-pink-dark { fill: var(--px-pink-dark); }
+.px-pink-light { fill: var(--px-pink-light); }
+.px-rose { fill: var(--px-rose); }
+.px-cherry { fill: var(--px-cherry); }
+.px-mint { fill: var(--px-mint); }
+.px-mint-dark { fill: var(--px-mint-dark); }
+.px-mint-light { fill: var(--px-mint-light); }
+.px-leaf { fill: var(--px-leaf); }
+.px-leaf-dark { fill: var(--px-leaf-dark); }
+.px-cream { fill: var(--px-cream); }
+.px-cream-dark { fill: var(--px-cream-dark); }
+.px-white { fill: var(--px-white); }
+.px-wood { fill: var(--px-wood); }
+.px-wood-dark { fill: var(--px-wood-dark); }
+.px-wood-light { fill: var(--px-wood-light); }
+.px-yellow { fill: var(--px-yellow); }
+.px-fire { fill: var(--px-fire); }
+.px-lavender { fill: var(--px-lavender); }
+.px-skin { fill: var(--px-skin); }
+.px-hair { fill: var(--px-hair); }
+.px-hair-dark { fill: var(--px-hair-dark); }
+.px-stone { fill: var(--px-stone); }
+.px-stone-dark { fill: var(--px-stone-dark); }
+.px-floor { fill: var(--px-floor); }
+.px-floor-alt { fill: var(--px-floor-alt); }
+.px-floor-line { fill: var(--px-floor-line); }
+.px-wall { fill: var(--px-wall); }
+.px-wall-speckle { fill: var(--px-wall-speckle); }
