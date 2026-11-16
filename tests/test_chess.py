@@ -3,7 +3,10 @@ import chess
 import pytest
 
 from app import create_app
-from games.chess import logic, pieces
+import random
+import time
+
+from games.chess import ai, logic, pieces
 from room import sprites
 
 
@@ -70,6 +73,15 @@ def test_every_piece_has_a_sprite():
 
 @pytest.fixture
 def client():
+    """A browser in two-player ("friend") mode."""
+    c = create_app().test_client()
+    c.post("/games/chess/new", data={"mode": "friend"})
+    return c
+
+
+@pytest.fixture
+def computer_client():
+    """A browser playing white against the computer (the default)."""
     return create_app().test_client()
 
 
@@ -96,7 +108,7 @@ def test_select_then_move(client):
     html = client.get("/games/chess/").data.decode()
     assert html.count("chess-target") == 2  # e3 and e4
     click(client, "e4")
-    assert state(client) == {"moves": ["e2e4"], "selected": None}
+    assert state(client) == {"moves": ["e2e4"], "selected": None, "mode": "friend"}
 
 
 def test_clicking_elsewhere_clears_or_changes_selection(client):
@@ -131,7 +143,9 @@ def test_tampered_session_starts_fresh(client):
     with client.session_transaction() as s:
         s["chess"] = {"moves": ["e2e5"], "selected": "nowhere"}
     html = client.get("/games/chess/").data.decode()
-    assert "White to move" in html
+    # no mode stored -> back to the default (vs computer), fresh board
+    assert "Your move" in html
+    assert html.count('class="sprite sprite-chess-') == 32
 
 
 def test_new_game(client):
@@ -142,3 +156,75 @@ def test_new_game(client):
 
 def test_tea_table_opens_chess(client):
     assert 'data-url="/games/chess/"' in client.get("/").data.decode()
+
+
+# --- Computer opponent (issue #8) ---
+
+def test_ai_returns_a_legal_move_from_the_start():
+    board = chess.Board()
+    assert ai.choose_move(board) in board.legal_moves
+
+
+def test_ai_returns_none_when_the_game_is_over():
+    mate = logic.board_from_moves(["f2f3", "e7e5", "g2g4", "d8h4"])
+    assert ai.choose_move(mate) is None
+
+
+def test_ai_takes_a_free_queen():
+    # The white queen on h5 is hanging to the knight on f6.
+    board = chess.Board("rnbqkb1r/pppppppp/5n2/7Q/8/8/PPPPPPPP/RNB1KBNR b KQkq - 0 1")
+    assert ai.choose_move(board).uci() == "f6h5"
+
+
+def test_ai_finds_mate_in_one():
+    # Back-rank mate: Ra1#
+    board = chess.Board("r5k1/5ppp/8/8/8/8/5PPP/6K1 b - - 0 1")
+    assert ai.choose_move(board).uci() == "a8a1"
+
+
+def test_ai_does_not_hang_its_queen():
+    # Taking the pawn on e4 with the queen loses her to the knight on c3.
+    board = chess.Board("rnb1kbnr/pppp1ppp/8/4p3/4P1q1/2N5/PPPP1PPP/R1BQKBNR b KQkq - 0 1")
+    for _ in range(5):
+        assert ai.choose_move(board).uci() != "g4e4"
+
+
+def test_ai_is_fast_enough():
+    # A busy middlegame position should take well under 2 seconds.
+    board = chess.Board("r1bq1rk1/pp2bppp/2n1pn2/2pp4/3P4/2PBPN2/PP1N1PPP/R2QK2R w KQ - 0 1")
+    start = time.perf_counter()
+    ai.choose_move(board)
+    assert time.perf_counter() - start < 2
+
+
+def test_ai_plays_full_games_without_errors():
+    rng = random.Random(3)
+    for _ in range(3):
+        board = chess.Board()
+        while not board.is_game_over() and board.fullmove_number < 40:
+            if board.turn == chess.WHITE:
+                move = rng.choice(list(board.legal_moves))
+            else:
+                move = ai.choose_move(board, rng=rng)
+            assert move in board.legal_moves
+            board.push(move)
+
+
+def test_computer_replies_after_your_move(computer_client):
+    click(computer_client, "e2", "e4")
+    moves = state(computer_client)["moves"]
+    assert moves[0] == "e2e4"
+    assert len(moves) == 2
+    board = logic.board_from_moves(moves)
+    assert board.turn == chess.WHITE
+
+
+def test_computer_mode_texts(computer_client):
+    assert "Your move" in computer_client.get("/games/chess/").data.decode()
+
+
+def test_mode_switch(client):
+    client.post("/games/chess/new", data={"mode": "computer"})
+    assert state(client)["mode"] == "computer"
+    client.post("/games/chess/new", data={"mode": "nonsense"})
+    assert state(client)["mode"] == "computer"
