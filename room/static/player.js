@@ -30,6 +30,7 @@
     x: num(el, "hitX"), y: num(el, "hitY"), w: num(el, "hitW"), h: num(el, "hitH"),
   }));
   let nearest = null;
+  let started = false;
 
   // Rectangles the player can't walk through.
   const solids = [...room.querySelectorAll(".object.solid")].map((el) => ({
@@ -47,7 +48,9 @@
   document.addEventListener("keydown", (e) => {
     if (e.key.toLowerCase() === "e" && nearest && !e.repeat) {
       savePosition();
-      window.location.href = nearest.url;
+      held.clear();
+      if (window.scenes) window.scenes.goTo(nearest.url, "open");
+      else window.location.href = nearest.url;
       return;
     }
     const dir = KEY_TO_DIRECTION[e.key.toLowerCase()];
@@ -101,6 +104,8 @@
     if (nearest) {
       nearest.el.classList.add("near");
       promptText.textContent = nearest.prompt;
+      // little blip, but not for the object you're already next to on page load
+      if (window.scenes && started) window.scenes.play("select");
     }
     prompt.hidden = !nearest;
   }
@@ -178,5 +183,6 @@
   restorePosition();
   draw();
   updateNearest();
+  started = true;
   requestAnimationFrame(frame);
 })();
