@@ -108,6 +108,9 @@ Game/
 ```
 
 ## Adding a new mini-game
+The full checklist (branches, sprites, sounds) is in CLAUDE.md under
+"Adding a new mini-game". In short:
+
 1. Create a folder `games/<name>/` with a `routes.py` that defines a subclass
    of `core.game_base.MiniGame` (see the docstring in that file).
 2. Add an interactable object for it in `room/objects.py`.
