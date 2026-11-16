@@ -17,7 +17,8 @@
       <button class="chess-mode{% if mode == 'friend' %} chess-mode-active{% endif %}"
               type="submit" name="mode" value="friend">vs Friend</button>
     </form>
-    <p class="chess-status{% if status.over %} chess-status-over{% endif %}">{{ status.text }}</p>
+    <p class="chess-status{% if status.over %} chess-status-over{% endif %}"
+       {%- if sound %} data-sound="{{ sound }}"{% endif %}>{{ status.text }}</p>
 
     <form class="chess-board" method="post" action="{{ url_for('chess.click') }}">
       {% for sq in squares %}

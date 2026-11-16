@@ -228,3 +228,34 @@ def test_mode_switch(client):
     assert state(client)["mode"] == "computer"
     client.post("/games/chess/new", data={"mode": "nonsense"})
     assert state(client)["mode"] == "computer"
+
+
+# --- Sounds (issue #9) ---
+
+def sound_on_next_page(client):
+    import re
+    found = re.search(r'data-sound="(\w+)"', client.get("/games/chess/").data.decode())
+    return found.group(1) if found else None
+
+
+def test_move_sound_only_after_a_move(client):
+    click(client, "e2")
+    assert sound_on_next_page(client) is None  # just selecting
+    click(client, "e4")
+    assert sound_on_next_page(client) == "move"
+    assert sound_on_next_page(client) is None  # only once
+
+
+def test_checkmate_plays_win(client):
+    click(client, "e2", "e4", "e7", "e5", "f1", "c4", "b8", "c6",
+          "d1", "h5", "g8", "f6", "h5", "f7")
+    assert sound_on_next_page(client) == "win"
+
+
+def test_being_mated_by_the_computer_plays_lose(computer_client):
+    # Fool's mate with colors swapped: white blunders, black mates with Qh4.
+    with computer_client.session_transaction() as s:
+        s["chess"] = {"moves": ["f2f3", "e7e5"], "selected": None, "mode": "computer"}
+    click(computer_client, "g2", "g4")
+    assert logic.board_from_moves(state(computer_client)["moves"]).is_checkmate()
+    assert sound_on_next_page(computer_client) == "lose"
