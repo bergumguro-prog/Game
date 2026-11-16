@@ -1,0 +1,173 @@
+/* Styling for the hub room. Colors come from static/css/theme.css,
+   the pixel art itself from room/sprites.py. */
+
+/* The thick pastel frame around the room, with little pegs on the sides. */
+.room-frame {
+  position: relative;
+  padding: 24px;
+  background: var(--color-frame);
+  border: 4px solid var(--color-frame-dark);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 4px var(--color-frame-light),
+    0 12px 0 var(--color-shadow);
+}
+
+.room-frame::before,
+.room-frame::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 20px;
+  margin-top: -10px;
+  background: var(--color-frame-light);
+  border: 4px solid var(--color-frame-dark);
+  border-radius: 4px;
+}
+.room-frame::before { left: 2px; }
+.room-frame::after { right: 2px; }
+
+/* The room itself: wall on top, floor below. Size comes from objects.py. */
+.room {
+  position: relative;
+  width: var(--room-w);
+  height: var(--room-h);
+  border: 4px solid var(--px-outline);
+  box-sizing: content-box;
+  overflow: hidden;
+}
+
+.wall,
+.floor {
+  position: absolute;
+  left: 0;
+  line-height: 0;
+}
+.wall {
+  top: 0;
+  height: var(--wall-h);
+}
+.floor {
+  top: var(--wall-h);
+}
+
+/* Baseboard where the wall meets the floor. */
+.wall::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12px;
+  background: var(--px-cream);
+  border-top: 4px solid var(--px-outline);
+  border-bottom: 4px solid var(--px-cream-dark);
+  z-index: 1;
+}
+
+/* Every object. Position, size and drawing order come from objects.py. */
+.object {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: var(--h);
+  z-index: var(--z);
+}
+
+/* A hard pixel shadow under furniture. */
+.object[data-layer="furniture"] .sprite,
+.object[data-layer="on-top"] .sprite {
+  filter: drop-shadow(0 4px 0 var(--color-shadow));
+}
+
+/* The fire flickers. */
+.sprite-fireplace .px-fire,
+.sprite-fireplace .px-yellow {
+  animation: flicker 0.6s steps(2) infinite;
+}
+@keyframes flicker {
+  50% { fill: var(--px-yellow); }
+}
+
+/* --- Player --- player.js moves it and sets data-facing / data-moving. */
+.player {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--w);
+  height: var(--h);
+  will-change: transform;
+}
+
+/* Soft shadow under the feet. */
+.player::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -4px;
+  height: 8px;
+  background: var(--color-shadow);
+  border-radius: 50%;
+}
+
+.player-body {
+  position: relative;
+}
+
+.player-sprite {
+  display: none;
+}
+.player[data-facing="down"] .face-down,
+.player[data-facing="up"] .face-up,
+.player[data-facing="left"] .face-side,
+.player[data-facing="right"] .face-side {
+  display: block;
+}
+.player[data-facing="right"] .face-side {
+  transform: scaleX(-1);
+}
+
+/* A little hop while walking. */
+.player[data-moving="true"] .player-body {
+  animation: walk 0.3s steps(1) infinite;
+}
+@keyframes walk {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* --- Interacting --- */
+
+/* The object you can interact with gets a soft white glow. */
+.object.near .sprite {
+  filter:
+    drop-shadow(4px 0 0 var(--px-white))
+    drop-shadow(-4px 0 0 var(--px-white))
+    drop-shadow(0 4px 0 var(--px-white))
+    drop-shadow(0 -4px 0 var(--px-white));
+}
+
+/* "Press E to ..." bubble above the player's head. player.js positions it. */
+.prompt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 100000;
+  padding: 4px 10px;
+  background: var(--color-panel);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+  color: var(--px-outline);
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.prompt[hidden] {
+  display: none;
+}
+.prompt kbd {
+  background: var(--px-pink-light);
+}

@@ -12,6 +12,9 @@ hub-world-game/
 │   ├── __init__.py
 │   └── game_base.py          # the interface every mini-game must follow
 │
+├── templates/
+│   └── base.html             # shared page skeleton (loads theme + base CSS)
+│
 ├── static/                   # shared frontend files
 │   ├── css/
 │   │   ├── theme.css         # CSS variables: colors, fonts (change the look here)
@@ -60,6 +63,7 @@ hub-world-game/
 │       └── static/
 │
 └── tests/
+    ├── test_room.py
     ├── test_tictactoe.py
     ├── test_hangman.py
     └── test_chess.py

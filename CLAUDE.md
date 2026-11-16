@@ -10,8 +10,36 @@ mini-games (chess, hangman, tic-tac-toe, more later).
   theme file so the whole look can be changed in one place.
 
 ## Aesthetic
-[Describe your look here, e.g. "cozy pixel-art bedroom at night, warm lamp light,
-muted purples and oranges, retro computer fonts".]
+Cozy, cute, cottagecore top-down pixel art. Reference images (for mood only):
+`docs/aesthetic/cozy-room.jpg` (the main reference for the room),
+`docs/aesthetic/cherry-garden.jpg`, `docs/aesthetic/pink-farm.jpg`.
+
+- **Perspective:** top-down with a slight 3/4 view. The room is seen from above,
+  with the back wall visible along the top and a thick pastel-pink frame around it.
+- **Palette:**
+  - Pastel pink and rose: walls, frame, bedding, cushions, tablecloths, bows
+  - Mint and sage green: rugs, poufs, plants, hedges, grass
+  - Cream and ivory: furniture, benches, tables, fences, panels
+  - Warm medium browns: herringbone wood floor, bookshelves, plant stands
+  - Small accents: cherry red, warm fireplace orange/yellow, white and lavender flowers
+- **Style:** chunky, crisp pixels with soft outlines in dark brown or plum (never
+  pure black). Shade with a few flat color steps, not smooth gradients.
+  Shapes are soft and rounded.
+- **Room contents:** pink back wall with curtained windows, a wreath and plant
+  shelves; herringbone wooden floor; a bed with a pink quilt; bookshelves; a
+  fireplace; a tea table with benches; rugs and lace doilies; poufs; lots of
+  potted plants and flowers. Interactable objects for the mini-games should fit
+  in (for example, chess on the tea table).
+- **Mini-games:** use the same palette. UI panels are cream cards with a pink
+  border, buttons are pink or mint, and boards use pink/cream (chess) or a
+  wooden look.
+- **Fonts:** a pixel font (for example "Pixelify Sans" or "Press Start 2P"),
+  saved in `static/fonts/`.
+- **Implementation:** use `image-rendering: pixelated`, draw sprites small and
+  scale them up by whole numbers. All colors are variables in `theme.css`.
+- **Originality:** all art is our own. The references set the mood. Never copy
+  their sprites, characters or layouts.
+- **Mood:** warm, wholesome and calm, like a sunny afternoon in a cute cottage.
 
 ## Architecture
 - Scene system: the room is one scene, each mini-game is its own scene.
