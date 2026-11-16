@@ -1,0 +1,69 @@
+/* Theme: every color and font in the game. Change the look here.
+   Cozy pastel pink + mint pixel art (see CLAUDE.md -> Aesthetic). */
+
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("../fonts/PixelifySans.ttf") format("truetype");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  /* Page and UI */
+  --color-background: #f3d6dc;
+  --color-background-dots: #ecc3cc;
+  --color-text: #4a2c3a;
+  --color-text-muted: #8a5d6c;
+  --color-panel: #fdf4e6;
+  --color-panel-border: #d98a9e;
+  --color-shadow: rgba(74, 44, 58, 0.22);
+
+  /* Room frame (the thick border around the room) */
+  --color-frame: #f2c3cd;
+  --color-frame-light: #fbe2e7;
+  --color-frame-dark: #d1899b;
+
+  /* Pixel-art palette. Each letter in room/sprites.py maps to one of these. */
+  --px-outline: #4a2c3a;
+  --px-pink: #f4a6b8;
+  --px-pink-dark: #d9788f;
+  --px-pink-light: #fbd3dc;
+  --px-rose: #e2556f;
+  --px-cherry: #c8323f;
+  --px-mint: #9fd8c1;
+  --px-mint-dark: #6fb39b;
+  --px-mint-light: #d3f0e3;
+  --px-leaf: #74b35f;
+  --px-leaf-dark: #4a8650;
+  --px-cream: #fbf1dc;
+  --px-cream-dark: #e3cfab;
+  --px-white: #fffaf4;
+  --px-wood: #9a5f3c;
+  --px-wood-dark: #6e3f28;
+  --px-wood-light: #c08356;
+  --px-yellow: #ffe28a;
+  --px-fire: #ff9a3c;
+  --px-lavender: #b9a3e0;
+  --px-skin: #f5c9a8;
+  --px-hair: #7a4a32;
+  --px-hair-dark: #5a3324;
+  --px-stone: #e8d3bb;
+  --px-stone-dark: #c4a88c;
+  --px-floor: #a8694a;
+  --px-floor-alt: #b87a55;
+  --px-floor-line: #7d4a33;
+  --px-wall: #f8c9d3;
+  --px-wall-speckle: #f0a9ba;
+
+  /* Motion: scene fades and hover effects */
+  --scene-enter-ms: 260ms;
+  --scene-leave-ms: 200ms;
+  --hover-ms: 120ms;
+  --hover-lift: -2px;
+
+  /* Fonts */
+  --font-main: "Pixelify Sans", "Courier New", monospace;
+  --font-size-base: 18px;
+  --font-size-small: 14px;
+  --font-size-title: 32px;
+}
