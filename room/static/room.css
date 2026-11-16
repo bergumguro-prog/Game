@@ -141,7 +141,15 @@
 
 /* --- Interacting --- */
 
-/* The object you can interact with gets a soft white glow. */
+/* The object you can interact with gets a soft white glow
+   (also when you point at it with the mouse). */
+.object[data-url] .sprite {
+  transition: filter var(--hover-ms) ease-out, transform var(--hover-ms) ease-out;
+}
+.object[data-url]:hover .sprite {
+  transform: translateY(var(--hover-lift));
+}
+.object[data-url]:hover .sprite,
 .object.near .sprite {
   filter:
     drop-shadow(4px 0 0 var(--px-white))
@@ -164,6 +172,10 @@
   font-size: var(--font-size-small);
   white-space: nowrap;
   pointer-events: none;
+  animation: prompt-pop var(--hover-ms) ease-out;
+}
+@keyframes prompt-pop {
+  from { opacity: 0; }
 }
 .prompt[hidden] {
   display: none;
