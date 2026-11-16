@@ -1,0 +1,31 @@
+/* Theme: every color and font in the game. Change the look here. */
+:root {
+  /* Page */
+  --color-background: #1e1b2e;
+  --color-text: #f2e9dc;
+  --color-text-muted: #a99fb8;
+
+  /* Room */
+  --color-wall: #3b3352;
+  --color-floor: #c79a6b;
+  --color-floor-line: #b8895b;
+  --color-shadow: rgba(0, 0, 0, 0.25);
+
+  /* Furniture */
+  --color-wood: #7a4e2d;
+  --color-wood-light: #9c6a40;
+  --color-bed: #6c5b9e;
+  --color-pillow: #efe6f7;
+  --color-rug: #b5485a;
+  --color-plant: #4f8a4b;
+  --color-object-label: #f2e9dc;
+
+  /* Player */
+  --color-player: #f0a04b;
+  --color-player-outline: #2b2238;
+
+  /* Fonts */
+  --font-main: "Courier New", Courier, monospace;
+  --font-size-base: 16px;
+  --font-size-small: 12px;
+}
