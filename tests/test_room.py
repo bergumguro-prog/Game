@@ -147,3 +147,27 @@ def test_interactable_objects_are_solid_furniture():
     for o in objects.OBJECTS:
         if o.game:
             assert o.solid, o.id
+
+
+# --- Polish: transitions, hover, sounds (issue #9) ---
+
+SOUND_NAMES = ["open", "back", "select", "move", "win", "lose", "draw"]
+
+
+@pytest.mark.parametrize("name", SOUND_NAMES)
+def test_sound_files_are_served(name):
+    response = create_app().test_client().get(f"/static/sounds/{name}.wav")
+    assert response.status_code == 200
+    assert response.data[:4] == b"RIFF"
+
+
+def test_every_page_has_a_mute_button():
+    client = create_app().test_client()
+    for url in ["/", "/games/placeholder/?game=Chess"]:
+        assert b'id="mute-toggle"' in client.get(url).data
+
+
+def test_motion_timings_are_theme_variables():
+    theme = open("static/css/theme.css").read()
+    for var in ["--scene-enter-ms", "--scene-leave-ms", "--hover-ms", "--hover-lift"]:
+        assert f"{var}:" in theme

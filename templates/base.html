@@ -10,6 +10,7 @@
   {% block head %}{% endblock %}
 </head>
 <body data-scene="{% block scene %}game{% endblock %}">
+  <button id="mute-toggle" class="mute-toggle" type="button" aria-pressed="false">Sound: on</button>
   {% block content %}{% endblock %}
   <script src="{{ url_for('static', filename='js/scenes.js') }}"></script>
   {% block scripts %}{% endblock %}
