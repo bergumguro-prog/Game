@@ -11,9 +11,10 @@
   <section class="panel hm-panel">
     <h1 class="panel-title">Hangman</h1>
 
-    {% block figure %}
-    <p class="hm-lives">Wrong guesses: <strong>{{ wrong }}</strong> / {{ max_wrong }}</p>
-    {% endblock %}
+    <figure class="hm-figure">
+      {{ figure }}
+      <figcaption class="hm-lives">Wrong guesses: <strong>{{ wrong }}</strong> / {{ max_wrong }}</figcaption>
+    </figure>
 
     <p class="hm-word" aria-label="The word">
       {% for letter in letters %}

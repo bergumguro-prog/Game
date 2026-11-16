@@ -11,7 +11,8 @@ decode it and peek at the word. That's fine for a cozy local game.
 from flask import redirect, render_template, request, session, url_for
 
 from core.game_base import MiniGame
-from games.hangman import logic
+from games.hangman import drawing, logic  # noqa: F401  (drawing registers the pictures)
+from room import sprites
 
 SESSION_KEY = "hangman"
 WORDS = logic.load_words()
@@ -63,6 +64,7 @@ class Hangman(MiniGame):
                 missed=[c for c in word if c not in guessed] if lost else [],
                 keys=keys,
                 wrong=logic.wrong_count(word, guessed),
+                figure=sprites.render(f"hangman-{min(logic.wrong_count(word, guessed), logic.MAX_WRONG)}"),
                 max_wrong=logic.MAX_WRONG,
                 won=won,
                 lost=lost,
