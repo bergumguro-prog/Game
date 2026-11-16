@@ -55,6 +55,12 @@
   --px-wall: #f8c9d3;
   --px-wall-speckle: #f0a9ba;
 
+  /* Motion: scene fades and hover effects */
+  --scene-enter-ms: 260ms;
+  --scene-leave-ms: 200ms;
+  --hover-ms: 120ms;
+  --hover-lift: -2px;
+
   /* Fonts */
   --font-main: "Pixelify Sans", "Courier New", monospace;
   --font-size-base: 18px;
