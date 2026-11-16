@@ -9,8 +9,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pixels.css') }}">
   {% block head %}{% endblock %}
 </head>
-<body>
+<body data-scene="{% block scene %}game{% endblock %}">
   {% block content %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/scenes.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }} - coming soon{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel">
+    <h1 class="panel-title">{{ name }}</h1>
+    <p>This game is coming soon!</p>
+    <a class="button" href="/">Back to the room</a>
+  </section>
+  <p class="hint">Press Esc to return to the room</p>
+</main>
+{% endblock %}
