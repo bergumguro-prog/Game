@@ -106,3 +106,32 @@
 .chess-actions form {
   margin: 0;
 }
+
+/* "vs Computer / vs Friend" switch */
+.chess-modes {
+  display: flex;
+  margin: 0;
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.chess-mode {
+  padding: 6px 14px;
+  background: var(--px-cream);
+  border: none;
+  color: var(--px-outline);
+  font: inherit;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+.chess-mode + .chess-mode {
+  border-left: 4px solid var(--px-outline);
+}
+.chess-mode:hover {
+  background: var(--px-pink-light);
+}
+.chess-mode-active,
+.chess-mode-active:hover {
+  background: var(--px-mint);
+  font-weight: 700;
+}
