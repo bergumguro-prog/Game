@@ -218,3 +218,37 @@ def test_switching_mode_resets_score(client):
     with client.session_transaction() as s:
         assert s["tictactoe"]["mode"] == "computer"
         assert s["tictactoe"]["score"] == {"X": 0, "O": 0, "draw": 0}
+
+
+# --- Sounds (issue #9) ---
+
+def sound_on_next_page(client):
+    html = client.get("/games/tictactoe/").data.decode()
+    import re
+    found = re.search(r'data-sound="(\w+)"', html)
+    return found.group(1) if found else None
+
+
+def test_move_plays_a_sound_once(client):
+    client.post("/games/tictactoe/move", data={"cell": "4"})
+    assert sound_on_next_page(client) == "move"
+    assert sound_on_next_page(client) is None  # not again on reload
+
+
+def test_win_and_draw_sounds(client):
+    for cell in [0, 3, 1, 4, 2]:
+        client.post("/games/tictactoe/move", data={"cell": str(cell)})
+    assert sound_on_next_page(client) == "win"
+    client.post("/games/tictactoe/new")
+    for cell in [0, 1, 2, 4, 3, 5, 7, 6, 8]:  # X O X / X O O / O X X -> draw
+        client.post("/games/tictactoe/move", data={"cell": str(cell)})
+    assert sound_on_next_page(client) == "draw"
+
+
+def test_losing_to_the_computer_plays_lose(computer_client):
+    with computer_client.session_transaction() as s:
+        # X to move; O (computer) threatens the middle column and will win
+        s["tictactoe"] = {"board": "XO..O.X..", "mode": "computer",
+                          "score": {"X": 0, "O": 0, "draw": 0}}
+    computer_client.post("/games/tictactoe/move", data={"cell": "5"})
+    assert sound_on_next_page(computer_client) == "lose"

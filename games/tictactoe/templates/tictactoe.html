@@ -17,7 +17,8 @@
       <button class="ttt-mode{% if mode == 'friend' %} ttt-mode-active{% endif %}"
               type="submit" name="mode" value="friend">vs Friend</button>
     </form>
-    <p class="ttt-status{% if over %} ttt-status-over{% endif %}">{{ status }}</p>
+    <p class="ttt-status{% if over %} ttt-status-over{% endif %}"
+       {%- if sound %} data-sound="{{ sound }}"{% endif %}>{{ status }}</p>
 
     <form class="ttt-board" method="post" action="{{ url_for('tictactoe.move') }}">
       {% for cell in cells %}
