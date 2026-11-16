@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Tic-tac-toe{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('tictactoe.static', filename='tictactoe.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel">
+    <h1 class="panel-title">Tic-tac-toe</h1>
+    <p class="ttt-status{% if over %} ttt-status-over{% endif %}">{{ status }}</p>
+
+    <form class="ttt-board" method="post" action="{{ url_for('tictactoe.move') }}">
+      {% for cell in cells %}
+      <button class="ttt-cell{% if cell.winning %} ttt-cell-winning{% endif %}"
+              type="submit" name="cell" value="{{ cell.index }}"
+              aria-label="Square {{ cell.index + 1 }}{% if cell.piece != '.' %}: {{ cell.piece }}{% endif %}"
+              {% if not cell.playable %}disabled{% endif %}>
+        {% if cell.piece == "X" %}{{ x_svg }}{% elif cell.piece == "O" %}{{ o_svg }}{% endif %}
+      </button>
+      {% endfor %}
+    </form>
+
+    <dl class="ttt-score">
+      <div><dt>X</dt><dd>{{ score.X }}</dd></div>
+      <div><dt>Draws</dt><dd>{{ score.draw }}</dd></div>
+      <div><dt>O</dt><dd>{{ score.O }}</dd></div>
+    </dl>
+
+    <div class="ttt-actions">
+      <form method="post" action="{{ url_for('tictactoe.new_game') }}">
+        <button class="button{% if not over %} button-mint{% endif %}" type="submit">New game</button>
+      </form>
+      <a class="button button-mint" href="/">Back to the room</a>
+    </div>
+  </section>
+  <p class="hint">Click a square to play &middot; <kbd>Esc</kbd> to return to the room</p>
+</main>
+{% endblock %}
