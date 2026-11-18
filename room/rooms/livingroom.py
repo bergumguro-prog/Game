@@ -1,4 +1,4 @@
-"""Room 3 (name to be decided): a music and card room.
+"""The living room: a music and card room.
 
 The piano and the card table open "coming soon" until their games exist.
 To make one real, create games/<slug>/ with the same slug (for example
@@ -36,9 +36,9 @@ OBJECTS = [
 ]
 
 room = Room(
-    id="room3",
-    name="Room 3",
-    theme="room3",
+    id="livingroom",
+    name="Living room",
+    theme="livingroom",
     floor_tile="checker-tile",
     wall_tile="wallpaper-stripes",
     width=144,
@@ -47,6 +47,6 @@ room = Room(
     start=(64, 88),
     objects=OBJECTS,
     exits=[
-        Exit("to-kitchen", "left", 62, to_room="kitchen", to_exit="to-room3"),
+        Exit("to-kitchen", "left", 62, to_room="kitchen", to_exit="to-livingroom"),
     ],
 )

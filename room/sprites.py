@@ -826,10 +826,15 @@ SPRITES = {
 }
 
 
-# The kitchen's furniture lives in its own file to keep this one shorter.
+# The kitchen's and hallway's furniture live in their own files to keep
+# this one shorter.
 from room.sprites_kitchen import KITCHEN_SPRITES  # noqa: E402
 
 SPRITES.update(KITCHEN_SPRITES)
+from room.sprites_hallway import HALLWAY_SPRITES  # noqa: E402
+
+SPRITES.update(HALLWAY_SPRITES)
+SPRITES["runner"] = _rug(18, 74, "P", "p", "l", "y")
 SPRITES["rug-kitchen"] = _round_rug(60, 32)
 SPRITES["mat-pink-side"] = _rug(7, 20, "P", "p", "w", "y")
 SPRITES["mat-pink"] = _rug(20, 7, "P", "p", "w", "y")
