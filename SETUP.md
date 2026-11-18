@@ -64,9 +64,10 @@ Game/
 │   ├── world.py              # the Room type; finds every room in rooms/
 │   ├── objects.py            # what all rooms share: RoomObject, player settings
 │   ├── rooms/                # one file per room: size, look, doors, furniture
-│   │   ├── main.py           # the main room (chess, tic-tac-toe, hangman)
+│   │   ├── bedroom.py        # where you start (chess, tic-tac-toe, hangman)
+│   │   ├── hallway.py        # joins the other rooms; front door
 │   │   ├── kitchen.py        # sink, fridge, pantry, table
-│   │   └── room3.py
+│   │   └── livingroom.py     # piano, card table
 │   ├── sprites.py            # pixel art, drawn as grids of letters
 │   ├── templates/
 │   │   └── room.html
@@ -120,13 +121,13 @@ The full checklist (branches, sprites, sounds) is in CLAUDE.md under
    of `core.game_base.MiniGame` (see the docstring in that file).
 2. Add an interactable object for it in one of the room files in
    `room/rooms/`. If there's already a "coming soon" object waiting for
-   it (kitchen: `dishes`, `baking`, `tablesetting`; Room 3: `piano`, `cards`), use that slug
+   it (kitchen: `dishes`, `baking`, `tablesetting`; living room: `piano`, `cards`), use that slug
    for the game and the object opens it automatically.
 3. Add tests in `tests/test_<name>.py`.
 
 ## Adding a new room
 Make one new file in `room/rooms/`, for example `room/rooms/garden.py`, that
-defines `room = Room(...)` (copy `room3.py` to start). It is found
+defines `room = Room(...)` (copy `livingroom.py` to start). It is found
 automatically and shown at `/rooms/garden`. A room has:
 
 - `id`, `name`: the URL name and the name in the browser tab
