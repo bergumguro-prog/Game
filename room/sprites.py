@@ -29,6 +29,7 @@ PALETTE = {
     "v": "lavender", "V": "lavender-dark", "u": "lavender-light",
     "s": "skin", "h": "hair", "H": "hair-dark",
     "t": "stone", "T": "stone-dark",
+    "k": "steel", "K": "steel-dark",
     "1": "floor", "2": "floor-alt", "3": "floor-line",
     "4": "wall", "5": "wall-speckle",
 }
