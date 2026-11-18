@@ -25,7 +25,8 @@ PALETTE = {
     "g": "leaf", "G": "leaf-dark",
     "c": "cream", "C": "cream-dark", "w": "white",
     "b": "wood", "B": "wood-dark", "n": "wood-light",
-    "y": "yellow", "f": "fire", "v": "lavender",
+    "y": "yellow", "f": "fire",
+    "v": "lavender", "V": "lavender-dark", "u": "lavender-light",
     "s": "skin", "h": "hair", "H": "hair-dark",
     "t": "stone", "T": "stone-dark",
     "1": "floor", "2": "floor-alt", "3": "floor-line",
@@ -455,6 +456,126 @@ def _tictactoe_table():
     )
 
 
+# --- Decorations for Room 2 and Room 3 ---------------------------------------
+
+# A potted plant hanging from the ceiling, with trailing vines.
+HANGING_PLANT = [
+    "...oCo..",
+    "...oCo..",
+    "..oggGo.",
+    ".ogGgggo",
+    "oooooooo",
+    "olppppPo",
+    ".oPPPPo.",
+    "ogo..ogo",
+    "oGo..ogo",
+    ".o...oGo",
+    "......o.",
+]
+
+# A little landscape painting in a wooden frame.
+PICTURE = [
+    "oooooooooooo",
+    "onnnnnnnnnno",
+    "onjjjjjjyjno",
+    "onjjwwjjjjno",
+    "onjjjjjjjjno",
+    "onggjjjgggno",
+    "onggggGgggno",
+    "onGgggggggno",
+    "onnnnnnnnnno",
+    "oooooooooooo",
+]
+
+# A small framed flower.
+PICTURE_FLOWER = [
+    "oooooooo",
+    "onnnnnno",
+    "onuuuuno",
+    "onuppuno",
+    "onpyypno",
+    "onuppuno",
+    "onuuguno",
+    "onguuuno",
+    "onnnnnno",
+    "oooooooo",
+]
+
+# A round wall clock with a swinging pendulum.
+WALL_CLOCK = [
+    "..oooooo..",
+    ".onnnnnno.",
+    "onwwwowwno",
+    "onwwwowwno",
+    "onwwwooono",
+    "onwwwwwwno",
+    "onwwwwwwno",
+    ".onnnnnno.",
+    "..oooooo..",
+    "....oo....",
+    "...oyyo...",
+    "....oo....",
+]
+
+
+def _plank_tile():
+    """One repeating tile of a light plank floor: long boards, staggered."""
+    rows = []
+    for y in range(8):
+        band, line = divmod(y, 4)
+        seam = 23 if band == 0 else 11
+        row = ""
+        for x in range(24):
+            if line == 3 or x == seam:
+                row += "3"
+            elif (x, y) in ((5, 1), (17, 5)):
+                row += "3"  # a little knot in the wood
+            else:
+                row += "1" if band == 0 else "2"
+        rows.append(row)
+    return rows
+
+
+def _checker_tile(square=8):
+    """One repeating tile of a checkered floor, with a soft dot in each square."""
+    rows = []
+    for y in range(2 * square):
+        row = ""
+        for x in range(2 * square):
+            dark = (x // square + y // square) % 2
+            if (x % square, y % square) == (square // 2, square // 2):
+                row += "3"
+            else:
+                row += "2" if dark else "1"
+        rows.append(row)
+    return rows
+
+
+WALLPAPER_FLOWERS = [
+    "444444444444",
+    "444w44444444",
+    "44wyw4444444",
+    "444w54444444",
+    "444455444444",
+    "444444444444",
+    "444444444l44",
+    "44444444lpl4",
+    "444444445l44",
+    "444444455444",
+]
+
+WALLPAPER_STRIPES = [
+    "44445544",
+    "44445544",
+    "4w445544",
+    "44445544",
+    "44445544",
+    "44445544",
+    "44445544",
+    "44445544",
+]
+
+
 # --- Furniture for future mini-games -----------------------------------------
 
 # A pastel arcade cabinet with a glowing mint screen and a heart marquee.
@@ -671,6 +792,19 @@ SPRITES = {
     "round-rug-small": _round_rug(14, 12),
     "round-rug": _round_rug(24, 18),
     "doily": _doily(24),
+    # Room 2 and Room 3 decorations
+    "hanging-plant": HANGING_PLANT,
+    "picture": PICTURE,
+    "picture-flower": PICTURE_FLOWER,
+    "wall-clock": WALL_CLOCK,
+    "flower-pot-lavender": _recolor(FLOWER_POT, {"p": "v", "m": "u", "M": "V"}),
+    "rug-mint": _rug(40, 34, "M", "j", "c", "y"),
+    "round-rug-mint": _recolor(_round_rug(26, 18), {"P": "M", "p": "m", "l": "j"}),
+    "round-rug-lavender": _recolor(_round_rug(62, 30), {"P": "V", "p": "v", "l": "u"}),
+    "rug-lavender": _rug(30, 14, "V", "u", "w", "p"),
+    "mat-mint": _rug(20, 7, "M", "m", "w", "y"),
+    "mat-mint-side": _rug(7, 20, "M", "m", "w", "y"),
+    "mat-lavender-side": _rug(7, 20, "V", "v", "w", "y"),
     # furniture for mini-games that are coming later
     "arcade": ARCADE,
     "puzzle-desk": _puzzle_desk(),
@@ -684,6 +818,10 @@ SPRITES = {
     # tiles for repeating backgrounds
     "floor-tile": _herringbone_tile(),
     "wallpaper-tile": WALLPAPER,
+    "plank-tile": _plank_tile(),
+    "checker-tile": _checker_tile(),
+    "wallpaper-flowers": WALLPAPER_FLOWERS,
+    "wallpaper-stripes": WALLPAPER_STRIPES,
 }
 
 

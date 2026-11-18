@@ -27,6 +27,11 @@
 }
 .room-frame::before { left: 2px; }
 .room-frame::after { right: 2px; }
+/* No peg where a door goes through the side of the frame. */
+.room-frame:has(.exit-left)::before,
+.room-frame:has(.exit-right)::after {
+  display: none;
+}
 
 /* The room itself: wall on top, floor below. Size comes from objects.py. */
 .room {
