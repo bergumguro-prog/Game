@@ -1,4 +1,4 @@
-"""The main room: the cozy bedroom where the player starts.
+"""The bedroom: where the player starts.
 
 Chess is on the tea table, tic-tac-toe on the little game table and hangman
 in the left bookshelf. Positions are in art pixels; see room/objects.py for
@@ -75,8 +75,9 @@ OBJECTS = [
 
 
 room = Room(
-    id="main",
-    name="The Room",
+    id="bedroom",
+    name="Bedroom",
+    theme="bedroom",
     width=176,
     height=128,
     wall_height=26,
@@ -84,6 +85,8 @@ room = Room(
     objects=OBJECTS,
     exits=[
         # the doorway between the two flower pots at the bottom
-        Exit("to-kitchen", "bottom", 80, to_room="kitchen", to_exit="to-main"),
+        Exit("to-kitchen", "bottom", 80, to_room="kitchen", to_exit="to-bedroom"),
+        # the door in the right wall, below the fireplace corner
+        Exit("to-hallway", "right", 52, to_room="hallway", to_exit="to-bedroom"),
     ],
 )
