@@ -5,7 +5,7 @@ in the left bookshelf. Positions are in art pixels; see room/objects.py for
 what each RoomObject field means.
 """
 from room.objects import RoomObject
-from room.world import Room
+from room.world import Exit, Room
 
 OBJECTS = [
     # --- On the back wall ---
@@ -82,4 +82,8 @@ room = Room(
     wall_height=26,
     start=(82, 66),
     objects=OBJECTS,
+    exits=[
+        # the doorway between the two flower pots at the bottom
+        Exit("to-room2", "bottom", 80, to_room="room2", to_exit="to-main"),
+    ],
 )
