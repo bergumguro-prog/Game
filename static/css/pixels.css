@@ -26,6 +26,8 @@
 .px-yellow { fill: var(--px-yellow); }
 .px-fire { fill: var(--px-fire); }
 .px-lavender { fill: var(--px-lavender); }
+.px-lavender-dark { fill: var(--px-lavender-dark); }
+.px-lavender-light { fill: var(--px-lavender-light); }
 .px-skin { fill: var(--px-skin); }
 .px-hair { fill: var(--px-hair); }
 .px-hair-dark { fill: var(--px-hair-dark); }

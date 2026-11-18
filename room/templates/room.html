@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}The Room{% endblock %}
+{% block title %}{{ room.name }}{% endblock %}
 
 {% block scene %}room{% endblock %}
 
@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block content %}
-<main class="scene">
+<main class="scene" data-room-theme="{{ room.theme }}">
   <div class="room-frame">
-    <div id="room" class="room"
+    <div id="room" class="room" data-room-id="{{ room.id }}"
          data-width="{{ room.w }}" data-height="{{ room.h }}" data-floor-top="{{ room.wall_h }}" data-reach="{{ room.reach }}"
          style="--room-w: {{ room.w }}px; --room-h: {{ room.h }}px; --wall-h: {{ room.wall_h }}px;">
 
@@ -29,7 +29,18 @@
       </div>
       {% endfor %}
 
-      <div id="player" class="player" data-facing="down" data-moving="false"
+      {% for exit in exits %}
+      <div class="exit exit-{{ exit.side }}" data-exit="{{ exit.id }}"
+           data-url="{{ exit.url }}" data-walk="{{ exit.walk }}"
+           data-hit-x="{{ exit.hit[0] }}" data-hit-y="{{ exit.hit[1] }}"
+           data-hit-w="{{ exit.hit[2] }}" data-hit-h="{{ exit.hit[3] }}"
+           style="--x: {{ exit.x }}px; --y: {{ exit.y }}px; --w: {{ exit.w }}px; --h: {{ exit.h }}px;">
+        {{ exit.svg }}
+      </div>
+      {% endfor %}
+
+      <div id="player" class="player" data-facing="{{ player.facing }}" data-moving="false"
+           {% if player.arrived %}data-arrived="true"{% endif %}
            data-x="{{ player.x }}" data-y="{{ player.y }}" data-h="{{ player.h }}"
            data-speed="{{ player.speed }}"
            data-hit-x="{{ player.hit[0] }}" data-hit-y="{{ player.hit[1] }}"

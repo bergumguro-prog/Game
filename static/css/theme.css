@@ -44,6 +44,8 @@
   --px-yellow: #ffe28a;
   --px-fire: #ff9a3c;
   --px-lavender: #b9a3e0;
+  --px-lavender-dark: #8f76c4;
+  --px-lavender-light: #e3d8f6;
   --px-skin: #f5c9a8;
   --px-hair: #7a4a32;
   --px-hair-dark: #5a3324;
@@ -58,6 +60,8 @@
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
   --scene-leave-ms: 200ms;
+  --door-enter-ms: 300ms;   /* fading between rooms */
+  --door-leave-ms: 220ms;
   --hover-ms: 120ms;
   --hover-lift: -2px;
 
@@ -66,4 +70,34 @@
   --font-size-base: 18px;
   --font-size-small: 14px;
   --font-size-title: 32px;
+}
+
+/* --- Room themes ---------------------------------------------------------
+   Each room file sets theme="..."; the room page puts it in
+   data-room-theme. A theme only changes the frame, wall and floor colors,
+   so the furniture keeps the shared palette above. The main room uses the
+   defaults. */
+
+/* Room 2: a mint garden room with a light oak plank floor. */
+[data-room-theme="room2"] {
+  --color-frame: #c4e6d6;
+  --color-frame-light: #e4f5ec;
+  --color-frame-dark: #7fb8a0;
+  --px-wall: #d9f0e4;
+  --px-wall-speckle: #b3dcc6;
+  --px-floor: #d6a878;
+  --px-floor-alt: #e2b98a;
+  --px-floor-line: #a7774f;
+}
+
+/* Room 3: a lavender and strawberry room with a checkered floor. */
+[data-room-theme="room3"] {
+  --color-frame: #dccff0;
+  --color-frame-light: #f0e9fa;
+  --color-frame-dark: #a68fcf;
+  --px-wall: #e8def6;
+  --px-wall-speckle: #d0bfec;
+  --px-floor: #fbefdc;
+  --px-floor-alt: #f4c6d0;
+  --px-floor-line: #d9a3b0;
 }

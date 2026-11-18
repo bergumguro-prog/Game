@@ -1,13 +1,22 @@
-"""Flask blueprint for the room: serves the hub world page at "/".
+"""Flask blueprint for the rooms of the hub world.
 
-It converts the layout in objects.py (art pixels) into screen pixels for
-the template, and works out where each interactable object leads.
+    /               -> the room the player is in (the main room at first)
+    /rooms/<id>     -> a specific room; also remembers it as the current room
+    /rooms/<id>?via=<exit>  -> arrive through a door: the player stands in
+                               front of that exit instead of at the start
+
+The current room is kept in the Flask session, so leaving a mini-game
+(Esc or "Back to the room", which both go to "/") returns to the right room.
+
+It converts a room's layout (art pixels, see room/world.py and room/rooms/)
+into screen pixels for the template, and works out where each interactable
+object leads.
 """
 from urllib.parse import urlencode
 
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, abort, current_app, render_template, request, session
 
-from room import objects, sprites
+from room import objects, sprites, world
 
 room_bp = Blueprint(
     "room",
@@ -18,6 +27,7 @@ room_bp = Blueprint(
 )
 
 S = sprites.SCALE
+SESSION_KEY = "room"
 
 
 def game_url(slug, prompt):
@@ -45,26 +55,48 @@ def _object_view(obj, by_id):
     }
 
 
-@room_bp.route("/")
-def index():
-    by_id = {o.id: o for o in objects.OBJECTS}
+def _exit_view(exit, room):
+    sprite = f"door-{exit.side}"
+    x, y = exit.sprite_position(room)
+    w, h = sprites.size(sprite)
+    tx, ty, tw, th = exit.trigger_rect(room)
+    return {
+        "id": exit.id,
+        "side": exit.side,
+        "walk": world.WALK_DIRECTION[exit.side],
+        "url": exit.url,
+        "x": x * S, "y": y * S, "w": w * S, "h": h * S,
+        "hit": (tx * S, ty * S, tw * S, th * S),
+        "svg": sprites.render(sprite),
+    }
+
+
+def render_room(room, via=None):
+    """The room page. `via` is the exit the player came in through, if any."""
+    session[SESSION_KEY] = room.id
+    by_id = {o.id: o for o in room.objects}
+    arrived = room.exit(via)
+    x, y, facing = arrived.arrival(room) if arrived else (*room.start, "down")
     pw, ph = sprites.size("player-down")
     hx, hy, hw, hh = objects.PLAYER_HITBOX
     return render_template(
         "room.html",
         room={
-            "w": objects.ROOM_WIDTH * S,
-            "h": objects.ROOM_HEIGHT * S,
-            "wall_h": objects.WALL_HEIGHT * S,
+            "id": room.id,
+            "name": room.name,
+            "theme": room.theme,
+            "w": room.width * S,
+            "h": room.height * S,
+            "wall_h": room.wall_height * S,
             "reach": objects.INTERACT_REACH * S,
         },
-        wall_svg=sprites.render_pattern(
-            "wallpaper-tile", objects.ROOM_WIDTH, objects.WALL_HEIGHT),
-        floor_svg=sprites.render_pattern(
-            "floor-tile", objects.ROOM_WIDTH, objects.ROOM_HEIGHT - objects.WALL_HEIGHT),
+        wall_svg=sprites.render_pattern(room.wall_tile, room.width, room.wall_height),
+        floor_svg=sprites.render_pattern(room.floor_tile, room.width, room.floor_height),
         player={
-            "x": objects.PLAYER_START[0] * S,
-            "y": objects.PLAYER_START[1] * S,
+            "x": x * S,
+            "y": y * S,
+            "facing": facing,
+            "arrived": bool(arrived),
             "w": pw * S, "h": ph * S,
             "hit": (hx * S, hy * S, hw * S, hh * S),
             "speed": objects.PLAYER_SPEED * S,
@@ -72,5 +104,20 @@ def index():
             "up": sprites.render("player-up", "player-sprite face-up"),
             "side": sprites.render("player-side", "player-sprite face-side"),
         },
-        objects=[_object_view(o, by_id) for o in objects.OBJECTS],
+        objects=[_object_view(o, by_id) for o in room.objects],
+        exits=[_exit_view(e, room) for e in room.exits],
     )
+
+
+@room_bp.route("/")
+def index():
+    room = world.get(session.get(SESSION_KEY)) or world.get(world.DEFAULT_ROOM)
+    return render_room(room)
+
+
+@room_bp.route("/rooms/<room_id>")
+def show_room(room_id):
+    room = world.get(room_id)
+    if room is None:
+        abort(404)
+    return render_room(room, via=request.args.get("via"))

@@ -1,6 +1,6 @@
 // Player movement and collisions in the room.
 // Everything (room size, hitboxes, speed) comes from the HTML, which gets it
-// from room/objects.py, so nothing is hardcoded here. All values are in
+// from the room's file in room/rooms/, so nothing is hardcoded here. All values are in
 // screen pixels.
 (() => {
   const room = document.getElementById("room");
@@ -31,6 +31,15 @@
   }));
   let nearest = null;
   let started = false;
+  let leaving = false;
+
+  // Doors to other rooms. Walking into one (pressing toward it while the
+  // feet are in its doorway) goes to the connected room.
+  const exits = [...room.querySelectorAll(".exit")].map((el) => ({
+    url: el.dataset.url,
+    walk: el.dataset.walk, // "up", "down", "left" or "right"
+    x: num(el, "hitX"), y: num(el, "hitY"), w: num(el, "hitW"), h: num(el, "hitH"),
+  }));
 
   // Rectangles the player can't walk through.
   const solids = [...room.querySelectorAll(".object.solid")].map((el) => ({
@@ -45,12 +54,20 @@
   };
   const held = new Set();
 
+  function leave(url, sound, style) {
+    if (leaving) return;
+    leaving = true;
+    savePosition();
+    held.clear();
+    player.dataset.moving = "false";
+    if (window.scenes) window.scenes.goTo(url, sound, style);
+    else window.location.href = url;
+  }
+
   document.addEventListener("keydown", (e) => {
+    if (leaving) return;
     if (e.key.toLowerCase() === "e" && nearest && !e.repeat) {
-      savePosition();
-      held.clear();
-      if (window.scenes) window.scenes.goTo(nearest.url, "open");
-      else window.location.href = nearest.url;
+      leave(nearest.url, "open");
       return;
     }
     const dir = KEY_TO_DIRECTION[e.key.toLowerCase()];
@@ -96,6 +113,16 @@
     return best;
   }
 
+  // Is the player walking into a door right now?
+  function findExit() {
+    const fx = x + hit.x;
+    const fy = y + hit.y;
+    return exits.find((d) =>
+      held.has(d.walk) &&
+      fx < d.x + d.w && fx + hit.w > d.x && fy < d.y + d.h && fy + hit.h > d.y
+    );
+  }
+
   function updateNearest() {
     const found = findNearest();
     if (found === nearest) return;
@@ -110,9 +137,9 @@
     prompt.hidden = !nearest;
   }
 
-  // Remember where the player stood, so coming back from a game puts them
-  // in the same spot. sessionStorage is cleared when the tab is closed.
-  const STORAGE_KEY = "room-player";
+  // Remember where the player stood in this room, so coming back from a game
+  // puts them in the same spot. sessionStorage is cleared when the tab is closed.
+  const STORAGE_KEY = `room-player:${room.dataset.roomId}`;
   function savePosition() {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ x, y, facing: player.dataset.facing }));
@@ -147,7 +174,7 @@
 
   function draw() {
     player.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
-    // Things lower in the room are drawn in front (same rule as objects.py).
+    // Things lower in the room are drawn in front (same rule as z_index in objects.py).
     player.style.zIndex = 1000 + Math.round(y + spriteH);
     // Keep the "Press E" bubble centered above the player's head.
     prompt.style.transform =
@@ -176,11 +203,22 @@
       else player.dataset.facing = dy > 0 ? "down" : "up";
       draw();
       updateNearest();
+      const exit = findExit();
+      if (exit) leave(exit.url, "door", "door");
     }
-    requestAnimationFrame(frame);
+    if (!leaving) requestAnimationFrame(frame);
   }
 
-  restorePosition();
+  // Coming in through a door: the server already put the player in front
+  // of it. Otherwise (coming back from a game, or a reload) use the saved spot.
+  if (player.dataset.arrived) {
+    // Tidy the address bar so a reload doesn't count as coming through the door.
+    window.history.replaceState(null, "", window.location.pathname);
+  } else {
+    restorePosition();
+  }
+  // Also remember the spot when the tab is reloaded or closed.
+  window.addEventListener("pagehide", savePosition);
   draw();
   updateNearest();
   started = true;

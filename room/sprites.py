@@ -25,7 +25,8 @@ PALETTE = {
     "g": "leaf", "G": "leaf-dark",
     "c": "cream", "C": "cream-dark", "w": "white",
     "b": "wood", "B": "wood-dark", "n": "wood-light",
-    "y": "yellow", "f": "fire", "v": "lavender",
+    "y": "yellow", "f": "fire",
+    "v": "lavender", "V": "lavender-dark", "u": "lavender-light",
     "s": "skin", "h": "hair", "H": "hair-dark",
     "t": "stone", "T": "stone-dark",
     "1": "floor", "2": "floor-alt", "3": "floor-line",
@@ -455,6 +456,301 @@ def _tictactoe_table():
     )
 
 
+# --- Decorations for Room 2 and Room 3 ---------------------------------------
+
+# A potted plant hanging from the ceiling, with trailing vines.
+HANGING_PLANT = [
+    "...oCo..",
+    "...oCo..",
+    "..oggGo.",
+    ".ogGgggo",
+    "oooooooo",
+    "olppppPo",
+    ".oPPPPo.",
+    "ogo..ogo",
+    "oGo..ogo",
+    ".o...oGo",
+    "......o.",
+]
+
+# A little landscape painting in a wooden frame.
+PICTURE = [
+    "oooooooooooo",
+    "onnnnnnnnnno",
+    "onjjjjjjyjno",
+    "onjjwwjjjjno",
+    "onjjjjjjjjno",
+    "onggjjjgggno",
+    "onggggGgggno",
+    "onGgggggggno",
+    "onnnnnnnnnno",
+    "oooooooooooo",
+]
+
+# A small framed flower.
+PICTURE_FLOWER = [
+    "oooooooo",
+    "onnnnnno",
+    "onuuuuno",
+    "onuppuno",
+    "onpyypno",
+    "onuppuno",
+    "onuuguno",
+    "onguuuno",
+    "onnnnnno",
+    "oooooooo",
+]
+
+# A round wall clock with a swinging pendulum.
+WALL_CLOCK = [
+    "..oooooo..",
+    ".onnnnnno.",
+    "onwwwowwno",
+    "onwwwowwno",
+    "onwwwooono",
+    "onwwwwwwno",
+    "onwwwwwwno",
+    ".onnnnnno.",
+    "..oooooo..",
+    "....oo....",
+    "...oyyo...",
+    "....oo....",
+]
+
+
+def _plank_tile():
+    """One repeating tile of a light plank floor: long boards, staggered."""
+    rows = []
+    for y in range(8):
+        band, line = divmod(y, 4)
+        seam = 23 if band == 0 else 11
+        row = ""
+        for x in range(24):
+            if line == 3 or x == seam:
+                row += "3"
+            elif (x, y) in ((5, 1), (17, 5)):
+                row += "3"  # a little knot in the wood
+            else:
+                row += "1" if band == 0 else "2"
+        rows.append(row)
+    return rows
+
+
+def _checker_tile(square=8):
+    """One repeating tile of a checkered floor, with a soft dot in each square."""
+    rows = []
+    for y in range(2 * square):
+        row = ""
+        for x in range(2 * square):
+            dark = (x // square + y // square) % 2
+            if (x % square, y % square) == (square // 2, square // 2):
+                row += "3"
+            else:
+                row += "2" if dark else "1"
+        rows.append(row)
+    return rows
+
+
+WALLPAPER_FLOWERS = [
+    "444444444444",
+    "444w44444444",
+    "44wyw4444444",
+    "444w54444444",
+    "444455444444",
+    "444444444444",
+    "444444444l44",
+    "44444444lpl4",
+    "444444445l44",
+    "444444455444",
+]
+
+WALLPAPER_STRIPES = [
+    "44445544",
+    "44445544",
+    "4w445544",
+    "44445544",
+    "44445544",
+    "44445544",
+    "44445544",
+    "44445544",
+]
+
+
+# --- Furniture for future mini-games -----------------------------------------
+
+# A pastel arcade cabinet with a glowing mint screen and a heart marquee.
+ARCADE = [
+    "..oooooooooooo..",
+    ".oppppppppppppo.",
+    ".oyyyyyyyyyyyyo.",
+    ".oyreyyyyyyreyo.",
+    ".oyyyyyyyyyyyyo.",
+    ".oooooooooooooo.",
+    ".opoooooooooopo.",
+    ".opojjjjjjjjopo.",
+    ".opojmjjjjvjopo.",
+    ".opojjjjjjjjopo.",
+    ".opojjjrjjjjopo.",
+    ".opojjjjjjMjopo.",
+    ".opoooooooooopo.",
+    "oPPPPPPPPPPPPPPo",
+    "olrollllllemlylo",
+    "ollolllllllllllo",
+    "oPPPPPPPPPPPPPPo",
+    ".oppppppppppppo.",
+    ".oppppppppppppo.",
+    ".oppllllllllppo.",
+    ".oppPyyPPyyPppo.",
+    ".oppppppppppppo.",
+    ".oPPPPPPPPPPPPo.",
+    ".oooooooooooooo.",
+]
+
+
+def _puzzle_desk():
+    """A cream desk with a half-finished jigsaw puzzle on top."""
+    colors = "mpvj"
+    puzzle = []
+    for py in range(8):
+        row = ""
+        for px in range(20):
+            piece = (px // 4, py // 4)
+            if piece in ((3, 1), (4, 1)) or (piece == (4, 0) and py > 1):
+                row += "C"  # not placed yet
+            elif px % 4 == 3 or py % 4 == 3:
+                row += "o" if (px + py) % 3 else colors[(px // 4 + py // 4 + 1) % 4]
+            else:
+                row += colors[(px // 4 + py // 4) % 4]
+        puzzle.append(row)
+    return (
+        ["o" * 24, "o" + "c" * 22 + "o"]
+        + ["oc" + row + "co" for row in puzzle]
+        + ["o" + "c" * 22 + "o", "o" + "C" * 22 + "o", "o" * 24,
+           ".oCo" + "." * 16 + "oCo.", ".ooo" + "." * 16 + "ooo."]
+    )
+
+
+def _card_table(width=26, height=16):
+    """A round table with a mint felt top and a few playing cards on it."""
+    cx, cy = width / 2, height / 2
+    cards = {(7, 5): "e", (11, 4): "o", (15, 6): "e"}  # top-left -> pip color
+    rows = []
+    for y in range(height):
+        row = ""
+        for x in range(width):
+            d = ((x + 0.5 - cx) / cx) ** 2 + ((y + 0.5 - cy) / cy) ** 2
+            if d > 1:
+                ch = "."
+            elif d > 0.82:
+                ch = "o"
+            elif d > 0.62:
+                ch = "c" if y < cy else "C"
+            else:
+                ch = "M" if (x + y) % 2 and d > 0.5 else "m"
+            for (kx, ky), pip in cards.items():
+                if kx <= x < kx + 4 and ky <= y < ky + 5:
+                    edge = x in (kx, kx + 3) or y in (ky, ky + 4)
+                    ch = "o" if edge else (pip if (x, y) == (kx + 1, ky + 2) else "w")
+            row += ch
+        rows.append(row)
+    legs = "." * 6 + "oCo" + "." * 8 + "oCo" + "." * 6
+    return rows + [legs, legs.replace("C", "o")]
+
+
+def _piano(width=30):
+    """A little upright piano in warm wood with sheet music and keys."""
+    inner = width - 2
+    keys_top = ""
+    for i in range(inner):
+        # black keys in groups of two and three, like a real keyboard
+        keys_top += "o" if (i // 2) % 7 in (0, 1, 3, 4, 5) and i % 2 == 1 else "w"
+    return [
+        "o" * width,
+        "o" + "n" * inner + "o",
+        "o" + "b" * inner + "o",
+        "o" * width,
+        "ob" + "B" * (inner - 2) + "bo",
+        "ob" + "B" * 9 + "wwwwwwwwww" + "B" * (inner - 21) + "bo",
+        "ob" + "B" * 9 + "wowwowwwow" + "B" * (inner - 21) + "bo",
+        "ob" + "B" * 9 + "wwwwwwwwww" + "B" * (inner - 21) + "bo",
+        "ob" + "B" * (inner - 2) + "bo",
+        "o" * width,
+        "o" + keys_top + "o",
+        "o" + "w" * inner + "o",
+        "o" + "C" * inner + "o",
+        "o" * width,
+        "ob" + "b" * (inner - 2) + "bo",
+        "ob" + "bBBBBb" * ((inner - 2) // 6) + "b" * ((inner - 2) % 6) + "bo",
+        "ob" + "b" * (inner - 2) + "bo",
+        "oB" + "B" * (inner - 2) + "Bo",
+        "o" * width,
+        ".oBo" + "." * (width - 8) + "oBo.",
+        ".ooo" + "." * (width - 8) + "ooo.",
+    ]
+
+
+# --- Doors -------------------------------------------------------------------
+
+# A wooden door with an arched cream frame, standing against the back wall.
+# Drawn as the left half and mirrored, then the knob is added.
+_DOOR_TOP_LEFT = [
+    "....oooo",
+    "..ooCccc",
+    ".oCccccc",
+    ".oCcoooo",
+    "oCcobbbb",
+    "oCcobnll",
+    "oCcobnll",
+    "oCcobnll",
+    "oCcobbbb",
+    "oCcobBBB",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobbbb",
+    "oCcobbbb",
+    "oCcobBBB",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobbbb",
+    "oCcoBBBB",
+    "oCcoBBBB",
+    "oooooooo",
+]
+
+
+def _door_top():
+    rows = [row + row[::-1] for row in _DOOR_TOP_LEFT]
+    knob = 13
+    rows[knob] = rows[knob][:10] + "y" + rows[knob][11:]
+    return rows
+
+
+def _threshold(length):
+    """An open doorway in the bottom wall, seen from above: a wooden
+    threshold inside the room, a gap in the room's outline and a stone step
+    outside. Doorways in the side walls are the same, turned sideways."""
+    inner = length - 2
+    return [
+        "o" + "n" * inner + "o",   # inside the room
+        "o" + "b" * inner + "o",
+        "o" + "B" * inner + "o",   # covers the room's outline
+        "o" + "t" * inner + "o",   # step outside
+        "o" * length,
+    ]
+
+
+def _turn_left(rows):
+    """Rotate a sprite a quarter turn: its bottom row becomes its left column."""
+    return ["".join(row[x] for row in reversed(rows)) for x in range(len(rows[0]))]
+
+
+def _turn_right(rows):
+    """Rotate a sprite a quarter turn: its bottom row becomes its right column."""
+    return ["".join(row[x] for row in rows) for x in reversed(range(len(rows[0])))]
+
+
 WALLPAPER = [
     "444444444444",
     "444544444444",
@@ -496,9 +792,36 @@ SPRITES = {
     "round-rug-small": _round_rug(14, 12),
     "round-rug": _round_rug(24, 18),
     "doily": _doily(24),
+    # Room 2 and Room 3 decorations
+    "hanging-plant": HANGING_PLANT,
+    "picture": PICTURE,
+    "picture-flower": PICTURE_FLOWER,
+    "wall-clock": WALL_CLOCK,
+    "flower-pot-lavender": _recolor(FLOWER_POT, {"p": "v", "m": "u", "M": "V"}),
+    "rug-mint": _rug(40, 34, "M", "j", "c", "y"),
+    "round-rug-mint": _recolor(_round_rug(26, 18), {"P": "M", "p": "m", "l": "j"}),
+    "round-rug-lavender": _recolor(_round_rug(62, 30), {"P": "V", "p": "v", "l": "u"}),
+    "rug-lavender": _rug(30, 14, "V", "u", "w", "p"),
+    "mat-mint": _rug(20, 7, "M", "m", "w", "y"),
+    "mat-mint-side": _rug(7, 20, "M", "m", "w", "y"),
+    "mat-lavender-side": _rug(7, 20, "V", "v", "w", "y"),
+    # furniture for mini-games that are coming later
+    "arcade": ARCADE,
+    "puzzle-desk": _puzzle_desk(),
+    "card-table": _card_table(),
+    "piano": _piano(),
+    # doors (room/world.py picks one by the wall it is in; 16 = DOOR_WIDTH)
+    "door-top": _door_top(),
+    "door-bottom": _threshold(16 + 2),
+    "door-left": _turn_left(_threshold(16 + 2)),
+    "door-right": _turn_right(_threshold(16 + 2)),
     # tiles for repeating backgrounds
     "floor-tile": _herringbone_tile(),
     "wallpaper-tile": WALLPAPER,
+    "plank-tile": _plank_tile(),
+    "checker-tile": _checker_tile(),
+    "wallpaper-flowers": WALLPAPER_FLOWERS,
+    "wallpaper-stripes": WALLPAPER_STRIPES,
 }
 
 
