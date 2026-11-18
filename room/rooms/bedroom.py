@@ -22,7 +22,7 @@ OBJECTS = [
     RoomObject("rug-tea", "rug-tea", 114, 40, layer="floor"),
     RoomObject("rug-books", "round-rug-small", 22, 74, layer="floor"),
     RoomObject("rug-pink", "rug-pink", 6, 98, layer="floor"),
-    RoomObject("doily-door", "doily", 76, 102, layer="floor"),
+    RoomObject("doily-bottom", "doily", 76, 102, layer="floor"),
     RoomObject("rug-round", "round-rug", 130, 104, layer="floor"),
 
     # --- Bedroom corner ---
@@ -68,9 +68,10 @@ OBJECTS = [
     RoomObject("flower-stand-pot", "flower-pot", 140, 71, layer="on-top", on="flower-stand"),
     RoomObject("plant-right-b", "plant-big", 156, 76, hitbox=(1, 6, 8, 8)),
 
-    # --- By the door ---
-    RoomObject("door-pot-left", "flower-pot", 66, 116),
-    RoomObject("door-pot-right", "flower-pot", 102, 116),
+    # --- Bottom middle ---
+    RoomObject("pot-bottom-left", "flower-pot", 66, 116),
+    RoomObject("pot-bottom-right", "flower-pot", 102, 116),
+    RoomObject("mat-hallway-door", "mat-pink-side", 168, 50, layer="floor"),
 ]
 
 
@@ -85,7 +86,6 @@ room = Room(
     objects=OBJECTS,
     exits=[
         # the doorway between the two flower pots at the bottom
-        Exit("to-kitchen", "bottom", 80, to_room="kitchen", to_exit="to-bedroom"),
         # the door in the right wall, below the fireplace corner
         Exit("to-hallway", "right", 52, to_room="hallway", to_exit="to-bedroom"),
     ],
