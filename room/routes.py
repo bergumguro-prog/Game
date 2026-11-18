@@ -2,6 +2,8 @@
 
     /               -> the room the player is in (the main room at first)
     /rooms/<id>     -> a specific room; also remembers it as the current room
+    /rooms/<id>?via=<exit>  -> arrive through a door: the player stands in
+                               front of that exit instead of at the start
 
 The current room is kept in the Flask session, so leaving a mini-game
 (Esc or "Back to the room", which both go to "/") returns to the right room.
@@ -12,7 +14,7 @@ object leads.
 """
 from urllib.parse import urlencode
 
-from flask import Blueprint, abort, current_app, render_template, session
+from flask import Blueprint, abort, current_app, render_template, request, session
 
 from room import objects, sprites, world
 
@@ -53,9 +55,28 @@ def _object_view(obj, by_id):
     }
 
 
-def render_room(room):
+def _exit_view(exit, room):
+    sprite = f"door-{exit.side}"
+    x, y = exit.sprite_position(room)
+    w, h = sprites.size(sprite)
+    tx, ty, tw, th = exit.trigger_rect(room)
+    return {
+        "id": exit.id,
+        "side": exit.side,
+        "walk": world.WALK_DIRECTION[exit.side],
+        "url": exit.url,
+        "x": x * S, "y": y * S, "w": w * S, "h": h * S,
+        "hit": (tx * S, ty * S, tw * S, th * S),
+        "svg": sprites.render(sprite),
+    }
+
+
+def render_room(room, via=None):
+    """The room page. `via` is the exit the player came in through, if any."""
     session[SESSION_KEY] = room.id
     by_id = {o.id: o for o in room.objects}
+    arrived = room.exit(via)
+    x, y, facing = arrived.arrival(room) if arrived else (*room.start, "down")
     pw, ph = sprites.size("player-down")
     hx, hy, hw, hh = objects.PLAYER_HITBOX
     return render_template(
@@ -72,8 +93,10 @@ def render_room(room):
         wall_svg=sprites.render_pattern(room.wall_tile, room.width, room.wall_height),
         floor_svg=sprites.render_pattern(room.floor_tile, room.width, room.floor_height),
         player={
-            "x": room.start[0] * S,
-            "y": room.start[1] * S,
+            "x": x * S,
+            "y": y * S,
+            "facing": facing,
+            "arrived": bool(arrived),
             "w": pw * S, "h": ph * S,
             "hit": (hx * S, hy * S, hw * S, hh * S),
             "speed": objects.PLAYER_SPEED * S,
@@ -82,6 +105,7 @@ def render_room(room):
             "side": sprites.render("player-side", "player-sprite face-side"),
         },
         objects=[_object_view(o, by_id) for o in room.objects],
+        exits=[_exit_view(e, room) for e in room.exits],
     )
 
 
@@ -96,4 +120,4 @@ def show_room(room_id):
     room = world.get(room_id)
     if room is None:
         abort(404)
-    return render_room(room)
+    return render_room(room, via=request.args.get("via"))
