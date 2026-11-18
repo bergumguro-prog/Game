@@ -78,16 +78,16 @@
    so the furniture keeps the shared palette above. The main room uses the
    defaults. */
 
-/* Room 2: a mint garden room with a light oak plank floor. */
-[data-room-theme="room2"] {
-  --color-frame: #c4e6d6;
-  --color-frame-light: #e4f5ec;
-  --color-frame-dark: #7fb8a0;
-  --px-wall: #d9f0e4;
-  --px-wall-speckle: #b3dcc6;
-  --px-floor: #d6a878;
-  --px-floor-alt: #e2b98a;
-  --px-floor-line: #a7774f;
+/* Kitchen: mint subway tiles, butter-yellow floor tiles and frame. */
+[data-room-theme="kitchen"] {
+  --color-frame: #f5dfa0;
+  --color-frame-light: #fcf0cc;
+  --color-frame-dark: #d2ad5c;
+  --px-wall: #dff2e8;
+  --px-wall-speckle: #b9dccb;
+  --px-floor: #f8e6b8;
+  --px-floor-alt: #f2daa2;
+  --px-floor-line: #d4b27a;
 }
 
 /* Room 3: a lavender and strawberry room with a checkered floor. */

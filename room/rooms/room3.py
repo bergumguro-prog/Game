@@ -47,6 +47,6 @@ room = Room(
     start=(64, 88),
     objects=OBJECTS,
     exits=[
-        Exit("to-room2", "left", 62, to_room="room2", to_exit="to-room3"),
+        Exit("to-kitchen", "left", 62, to_room="kitchen", to_exit="to-room3"),
     ],
 )
