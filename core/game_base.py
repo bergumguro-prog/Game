@@ -24,8 +24,8 @@ Example (games/tictactoe/routes.py):
 
     game = TicTacToe()
 
-Then add `game` to GAMES in app.py and an object in room/objects.py that
-points to "tictactoe".
+app.py finds `game` automatically. Then add an object in one of the room
+files in room/rooms/ with game="tictactoe".
 """
 from abc import ABC, abstractmethod
 

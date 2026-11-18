@@ -60,8 +60,13 @@ Game/
 │
 ├── room/                     # the hub world  →  branch: room
 │   ├── __init__.py
-│   ├── routes.py             # Flask blueprint for the room
-│   ├── objects.py            # room layout: furniture, positions, which object opens which game
+│   ├── routes.py             # Flask blueprint: "/" and /rooms/<id>
+│   ├── world.py              # the Room type; finds every room in rooms/
+│   ├── objects.py            # what all rooms share: RoomObject, player settings
+│   ├── rooms/                # one file per room: size, look, doors, furniture
+│   │   ├── main.py           # the main room (chess, tic-tac-toe, hangman)
+│   │   ├── room2.py
+│   │   └── room3.py
 │   ├── sprites.py            # pixel art, drawn as grids of letters
 │   ├── templates/
 │   │   └── room.html
@@ -113,5 +118,21 @@ The full checklist (branches, sprites, sounds) is in CLAUDE.md under
 
 1. Create a folder `games/<name>/` with a `routes.py` that defines a subclass
    of `core.game_base.MiniGame` (see the docstring in that file).
-2. Add an interactable object for it in `room/objects.py`.
+2. Add an interactable object for it in one of the room files in
+   `room/rooms/`.
 3. Add tests in `tests/test_<name>.py`.
+
+## Adding a new room
+Make one new file in `room/rooms/`, for example `room/rooms/garden.py`, that
+defines `room = Room(...)` (copy `room2.py` to start). It is found
+automatically and shown at `/rooms/garden`. A room has:
+
+- `id`, `name`: the URL name and the name in the browser tab
+- `width`, `height`, `wall_height`: the size in art pixels
+- `start`: where the player stands if nothing else says where
+- `theme`, `floor_tile`, `wall_tile`: its colors (in `theme.css`) and patterns
+- `exits`: doors to other rooms
+- `objects`: the furniture, as `RoomObject`s
+
+Then run `python -m pytest`: the tests check that everything is inside the
+room and that every game object can be reached on foot.
