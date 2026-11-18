@@ -1,6 +1,6 @@
 // Player movement and collisions in the room.
 // Everything (room size, hitboxes, speed) comes from the HTML, which gets it
-// from room/objects.py, so nothing is hardcoded here. All values are in
+// from the room's file in room/rooms/, so nothing is hardcoded here. All values are in
 // screen pixels.
 (() => {
   const room = document.getElementById("room");
@@ -110,9 +110,9 @@
     prompt.hidden = !nearest;
   }
 
-  // Remember where the player stood, so coming back from a game puts them
-  // in the same spot. sessionStorage is cleared when the tab is closed.
-  const STORAGE_KEY = "room-player";
+  // Remember where the player stood in this room, so coming back from a game
+  // puts them in the same spot. sessionStorage is cleared when the tab is closed.
+  const STORAGE_KEY = `room-player:${room.dataset.roomId}`;
   function savePosition() {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ x, y, facing: player.dataset.facing }));
@@ -147,7 +147,7 @@
 
   function draw() {
     player.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
-    // Things lower in the room are drawn in front (same rule as objects.py).
+    // Things lower in the room are drawn in front (same rule as z_index in objects.py).
     player.style.zIndex = 1000 + Math.round(y + spriteH);
     // Keep the "Press E" bubble centered above the player's head.
     prompt.style.transform =
