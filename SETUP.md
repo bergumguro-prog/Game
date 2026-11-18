@@ -131,8 +131,12 @@ automatically and shown at `/rooms/garden`. A room has:
 - `width`, `height`, `wall_height`: the size in art pixels
 - `start`: where the player stands if nothing else says where
 - `theme`, `floor_tile`, `wall_tile`: its colors (in `theme.css`) and patterns
-- `exits`: doors to other rooms
+- `exits`: doors to other rooms, for example
+  `Exit("to-garden", "right", 60, to_room="garden", to_exit="to-main")`
+  is a door in the right wall, starting 60 art pixels down. The room it
+  leads to needs a matching `Exit` that points back.
 - `objects`: the furniture, as `RoomObject`s
 
 Then run `python -m pytest`: the tests check that everything is inside the
-room and that every game object can be reached on foot.
+room, that every door has a partner, and that every game object and door can
+be reached on foot.
