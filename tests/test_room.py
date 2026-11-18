@@ -336,3 +336,28 @@ def test_door_fade_timings_are_theme_variables():
     theme = open("static/css/theme.css").read()
     for var in ["--door-enter-ms", "--door-leave-ms"]:
         assert f"{var}:" in theme
+
+
+# --- Placeholder games in the new rooms (issue #46) ---
+
+@pytest.mark.parametrize("room_id", ["room2", "room3"])
+def test_new_rooms_have_one_or_two_game_objects(room_id):
+    games = [o for o in world.get(room_id).objects if o.game]
+    assert 1 <= len(games) <= 2
+
+
+def test_placeholder_object_opens_coming_soon_until_its_game_exists():
+    """Swapping a placeholder for a real game only needs a game with the
+    same slug: the room links to it automatically."""
+    class Arcade(MiniGame):
+        slug = "arcade"
+        title = "Arcade"
+
+        def register_routes(self, bp):
+            pass
+
+    app = create_app()
+    client = app.test_client()
+    assert 'data-url="/games/placeholder/?game=Arcade+games"' in client.get("/rooms/room2").data.decode()
+    app.extensions["games"]["arcade"] = Arcade()
+    assert 'data-url="/games/arcade/"' in client.get("/rooms/room2").data.decode()
