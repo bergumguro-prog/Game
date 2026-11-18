@@ -49,6 +49,10 @@ Cozy, cute, cottagecore top-down pixel art. Reference images (for mood only):
 - Every mini-game follows the same interface. Adding a game = one new folder in
   games/ + one object in the room.
 - Controls: arrow keys/WASD to move, E to interact, Esc to return to the room.
+- Rooms: every `room/rooms/<name>.py` that defines `room = Room(...)` is a
+  room (found automatically, shown at `/rooms/<id>`). `room/objects.py` holds
+  what all rooms share. The current room is kept in the Flask session, so `/`
+  (where Esc and "Back to the room" go) returns to the room the player was in.
 - `app.py` finds games automatically: every `games/<name>/routes.py` that
   defines `game = SomeMiniGame()` is registered. Never edit `app.py` to add a game.
 - Game state lives in the Flask session. Games are plain HTML forms that POST
@@ -68,7 +72,7 @@ Cozy, cute, cottagecore top-down pixel art. Reference images (for mood only):
    `logic.py` (pure Python rules), `templates/<name>.html` (extends
    `base.html`, uses `.panel` and `.button`) and `static/<name>.css`.
 3. Add `tests/test_<name>.py` for the rules and the routes.
-4. Add a piece of furniture for it in `room/objects.py` with
+4. Add a piece of furniture for it in a room file in `room/rooms/` with
    `game="<slug>"` and `prompt="play ..."`. Until the game exists, the object
    opens the "coming soon" placeholder. The room tests check that every game
    object can be reached on foot.

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}The Room{% endblock %}
+{% block title %}{{ room.name }}{% endblock %}
 
 {% block scene %}room{% endblock %}
 
@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block content %}
-<main class="scene">
+<main class="scene" data-room-theme="{{ room.theme }}">
   <div class="room-frame">
-    <div id="room" class="room"
+    <div id="room" class="room" data-room-id="{{ room.id }}"
          data-width="{{ room.w }}" data-height="{{ room.h }}" data-floor-top="{{ room.wall_h }}" data-reach="{{ room.reach }}"
          style="--room-w: {{ room.w }}px; --room-h: {{ room.h }}px; --wall-h: {{ room.wall_h }}px;">
 
