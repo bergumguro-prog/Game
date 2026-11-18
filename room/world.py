@@ -13,7 +13,7 @@ from functools import lru_cache
 
 from room import objects, sprites
 
-DEFAULT_ROOM = "main"  # where a new player starts
+DEFAULT_ROOM = "bedroom"  # where a new player starts
 
 # --- Doors -----------------------------------------------------------------
 
@@ -31,7 +31,7 @@ ARRIVE_FACING = {"top": "down", "bottom": "up", "left": "right", "right": "left"
 class Exit:
     """A door in one of the room's walls that leads to a door in another room.
 
-        Exit("to-kitchen", "bottom", 80, to_room="kitchen", to_exit="to-main")
+        Exit("to-hallway", "right", 52, to_room="hallway", to_exit="to-bedroom")
 
     `at` is where along the wall the doorway starts: its x for a door in the
     top (back) or bottom wall, its y for a door in the left or right wall.
@@ -99,7 +99,7 @@ class Room:
     start: tuple             # (x, y) top-left of the player when nothing else says where
     objects: list = field(default_factory=list)  # RoomObjects (room/objects.py)
     exits: list = field(default_factory=list)    # doors to other rooms
-    theme: str = "main"      # picks the room's colors in theme.css (data-room-theme)
+    theme: str = "default"   # picks the room's colors in theme.css (data-room-theme)
     floor_tile: str = "floor-tile"         # sprite repeated over the floor
     wall_tile: str = "wallpaper-tile"      # sprite repeated over the back wall
 
