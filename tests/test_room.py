@@ -47,13 +47,13 @@ def test_unknown_room_is_404():
 def test_start_with_main_room_then_remember_the_current_room():
     client = create_app().test_client()
     assert b'data-room-id="main"' in client.get("/").data
-    client.get("/rooms/room2")
+    client.get("/rooms/kitchen")
     # "/" is where Esc and "Back to the room" go after a mini-game.
-    assert b'data-room-id="room2"' in client.get("/").data
+    assert b'data-room-id="kitchen"' in client.get("/").data
 
 
 def test_there_are_at_least_three_rooms():
-    assert {"main", "room2", "room3"} <= set(world.rooms())
+    assert {"main", "kitchen", "room3"} <= set(world.rooms())
 
 
 def test_static_files_are_served():
@@ -306,29 +306,29 @@ def test_every_room_can_be_reached_from_the_main_room():
 
 
 def test_rooms_show_their_doors():
-    html = create_app().test_client().get("/rooms/room2").data.decode()
-    for exit in world.get("room2").exits:
+    html = create_app().test_client().get("/rooms/kitchen").data.decode()
+    for exit in world.get("kitchen").exits:
         assert f'data-exit="{exit.id}"' in html
         assert f'data-url="{exit.url}"' in html
 
 
 def test_coming_through_a_door_stands_in_front_of_it():
     client = create_app().test_client()
-    exit = world.get("room2").exit("to-main")
-    x, y, facing = exit.arrival(world.get("room2"))
-    html = client.get("/rooms/room2?via=to-main").data.decode()
+    exit = world.get("kitchen").exit("to-main")
+    x, y, facing = exit.arrival(world.get("kitchen"))
+    html = client.get("/rooms/kitchen?via=to-main").data.decode()
     S = sprites.SCALE
     assert f'data-x="{x * S}" data-y="{y * S}"' in html
     assert f'data-facing="{facing}"' in html
     assert 'data-arrived="true"' in html
     # A made-up exit just uses the room's normal start spot.
-    html = client.get("/rooms/room2?via=nowhere").data.decode()
+    html = client.get("/rooms/kitchen?via=nowhere").data.decode()
     assert 'data-arrived' not in html
 
 
 def test_walking_through_a_door_changes_the_current_room():
     client = create_app().test_client()
-    client.get("/rooms/room3?via=to-room2")
+    client.get("/rooms/room3?via=to-kitchen")
     assert b'data-room-id="room3"' in client.get("/").data
 
 
@@ -340,24 +340,49 @@ def test_door_fade_timings_are_theme_variables():
 
 # --- Placeholder games in the new rooms (issue #46) ---
 
-@pytest.mark.parametrize("room_id", ["room2", "room3"])
-def test_new_rooms_have_one_or_two_game_objects(room_id):
-    games = [o for o in world.get(room_id).objects if o.game]
+def test_room3_has_one_or_two_game_objects():
+    games = [o for o in world.get("room3").objects if o.game]
     assert 1 <= len(games) <= 2
 
 
 def test_placeholder_object_opens_coming_soon_until_its_game_exists():
     """Swapping a placeholder for a real game only needs a game with the
     same slug: the room links to it automatically."""
-    class Arcade(MiniGame):
-        slug = "arcade"
-        title = "Arcade"
+    class Piano(MiniGame):
+        slug = "piano"
+        title = "Piano"
 
         def register_routes(self, bp):
             pass
 
     app = create_app()
     client = app.test_client()
-    assert 'data-url="/games/placeholder/?game=Arcade+games"' in client.get("/rooms/room2").data.decode()
-    app.extensions["games"]["arcade"] = Arcade()
-    assert 'data-url="/games/arcade/"' in client.get("/rooms/room2").data.decode()
+    assert 'data-url="/games/placeholder/?game=Piano"' in client.get("/rooms/room3").data.decode()
+    app.extensions["games"]["piano"] = Piano()
+    assert 'data-url="/games/piano/"' in client.get("/rooms/room3").data.decode()
+
+
+# --- The kitchen (issue #52) ---
+
+def test_room2_became_the_kitchen():
+    assert world.get("room2") is None
+    kitchen = world.get("kitchen")
+    assert kitchen.name == "Kitchen"
+    assert create_app().test_client().get("/rooms/kitchen").status_code == 200
+
+
+def test_kitchen_objects_open_the_three_kitchen_games():
+    games = {o.id: o.game for o in world.get("kitchen").objects if o.game}
+    assert games == {
+        "sink": "dishes",
+        "fridge": "baking",
+        "pantry": "baking",
+        "kitchen-table": "tablesetting",
+    }
+
+
+def test_an_old_room2_session_falls_back_to_the_main_room():
+    client = create_app().test_client()
+    with client.session_transaction() as session:
+        session["room"] = "room2"
+    assert b'data-room-id="main"' in client.get("/").data

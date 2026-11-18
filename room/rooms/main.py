@@ -84,6 +84,6 @@ room = Room(
     objects=OBJECTS,
     exits=[
         # the doorway between the two flower pots at the bottom
-        Exit("to-room2", "bottom", 80, to_room="room2", to_exit="to-main"),
+        Exit("to-kitchen", "bottom", 80, to_room="kitchen", to_exit="to-main"),
     ],
 )
