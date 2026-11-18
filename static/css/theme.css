@@ -58,6 +58,8 @@
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
   --scene-leave-ms: 200ms;
+  --door-enter-ms: 300ms;   /* fading between rooms */
+  --door-leave-ms: 220ms;
   --hover-ms: 120ms;
   --hover-lift: -2px;
 

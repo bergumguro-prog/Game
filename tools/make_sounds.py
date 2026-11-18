@@ -65,6 +65,8 @@ SOUNDS = {
     "win": melody(["C5", "E5", "G5"], 0.09) + tone(NOTES["C6"], 0.35, release=0.25),
     "lose": melody(["G4", "Eb4"], 0.16) + tone(NOTES["C4"], 0.4, release=0.3),
     "draw": melody(["E5", "D5"], 0.1) + tone(NOTES["E5"], 0.25, release=0.2),
+    # walking through a door: a soft wooden "tok" and a little chime
+    "door": [0.6 * v for v in knock(0.06)] + tone(NOTES["E5"], 0.06) + tone(NOTES["A5"], 0.16, release=0.14),
 }
 
 

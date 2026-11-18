@@ -195,7 +195,7 @@ def test_interactable_objects_are_solid_furniture(room):
 
 # --- Polish: transitions, hover, sounds (issue #9) ---
 
-SOUND_NAMES = ["open", "back", "select", "move", "win", "lose", "draw"]
+SOUND_NAMES = ["open", "back", "select", "move", "win", "lose", "draw", "door"]
 
 
 @pytest.mark.parametrize("name", SOUND_NAMES)
@@ -249,3 +249,90 @@ def test_every_game_object_can_be_reached_on_foot(room):
     for o in room.objects:
         if o.game:
             assert can_reach(spots, o.hitbox_rect, objects.INTERACT_REACH), f"can't reach {o.id}"
+
+
+# --- Doors between rooms (issue #45) ---
+
+ALL_EXITS = [(room, exit) for room in ROOMS for exit in room.exits]
+each_exit = pytest.mark.parametrize(
+    "room,exit", ALL_EXITS, ids=lambda v: getattr(v, "id", None))
+
+
+@each_room
+def test_exit_ids_are_unique(room):
+    ids = [e.id for e in room.exits]
+    assert len(ids) == len(set(ids))
+
+
+@each_exit
+def test_every_door_leads_to_a_door_that_leads_back(room, exit):
+    other_room = world.get(exit.to_room)
+    assert other_room is not None, f"{exit.to_room} doesn't exist"
+    other = other_room.exit(exit.to_exit)
+    assert other is not None, f"{exit.to_room} has no exit {exit.to_exit}"
+    assert (other.to_room, other.to_exit) == (room.id, exit.id)
+
+
+@each_exit
+def test_doors_sit_in_a_wall(room, exit):
+    assert exit.side in world.SIDES
+    if exit.side in ("top", "bottom"):
+        assert 1 <= exit.at and exit.at + world.DOOR_WIDTH <= room.width - 1
+    else:  # side doors open onto the floor, below the back wall
+        assert room.wall_height <= exit.at and exit.at + world.DOOR_WIDTH <= room.height - 1
+
+
+@each_exit
+def test_arriving_through_a_door_puts_the_player_in_a_free_spot(room, exit):
+    x, y, _ = exit.arrival(room)
+    assert is_free(room, x, y)
+    # ...and not already in the doorway, so they don't bounce straight back.
+    assert not overlaps(player_feet(x, y), exit.trigger_rect(room))
+
+
+@each_exit
+def test_every_door_can_be_reached_on_foot(room, exit):
+    assert can_reach(walkable_spots(room), exit.trigger_rect(room), 0), exit.id
+
+
+def test_every_room_can_be_reached_from_the_main_room():
+    seen, todo = {"main"}, ["main"]
+    while todo:
+        for exit in world.get(todo.pop()).exits:
+            if exit.to_room not in seen:
+                seen.add(exit.to_room)
+                todo.append(exit.to_room)
+    assert seen == set(world.rooms())
+
+
+def test_rooms_show_their_doors():
+    html = create_app().test_client().get("/rooms/room2").data.decode()
+    for exit in world.get("room2").exits:
+        assert f'data-exit="{exit.id}"' in html
+        assert f'data-url="{exit.url}"' in html
+
+
+def test_coming_through_a_door_stands_in_front_of_it():
+    client = create_app().test_client()
+    exit = world.get("room2").exit("to-main")
+    x, y, facing = exit.arrival(world.get("room2"))
+    html = client.get("/rooms/room2?via=to-main").data.decode()
+    S = sprites.SCALE
+    assert f'data-x="{x * S}" data-y="{y * S}"' in html
+    assert f'data-facing="{facing}"' in html
+    assert 'data-arrived="true"' in html
+    # A made-up exit just uses the room's normal start spot.
+    html = client.get("/rooms/room2?via=nowhere").data.decode()
+    assert 'data-arrived' not in html
+
+
+def test_walking_through_a_door_changes_the_current_room():
+    client = create_app().test_client()
+    client.get("/rooms/room3?via=to-room2")
+    assert b'data-room-id="room3"' in client.get("/").data
+
+
+def test_door_fade_timings_are_theme_variables():
+    theme = open("static/css/theme.css").read()
+    for var in ["--door-enter-ms", "--door-leave-ms"]:
+        assert f"{var}:" in theme

@@ -455,6 +455,68 @@ def _tictactoe_table():
     )
 
 
+# --- Doors -------------------------------------------------------------------
+
+# A wooden door with an arched cream frame, standing against the back wall.
+# Drawn as the left half and mirrored, then the knob is added.
+_DOOR_TOP_LEFT = [
+    "....oooo",
+    "..ooCccc",
+    ".oCccccc",
+    ".oCcoooo",
+    "oCcobbbb",
+    "oCcobnll",
+    "oCcobnll",
+    "oCcobnll",
+    "oCcobbbb",
+    "oCcobBBB",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobbbb",
+    "oCcobbbb",
+    "oCcobBBB",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobBnb",
+    "oCcobbbb",
+    "oCcoBBBB",
+    "oCcoBBBB",
+    "oooooooo",
+]
+
+
+def _door_top():
+    rows = [row + row[::-1] for row in _DOOR_TOP_LEFT]
+    knob = 13
+    rows[knob] = rows[knob][:10] + "y" + rows[knob][11:]
+    return rows
+
+
+def _threshold(length):
+    """An open doorway in the bottom wall, seen from above: a wooden
+    threshold inside the room, a gap in the room's outline and a stone step
+    outside. Doorways in the side walls are the same, turned sideways."""
+    inner = length - 2
+    return [
+        "o" + "n" * inner + "o",   # inside the room
+        "o" + "b" * inner + "o",
+        "o" + "B" * inner + "o",   # covers the room's outline
+        "o" + "t" * inner + "o",   # step outside
+        "o" * length,
+    ]
+
+
+def _turn_left(rows):
+    """Rotate a sprite a quarter turn: its bottom row becomes its left column."""
+    return ["".join(row[x] for row in reversed(rows)) for x in range(len(rows[0]))]
+
+
+def _turn_right(rows):
+    """Rotate a sprite a quarter turn: its bottom row becomes its right column."""
+    return ["".join(row[x] for row in rows) for x in reversed(range(len(rows[0])))]
+
+
 WALLPAPER = [
     "444444444444",
     "444544444444",
@@ -496,6 +558,11 @@ SPRITES = {
     "round-rug-small": _round_rug(14, 12),
     "round-rug": _round_rug(24, 18),
     "doily": _doily(24),
+    # doors (room/world.py picks one by the wall it is in; 16 = DOOR_WIDTH)
+    "door-top": _door_top(),
+    "door-bottom": _threshold(16 + 2),
+    "door-left": _turn_left(_threshold(16 + 2)),
+    "door-right": _turn_right(_threshold(16 + 2)),
     # tiles for repeating backgrounds
     "floor-tile": _herringbone_tile(),
     "wallpaper-tile": WALLPAPER,

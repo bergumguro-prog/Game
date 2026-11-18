@@ -161,3 +161,17 @@ button:enabled {
     transition: none !important;
   }
 }
+
+/* Walking through a door between rooms: a plain, soft fade. */
+.door-enter .scene {
+  animation: door-in var(--door-enter-ms) ease-out;
+}
+.door-leave .scene {
+  animation: door-out var(--door-leave-ms) ease-in forwards;
+}
+@keyframes door-in {
+  from { opacity: 0; }
+}
+@keyframes door-out {
+  to { opacity: 0; }
+}

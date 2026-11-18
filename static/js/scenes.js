@@ -1,7 +1,8 @@
 // Switching between scenes, plus sound effects. Loaded on every page.
 //
-// - scenes.goTo(url, sound): fade the scene out, then go to `url`. The next
-//   page fades in and plays `sound` ("open", "back", ...).
+// - scenes.goTo(url, sound, style): fade the scene out, then go to `url`. The
+//   next page fades in and plays `sound` ("open", "back", "door", ...).
+//   style "door" is a plain, slightly slower fade used between rooms.
 // - Links (<a href>) to other scenes use the same fade automatically.
 // - In a mini-game, Esc goes back to the room.
 // - Any element with data-sound="name" plays that sound when the page loads
@@ -10,8 +11,8 @@
 (() => {
   const ENTER_KEY = "scene-enter";
   const MUTE_KEY = "sound-muted";
-  const leaveMs = parseFloat(getComputedStyle(document.documentElement)
-    .getPropertyValue("--scene-leave-ms")) || 200;
+  const cssMs = (name, fallback) => parseFloat(getComputedStyle(document.documentElement)
+    .getPropertyValue(name)) || fallback;
 
   // sessionStorage/localStorage can be unavailable (private mode etc.).
   const store = {
@@ -30,20 +31,24 @@
   }
 
   let leaving = false;
-  function goTo(url, sound) {
+  function goTo(url, sound, style) {
     if (leaving) return;
     leaving = true;
-    store.set("sessionStorage", ENTER_KEY, sound || "");
-    document.body.classList.add("scene-leave");
-    setTimeout(() => { window.location.href = url; }, leaveMs);
+    const door = style === "door";
+    store.set("sessionStorage", ENTER_KEY, JSON.stringify({ sound: sound || "", door }));
+    document.body.classList.add(door ? "door-leave" : "scene-leave");
+    const ms = door ? cssMs("--door-leave-ms", 220) : cssMs("--scene-leave-ms", 200);
+    setTimeout(() => { window.location.href = url; }, ms);
   }
 
   // --- Fade in when we arrived through goTo() ---
   const entered = store.get("sessionStorage", ENTER_KEY);
   if (entered !== null) {
     store.remove("sessionStorage", ENTER_KEY);
-    document.body.classList.add("scene-enter");
-    play(entered);
+    let info;
+    try { info = JSON.parse(entered); } catch (e) { info = { sound: entered }; }
+    document.body.classList.add(info.door ? "door-enter" : "scene-enter");
+    play(info.sound);
   }
 
   // --- Sounds requested by the page itself ---
@@ -72,7 +77,7 @@
       const newMain = page.querySelector("main");
       const oldMain = document.querySelector("main");
       if (!response.ok || !newMain || !oldMain) throw new Error("unexpected response");
-      document.body.classList.remove("scene-enter"); // don't replay the fade-in
+      document.body.classList.remove("scene-enter", "door-enter"); // don't replay the fade-in
       oldMain.replaceWith(document.adoptNode(newMain));
       if (response.url && response.url !== window.location.href) {
         window.history.replaceState(null, "", response.url);
