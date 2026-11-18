@@ -78,7 +78,7 @@ Cozy, cute, cottagecore top-down pixel art. Reference images (for mood only):
    `game="<slug>"` and `prompt="play ..."`. Until the game exists, the object
    opens the "coming soon" placeholder. The room tests check that every game
    object can be reached on foot. If a placeholder object for the game is
-   already in a room (the arcade, puzzle desk, piano or card table), just
+   already in a room (the kitchen's sink, fridge, pantry and table, or Room 3's piano and card table), just
    give the game the same slug and it connects by itself.
 5. Play a sound on moves and at the end of a game with `data-sound`.
 

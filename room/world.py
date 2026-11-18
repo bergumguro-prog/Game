@@ -31,7 +31,7 @@ ARRIVE_FACING = {"top": "down", "bottom": "up", "left": "right", "right": "left"
 class Exit:
     """A door in one of the room's walls that leads to a door in another room.
 
-        Exit("to-room2", "bottom", 80, to_room="room2", to_exit="to-main")
+        Exit("to-kitchen", "bottom", 80, to_room="kitchen", to_exit="to-main")
 
     `at` is where along the wall the doorway starts: its x for a door in the
     top (back) or bottom wall, its y for a door in the left or right wall.
