@@ -119,7 +119,9 @@ The full checklist (branches, sprites, sounds) is in CLAUDE.md under
 1. Create a folder `games/<name>/` with a `routes.py` that defines a subclass
    of `core.game_base.MiniGame` (see the docstring in that file).
 2. Add an interactable object for it in one of the room files in
-   `room/rooms/`.
+   `room/rooms/`. If there's already a "coming soon" object waiting for
+   it (Room 2: `arcade`, `puzzles`; Room 3: `piano`, `cards`), use that slug
+   for the game and the object opens it automatically.
 3. Add tests in `tests/test_<name>.py`.
 
 ## Adding a new room

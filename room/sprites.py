@@ -455,6 +455,119 @@ def _tictactoe_table():
     )
 
 
+# --- Furniture for future mini-games -----------------------------------------
+
+# A pastel arcade cabinet with a glowing mint screen and a heart marquee.
+ARCADE = [
+    "..oooooooooooo..",
+    ".oppppppppppppo.",
+    ".oyyyyyyyyyyyyo.",
+    ".oyreyyyyyyreyo.",
+    ".oyyyyyyyyyyyyo.",
+    ".oooooooooooooo.",
+    ".opoooooooooopo.",
+    ".opojjjjjjjjopo.",
+    ".opojmjjjjvjopo.",
+    ".opojjjjjjjjopo.",
+    ".opojjjrjjjjopo.",
+    ".opojjjjjjMjopo.",
+    ".opoooooooooopo.",
+    "oPPPPPPPPPPPPPPo",
+    "olrollllllemlylo",
+    "ollolllllllllllo",
+    "oPPPPPPPPPPPPPPo",
+    ".oppppppppppppo.",
+    ".oppppppppppppo.",
+    ".oppllllllllppo.",
+    ".oppPyyPPyyPppo.",
+    ".oppppppppppppo.",
+    ".oPPPPPPPPPPPPo.",
+    ".oooooooooooooo.",
+]
+
+
+def _puzzle_desk():
+    """A cream desk with a half-finished jigsaw puzzle on top."""
+    colors = "mpvj"
+    puzzle = []
+    for py in range(8):
+        row = ""
+        for px in range(20):
+            piece = (px // 4, py // 4)
+            if piece in ((3, 1), (4, 1)) or (piece == (4, 0) and py > 1):
+                row += "C"  # not placed yet
+            elif px % 4 == 3 or py % 4 == 3:
+                row += "o" if (px + py) % 3 else colors[(px // 4 + py // 4 + 1) % 4]
+            else:
+                row += colors[(px // 4 + py // 4) % 4]
+        puzzle.append(row)
+    return (
+        ["o" * 24, "o" + "c" * 22 + "o"]
+        + ["oc" + row + "co" for row in puzzle]
+        + ["o" + "c" * 22 + "o", "o" + "C" * 22 + "o", "o" * 24,
+           ".oCo" + "." * 16 + "oCo.", ".ooo" + "." * 16 + "ooo."]
+    )
+
+
+def _card_table(width=26, height=16):
+    """A round table with a mint felt top and a few playing cards on it."""
+    cx, cy = width / 2, height / 2
+    cards = {(7, 5): "e", (11, 4): "o", (15, 6): "e"}  # top-left -> pip color
+    rows = []
+    for y in range(height):
+        row = ""
+        for x in range(width):
+            d = ((x + 0.5 - cx) / cx) ** 2 + ((y + 0.5 - cy) / cy) ** 2
+            if d > 1:
+                ch = "."
+            elif d > 0.82:
+                ch = "o"
+            elif d > 0.62:
+                ch = "c" if y < cy else "C"
+            else:
+                ch = "M" if (x + y) % 2 and d > 0.5 else "m"
+            for (kx, ky), pip in cards.items():
+                if kx <= x < kx + 4 and ky <= y < ky + 5:
+                    edge = x in (kx, kx + 3) or y in (ky, ky + 4)
+                    ch = "o" if edge else (pip if (x, y) == (kx + 1, ky + 2) else "w")
+            row += ch
+        rows.append(row)
+    legs = "." * 6 + "oCo" + "." * 8 + "oCo" + "." * 6
+    return rows + [legs, legs.replace("C", "o")]
+
+
+def _piano(width=30):
+    """A little upright piano in warm wood with sheet music and keys."""
+    inner = width - 2
+    keys_top = ""
+    for i in range(inner):
+        # black keys in groups of two and three, like a real keyboard
+        keys_top += "o" if (i // 2) % 7 in (0, 1, 3, 4, 5) and i % 2 == 1 else "w"
+    return [
+        "o" * width,
+        "o" + "n" * inner + "o",
+        "o" + "b" * inner + "o",
+        "o" * width,
+        "ob" + "B" * (inner - 2) + "bo",
+        "ob" + "B" * 9 + "wwwwwwwwww" + "B" * (inner - 21) + "bo",
+        "ob" + "B" * 9 + "wowwowwwow" + "B" * (inner - 21) + "bo",
+        "ob" + "B" * 9 + "wwwwwwwwww" + "B" * (inner - 21) + "bo",
+        "ob" + "B" * (inner - 2) + "bo",
+        "o" * width,
+        "o" + keys_top + "o",
+        "o" + "w" * inner + "o",
+        "o" + "C" * inner + "o",
+        "o" * width,
+        "ob" + "b" * (inner - 2) + "bo",
+        "ob" + "bBBBBb" * ((inner - 2) // 6) + "b" * ((inner - 2) % 6) + "bo",
+        "ob" + "b" * (inner - 2) + "bo",
+        "oB" + "B" * (inner - 2) + "Bo",
+        "o" * width,
+        ".oBo" + "." * (width - 8) + "oBo.",
+        ".ooo" + "." * (width - 8) + "ooo.",
+    ]
+
+
 # --- Doors -------------------------------------------------------------------
 
 # A wooden door with an arched cream frame, standing against the back wall.
@@ -558,6 +671,11 @@ SPRITES = {
     "round-rug-small": _round_rug(14, 12),
     "round-rug": _round_rug(24, 18),
     "doily": _doily(24),
+    # furniture for mini-games that are coming later
+    "arcade": ARCADE,
+    "puzzle-desk": _puzzle_desk(),
+    "card-table": _card_table(),
+    "piano": _piano(),
     # doors (room/world.py picks one by the wall it is in; 16 = DOOR_WIDTH)
     "door-top": _door_top(),
     "door-bottom": _threshold(16 + 2),
