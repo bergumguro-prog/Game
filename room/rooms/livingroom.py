@@ -1,4 +1,4 @@
-"""The living room: a music and card room.
+"""The living room: a fireplace, a piano and a card table.
 
 The piano and the card table open "coming soon" until their games exist.
 To make one real, create games/<slug>/ with the same slug (for example
@@ -9,30 +9,38 @@ from room.world import Exit, Room
 
 OBJECTS = [
     # --- On the back wall ---
-    RoomObject("window", "window", 16, 6, layer="wall"),
-    RoomObject("picture", "picture", 40, 8, layer="wall"),
-    RoomObject("picture-flower", "picture-flower", 56, 9, layer="wall"),
-    RoomObject("clock", "wall-clock", 74, 6, layer="wall"),
-    RoomObject("hanging-plant", "hanging-plant", 132, 0, layer="wall"),
+    RoomObject("window", "window", 8, 6, layer="wall"),
+    RoomObject("picture", "picture", 82, 8, layer="wall"),
+    RoomObject("picture-flower", "picture-flower", 98, 9, layer="wall"),
+    RoomObject("clock", "wall-clock", 148, 6, layer="wall"),
+    RoomObject("hanging-plant", "hanging-plant", 164, 0, layer="wall"),
 
     # --- Rugs and doormats ---
-    RoomObject("rug-cards", "round-rug-lavender", 40, 56, layer="floor"),
-    RoomObject("rug-piano", "rug-lavender", 96, 36, layer="floor"),
+    RoomObject("rug-fire", "rug-lavender", 29, 34, layer="floor"),
+    RoomObject("rug-piano", "rug-lavender", 112, 36, layer="floor"),
+    RoomObject("rug-cards", "round-rug-lavender", 56, 72, layer="floor"),
     RoomObject("mat-side-door", "mat-lavender-side", 1, 60, layer="floor"),
+
+    # --- Fireplace corner ---
+    RoomObject("fireplace", "fireplace", 32, 14, hitbox=(0, 12, 24, 6),
+               game="fireplace", prompt="sit by the fire"),
+    RoomObject("mantel-plant", "plant-small", 36, 7, layer="on-top", on="fireplace"),
+    RoomObject("mantel-flowers", "flower-pot", 48, 5, layer="on-top", on="fireplace"),
+    RoomObject("armchair", "armchair", 60, 28),
 
     # --- Plants ---
     RoomObject("pot-top-left", "flower-pot-lavender", 4, 28),
-    RoomObject("plant-top-right", "plant-big", 130, 28, hitbox=(1, 6, 8, 8)),
-    RoomObject("plant-bottom-right", "plant-big", 130, 94, hitbox=(1, 6, 8, 8)),
-    RoomObject("pot-bottom-left", "flower-pot-lavender", 4, 100),
+    RoomObject("plant-top-right", "plant-big", 164, 28, hitbox=(1, 6, 8, 8)),
+    RoomObject("plant-bottom-right", "plant-big", 162, 100, hitbox=(1, 6, 8, 8)),
+    RoomObject("pot-bottom-left", "flower-pot-lavender", 4, 104),
 
-    # --- Games (coming soon) ---
-    RoomObject("piano", "piano", 96, 12, hitbox=(0, 12, 30, 9),
+    # --- Games ---
+    RoomObject("piano", "piano", 112, 12, hitbox=(0, 12, 30, 9),
                game="piano", prompt="play piano"),
-    RoomObject("card-table", "card-table", 58, 62, hitbox=(0, 2, 26, 16),
+    RoomObject("card-table", "card-table", 74, 78, hitbox=(0, 2, 26, 16),
                game="cards", prompt="play cards"),
-    RoomObject("card-pouf-left", "pouf-pink", 45, 68),
-    RoomObject("card-pouf-right", "pouf-pink", 87, 68),
+    RoomObject("card-pouf-left", "pouf-pink", 61, 84),
+    RoomObject("card-pouf-right", "pouf-pink", 103, 84),
 ]
 
 room = Room(
@@ -41,10 +49,10 @@ room = Room(
     theme="livingroom",
     floor_tile="checker-tile",
     wall_tile="wallpaper-stripes",
-    width=144,
-    height=112,
+    width=176,
+    height=120,
     wall_height=26,
-    start=(64, 88),
+    start=(80, 100),
     objects=OBJECTS,
     exits=[
         Exit("to-hallway", "left", 62, to_room="hallway", to_exit="to-livingroom"),
