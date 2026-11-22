@@ -233,3 +233,37 @@ def test_broken_saved_game_starts_fresh(client):
         s["solitaire"] = {"seed": "x", "moves": "oops"}
     assert client.get("/games/solitaire/").status_code == 200
     assert saved(client)["moves"] == []
+
+
+# --- The card table page (issue #71) ---
+
+def test_table_shows_every_tableau_card_and_movable_cards(client):
+    with client.session_transaction() as s:
+        s["solitaire"] = {"seed": 2, "moves": [], "started": 0, "won": None}
+    html = client.get("/games/solitaire/").data.decode()
+    table = logic.deal(2)
+    assert html.count('class="card face-down"') == 21 + 1   # tableau + stock
+    for p, pile in enumerate(table.tableau):
+        top = pile[-1][0]
+        assert f'data-src="T{p}"' in html and f'data-card="{top}"' in html
+        assert f'data-drop="T{p}"' in html
+    assert html.count('data-drop="F"') == 4
+    assert 'id="sol-move"' in html and 'id="sol-auto"' in html
+    assert "solitaire.js" in html
+
+
+def test_cards_have_readable_names(client):
+    html = client.get("/games/solitaire/").data.decode()
+    assert 'aria-label="' in html and " of " in html
+
+
+def test_empty_stock_offers_to_turn_the_waste_over(client):
+    with client.session_transaction() as s:
+        s["solitaire"] = {"seed": 2, "moves": ["D"] * 24, "started": 0, "won": None}
+    html = client.get("/games/solitaire/").data.decode()
+    assert "Turn the waste over" in html
+
+
+def test_solitaire_static_files_are_served(client):
+    for name in ("solitaire.js", "solitaire.css"):
+        assert client.get(f"/games/solitaire/static/{name}").status_code == 200
