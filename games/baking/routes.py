@@ -72,6 +72,17 @@ def current_step(bake):
     return {"mix": 2, "pour": 3, "bake": 4, "baking": 4}.get(phase)
 
 
+def bowl_sprite(bake):
+    """Empty, lumpy (not mixed yet) or smooth (mixed)."""
+    if bake["phase"] in ("pour",):
+        return "bowl-smooth"
+    if bake["phase"] in ("bake", "baking", "done") or not bake["bowl"]:
+        return "bowl-empty"
+    if bake["phase"] == "mix" and bake["stirs"] * 2 >= logic.recipe_of(bake).stirs:
+        return "bowl-smooth"
+    return "bowl-lumpy"
+
+
 def ingredient_state(bake, item):
     if item in bake["bowl"]:
         return "in-bowl"
@@ -101,6 +112,11 @@ class Baking(MiniGame):
                 shelf=ingredients.kept_in(bake["open"]) if bake and bake["open"] else [],
                 states={i: ingredient_state(bake, i) for i in recipe.ingredients} if recipe else {},
                 step=current_step(bake) if bake else None,
+                bowl=sprites.render(bowl_sprite(bake), "bowl-art") if bake else None,
+                tin=sprites.render("tin-full" if bake and bake["phase"] in ("bake", "baking", "done") else "tin-empty", "tin-art"),
+                oven=sprites.render("oven", "oven-art"),
+                oven_muffins=sprites.render("oven-muffins", "oven-muffins-art"),
+                oven_seconds=round(now() - bake["oven_start"], 1) if bake and bake["phase"] == "baking" else 0,
                 fridge=sprites.render("fridge", "storage-art"),
                 pantry=sprites.render("pantry", "storage-art"),
                 message=session.pop(MESSAGE_KEY, None),

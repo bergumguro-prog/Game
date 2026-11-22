@@ -25,6 +25,10 @@
         {%- if message -%}{{ message }}
         {%- elif bake.phase == "gather" and not bake.counter and not bake.bowl -%}Open the fridge or the pantry and take out what the recipe needs.
         {%- elif bake.phase == "gather" -%}Click things on the counter to put them in the bowl, in the order on the card.
+        {%- elif bake.phase == "mix" -%}Everything's in! Now give it a good stir.
+        {%- elif bake.phase == "pour" -%}Smooth and lovely. Pour it into the muffin tin.
+        {%- elif bake.phase == "bake" -%}Into the oven they go!
+        {%- elif bake.phase == "baking" -%}Watch the window and take them out when they're golden.
         {%- endif -%}
       </p>
 
@@ -85,7 +89,48 @@
           </div>
           {% endif %}
 
-          {% block bake_more %}{% endblock %}
+          {% if bake.phase in ("gather", "mix", "pour") %}
+          <div class="station" aria-label="The mixing bowl">
+            <div class="bowl{% if bake.phase == 'mix' %} bowl-mixing{% endif %}">{{ bowl }}</div>
+            {% if bake.phase == "mix" %}
+            <form method="post" action="{{ url_for('baking.stir') }}">
+              <button class="button" type="submit">Stir ({{ bake.stirs }}/{{ recipe.stirs }})</button>
+            </form>
+            {% elif bake.phase == "pour" %}
+            <form method="post" action="{{ url_for('baking.pour') }}">
+              <button class="button" type="submit">Pour into the tin</button>
+            </form>
+            {% else %}
+            <p class="station-note">{{ bake.bowl|length }} of {{ recipe.ingredients|length }} in the bowl</p>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if bake.phase in ("bake", "baking") %}
+          <div class="station" aria-label="The oven">
+            {% if bake.phase == "bake" %}
+            <div class="tin">{{ tin }}</div>
+            <form method="post" action="{{ url_for('baking.oven') }}">
+              <button class="button" type="submit">Put them in the oven</button>
+            </form>
+            {% else %}
+            <div class="oven" id="oven" data-seconds="{{ oven_seconds }}"
+                 data-pale="{{ recipe.pale_before }}" data-from="{{ recipe.bake[0] }}"
+                 data-to="{{ recipe.bake[1] }}" data-burnt="{{ recipe.burnt_after }}" data-stage="raw">
+              {{ oven }}
+              <div class="oven-window">{{ oven_muffins }}</div>
+            </div>
+            <p class="station-note">In the oven: <strong id="oven-time">0</strong> s &middot; <span id="oven-look">still raw</span></p>
+            <form method="post" action="{{ url_for('baking.take_out') }}">
+              <button class="button" type="submit">Take them out!</button>
+            </form>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if bake.phase == "done" %}
+          <div class="station"><p>Out of the oven!</p></div>
+          {% endif %}
         </div>
       </div>
     {% endif %}
@@ -96,4 +141,8 @@
   </section>
   <p class="hint">Click to open, pick and add &middot; <kbd>Esc</kbd> to return to the kitchen</p>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('baking.static', filename='baking.js') }}"></script>
 {% endblock %}
