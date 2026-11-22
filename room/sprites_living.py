@@ -63,46 +63,50 @@ def _paste(c, box, x0, y0):
                 c[y0 + y][x0 + x] = ch
 
 
-def _sofa_back(width=44, height=22):
-    """The pink sofa seen from behind (it faces the card table): two plump
-    rolled arms and a rounded back with a stitched seam."""
+def _shade(box, light_rows=2, dark_rows=2):
+    """Flat shading on a rounded box: lighter top rows, darker bottom rows."""
+    h = len(box)
+    for y, row in enumerate(box):
+        for x, ch in enumerate(row):
+            if ch == "p":
+                if 0 < y <= light_rows:
+                    row[x] = "l"
+                elif y >= h - 1 - dark_rows:
+                    row[x] = "P"
+    return box
+
+
+def _sofa_back(width=40, height=17):
+    """The pink sofa seen from behind (it faces the card table): a tall,
+    rounded back with a soft roll along the top, and small, low arms."""
     c = _canvas(width, height)
-    back = _plump(width - 16, 17, 4)
-    cx = (width - 16) / 2
-    for x in range(3, width - 19):                 # a curved seam across the back
-        y = 6 + round(((x - cx) / cx) ** 2 * 3)
-        if back[y][x] in "pP" and x % 2 == 0:
-            back[y][x] = "r"
-    for y in range(9, 15):                         # the lower back is in shadow
-        for x in range(2, width - 18):
-            if back[y][x] == "p":
-                back[y][x] = "P"
-    _paste(c, back, 8, 3)
-    for x0 in (0, width - 11):                     # rolled arms
-        arm = _plump(11, 19, 3)
-        arm[3][5] = arm[4][5] = "r"                # where the roll curls
-        _paste(c, arm, x0, 1)
-    for x in (3, 4, width - 5, width - 4):         # wooden feet
+    for x0 in (0, width - 7):                      # small, low arms
+        _paste(c, _shade(_rounded_box(7, 10, 2, "p"), 1, 2), x0, 4)
+    back = _shade(_rounded_box(width - 8, 14, 3, "p"), 2, 3)
+    for x in range(3, width - 11):                 # the seam under the top roll
+        if back[4][x] == "p":
+            back[4][x] = "P"
+    _paste(c, back, 4, 0)
+    for x in (2, 3, width - 4, width - 3):         # wooden feet
+        c[height - 3][x] = c[height - 3][x] if c[height - 3][x] != "." else "o"
         c[height - 2][x] = "B"
         c[height - 1][x] = "o"
     return _rows(c)
 
 
 def _armchair_side():
-    """A plump pink armchair from the side, facing left: a tall buttoned
-    back, a rolled arm and a soft base."""
-    w, h = 20, 21
+    """A pink armchair from the side, facing left: a rounded back, a cushion
+    peeking over a soft rolled arm, and little wooden legs."""
+    w, h = 17, 17
     c = _canvas(w, h)
-    back = _plump(8, 19, 2)
-    back[4][4] = back[3][4] = back[5][4] = back[4][3] = back[4][5] = "r"   # a button
-    _paste(c, back, 12, 0)
-    _paste(c, _plump(18, 7, 2), 0, 12)             # base
-    arm = _plump(15, 8, 3)
-    arm[3][2] = arm[4][2] = "r"                    # where the roll curls
-    _paste(c, arm, 0, 6)
-    for x in (3, 15):                              # wooden legs
-        c[19][x] = "B"
-        c[20][x] = "o"
+    _paste(c, _shade(_rounded_box(6, 15, 2, "p"), 2, 1), 11, 0)       # back
+    _paste(c, _shade(_rounded_box(10, 4, 1, "p"), 1, 0), 2, 4)        # cushion
+    body = _shade(_rounded_box(13, 9, 3, "p"), 2, 2)                  # arm and side
+    body[4][2] = body[5][3] = "P"                                     # where the arm rolls
+    _paste(c, body, 0, 6)
+    for x in (2, 13):                                                 # legs
+        c[15][x] = "B"
+        c[16][x] = "o"
     return _rows(c)
 
 
