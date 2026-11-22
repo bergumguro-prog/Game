@@ -358,6 +358,7 @@ def test_placeholder_object_opens_coming_soon_until_its_game_exists():
             pass
 
     app = create_app()
+    app.extensions["games"].pop("piano", None)   # pretend the game isn't built yet
     client = app.test_client()
     assert 'data-url="/games/placeholder/?game=Piano"' in client.get("/rooms/livingroom").data.decode()
     app.extensions["games"]["piano"] = Piano()

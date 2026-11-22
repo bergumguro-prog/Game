@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Piano{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('piano.static', filename='piano.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel piano-panel">
+    <h1 class="panel-title">Piano</h1>
+    {% block piano_top %}
+    <p class="piano-status" id="piano-status">Play anything you like!</p>
+    {% endblock %}
+
+    <div class="piano" style="--whites: {{ white_count }};">
+      <div class="piano-music" aria-hidden="true">
+        <span class="piano-sheet"></span>
+      </div>
+      <div class="piano-keys" id="piano-keys" role="group" aria-label="Piano keys">
+        {% for k in keys %}
+        <button type="button" class="piano-key {{ 'black' if k.black else 'white' }}"
+                data-note="{{ k.note }}" data-key="{{ k.key }}"
+                data-sound="{{ url_for('static', filename='sounds/' ~ k.sound ~ '.wav') }}"
+                style="--at: {{ k.white_index }};"
+                aria-label="{{ k.note }}">
+          <span class="piano-letter">{{ k.key|upper }}</span>
+        </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% block piano_bottom %}{% endblock %}
+
+    <div class="piano-actions">
+      <a class="button button-mint" href="/">Back to the living room</a>
+    </div>
+  </section>
+  <p class="hint">Click the keys or type <kbd>A</kbd>&ndash;<kbd>;</kbd> (white) and <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> <kbd>O</kbd> <kbd>P</kbd> (black) &middot; <kbd>Esc</kbd> to leave</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('piano.static', filename='piano.js') }}"></script>
+{% endblock %}

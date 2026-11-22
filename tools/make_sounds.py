@@ -101,6 +101,29 @@ SOUNDS = {
 }
 
 
+def piano_note(freq, seconds=1.1):
+    """A soft, music-box-like piano note: a quick start, then a slow fade.
+    A little of the octave above makes it brighter."""
+    n = int(RATE * seconds)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        env = min(1.0, t / 0.004) * math.exp(-t * 3.2) * min(1.0, (seconds - t) / 0.05)
+        wave_ = (0.75 * math.sin(2 * math.pi * freq * t)
+                 + 0.2 * math.sin(2 * math.pi * 2 * freq * t)
+                 + 0.12 * triangle(freq * t))
+        out.append(wave_ * env)
+    return out
+
+
+def piano_sounds():
+    """One sound per piano key, named like "piano-Cs4" (see games/piano)."""
+    import sys
+    sys.path.insert(0, str(OUT.parent.parent))
+    from games.piano import logic
+    return {logic.sound_name(note): piano_note(logic.frequency(note)) for note in logic.NOTES}
+
+
 def write(name, samples):
     path = OUT / f"{name}.wav"
     with wave.open(str(path), "wb") as f:
@@ -114,5 +137,5 @@ def write(name, samples):
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, samples in SOUNDS.items():
+    for name, samples in {**SOUNDS, **piano_sounds()}.items():
         print("wrote", write(name, samples).relative_to(OUT.parent.parent))
