@@ -178,3 +178,74 @@
   .bake-layout { flex-direction: column; align-items: stretch; }
   .recipe-card { flex: none; }
 }
+
+/* --- Bowl, tin and oven --- */
+.station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  background: var(--px-cream);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+}
+.station-note {
+  color: var(--color-text-muted);
+}
+.bowl-art {
+  width: 256px;
+  height: auto;
+}
+.bowl-mixing {
+  animation: bowl-wobble 0.5s steps(2) 1;
+}
+@keyframes bowl-wobble {
+  50% { rotate: -3deg; }
+}
+.tin-art {
+  width: 288px;
+  height: auto;
+}
+
+.oven {
+  position: relative;
+  width: 352px;   /* 44 art pixels x 8 */
+  line-height: 0;
+}
+.oven-art {
+  width: 100%;
+  height: auto;
+}
+/* The muffins sit in the oven window (window starts 7 art pixels from the
+   left and 14 from the top; each art pixel is 8 screen pixels). */
+.oven-window {
+  position: absolute;
+  left: calc(7 * 8px);
+  top: calc(18 * 8px);
+  width: calc(30 * 8px);
+}
+.oven-muffins-art {
+  width: 100%;
+  height: auto;
+}
+/* How baked the muffins look, in flat steps. */
+.oven[data-stage="raw"] .oven-muffins-art .px-yellow { fill: var(--muffin-raw); }
+.oven[data-stage="pale"] .oven-muffins-art .px-yellow { fill: var(--muffin-pale); }
+.oven[data-stage="golden"] .oven-muffins-art .px-yellow { fill: var(--muffin-golden); }
+.oven[data-stage="brown"] .oven-muffins-art .px-yellow { fill: var(--muffin-brown); }
+.oven[data-stage="dark"] .oven-muffins-art .px-yellow { fill: var(--muffin-dark); }
+/* the heating element glows */
+.oven-art .px-fire {
+  animation: oven-glow 1s steps(2) infinite;
+}
+@keyframes oven-glow {
+  50% { fill: var(--px-yellow); }
+}
+
+@media (max-width: 560px) {
+  .oven { width: 264px; }
+  .oven-window { left: calc(7 * 6px); top: calc(18 * 6px); width: calc(30 * 6px); }
+  .bowl-art { width: 192px; }
+  .tin-art { width: 216px; }
+}

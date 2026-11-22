@@ -63,6 +63,11 @@
   --recipe-line: #f6d9df;
   --fridge-inside: #e6f5ee;
   --pantry-inside: #f8ecd6;
+  --muffin-raw: #fbf1dc;      /* how baked the muffins look in the oven */
+  --muffin-pale: #f6e2a8;
+  --muffin-golden: #e9b35e;
+  --muffin-brown: #b9773f;
+  --muffin-dark: #6e3f28;
 
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
