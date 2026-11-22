@@ -138,6 +138,9 @@ automatically and shown at `/rooms/garden`. A room has:
   `Exit("to-garden", "right", 60, to_room="garden", to_exit="to-main")`
   is a door in the right wall, starting 60 art pixels down. The room it
   leads to needs a matching `Exit` that points back.
+  An `Exit` without `to_room` is locked: it says "It's locked... for now"
+  (or its own `locked=` text). The hallway's front door works like this until
+  there is an outside area; `room/rooms/hallway.py` explains how to open it.
 - `objects`: the furniture, as `RoomObject`s
 
 Then run `python -m pytest`: the tests check that everything is inside the
