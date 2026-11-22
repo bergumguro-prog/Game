@@ -67,9 +67,7 @@ OBJECTS = [
     RoomObject("flower-stand-pot", "flower-pot", 140, 71, layer="on-top", on="flower-stand"),
     RoomObject("plant-right-b", "plant-big", 156, 76, hitbox=(1, 6, 8, 8)),
 
-    # --- Bottom middle ---
-    RoomObject("pot-bottom-left", "flower-pot", 66, 116),
-    RoomObject("pot-bottom-right", "flower-pot", 102, 116),
+    # --- By the hallway door ---
     RoomObject("mat-hallway-door", "mat-pink-side", 168, 50, layer="floor"),
 ]
 
@@ -84,7 +82,6 @@ room = Room(
     start=(82, 66),
     objects=OBJECTS,
     exits=[
-        # the doorway between the two flower pots at the bottom
         # the door in the right wall, below the dresser corner
         Exit("to-hallway", "right", 52, to_room="hallway", to_exit="to-bedroom"),
     ],

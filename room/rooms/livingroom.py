@@ -27,12 +27,12 @@ OBJECTS = [
     RoomObject("mantel-plant", "plant-small", 36, 7, layer="on-top", on="fireplace"),
     RoomObject("mantel-flowers", "flower-pot", 48, 5, layer="on-top", on="fireplace"),
     RoomObject("armchair", "armchair", 60, 28),
+    # a sofa facing the fire, seen from behind
+    RoomObject("sofa", "sofa-back", 16, 46, hitbox=(0, 4, 38, 13)),
 
     # --- Plants ---
-    RoomObject("pot-top-left", "flower-pot-lavender", 4, 28),
     RoomObject("plant-top-right", "plant-big", 164, 28, hitbox=(1, 6, 8, 8)),
     RoomObject("plant-bottom-right", "plant-big", 162, 100, hitbox=(1, 6, 8, 8)),
-    RoomObject("pot-bottom-left", "flower-pot-lavender", 4, 104),
 
     # --- Games ---
     RoomObject("piano", "piano", 112, 12, hitbox=(0, 12, 30, 9),
