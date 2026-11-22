@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}By the fire{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('fireplace.static', filename='fireplace.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene fireplace-scene">
+  {# Everything inside .hearth is placed in art pixels times --scale, which
+     fireplace.js sets to the biggest whole number that fits the window. #}
+  <div id="hearth" class="hearth" data-frame-w="{{ frame.w }}" data-frame-h="{{ frame.h }}"
+       style="--fw: {{ frame.w }}; --fh: {{ frame.h }};
+              --ox: {{ opening.x }}; --oy: {{ opening.y }}; --ow: {{ opening.w }}; --oh: {{ opening.h }};
+              --lx: {{ logs.x }}; --ly: {{ logs.y }}; --lw: {{ logs.w }}; --lh: {{ logs.h }};">
+    <div class="fire-glow" aria-hidden="true"></div>
+    <canvas id="fire" class="fire" width="{{ opening.w }}" height="{{ opening.h }}"
+            aria-label="A crackling fire"></canvas>
+    <div class="hearth-logs">{{ logs_svg }}</div>
+    <div class="hearth-frame">{{ hearth_svg }}</div>
+  </div>
+
+  <div class="fireplace-actions">
+    <a class="button button-mint" href="/">Back to the living room</a>
+    <p class="hint">Press <kbd>Esc</kbd> to return to the living room</p>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('fireplace.static', filename='fireplace.js') }}"></script>
+{% endblock %}

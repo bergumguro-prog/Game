@@ -29,6 +29,7 @@ PALETTE = {
     "v": "lavender", "V": "lavender-dark", "u": "lavender-light",
     "s": "skin", "h": "hair", "H": "hair-dark",
     "t": "stone", "T": "stone-dark",
+    "k": "steel", "K": "steel-dark",
     "1": "floor", "2": "floor-alt", "3": "floor-line",
     "4": "wall", "5": "wall-speckle",
 }
@@ -456,7 +457,7 @@ def _tictactoe_table():
     )
 
 
-# --- Decorations for Room 2 and Room 3 ---------------------------------------
+# --- Decorations for the other rooms -----------------------------------------
 
 # A potted plant hanging from the ceiling, with trailing vines.
 HANGING_PLANT = [
@@ -792,7 +793,7 @@ SPRITES = {
     "round-rug-small": _round_rug(14, 12),
     "round-rug": _round_rug(24, 18),
     "doily": _doily(24),
-    # Room 2 and Room 3 decorations
+    # decorations for the other rooms (some are unused for now)
     "hanging-plant": HANGING_PLANT,
     "picture": PICTURE,
     "picture-flower": PICTURE_FLOWER,
@@ -824,6 +825,22 @@ SPRITES = {
     "wallpaper-stripes": WALLPAPER_STRIPES,
 }
 
+
+# The kitchen's and hallway's furniture live in their own files to keep
+# this one shorter.
+from room.sprites_kitchen import KITCHEN_SPRITES  # noqa: E402
+
+SPRITES.update(KITCHEN_SPRITES)
+from room.sprites_hallway import HALLWAY_SPRITES  # noqa: E402
+
+SPRITES.update(HALLWAY_SPRITES)
+from room.sprites_living import LIVING_SPRITES  # noqa: E402
+
+SPRITES.update(LIVING_SPRITES)
+SPRITES["runner"] = _rug(18, 74, "P", "p", "l", "y")
+SPRITES["rug-kitchen"] = _round_rug(60, 32)
+SPRITES["mat-pink-side"] = _rug(7, 20, "P", "p", "w", "y")
+SPRITES["mat-pink"] = _rug(20, 7, "P", "p", "w", "y")
 
 def size(name):
     """(width, height) of a sprite in art pixels."""

@@ -1,0 +1,258 @@
+/* Solitaire: a mint felt table with cream pixel cards.
+   Colors come from static/css/theme.css. */
+
+.sol-panel {
+  --card-w: 64px;
+  --card-h: 88px;
+  --fan-down: 10px;    /* how much of a face-down card shows under the next */
+  --fan-up: 24px;      /* ...and of a face-up card */
+  --gap: 10px;
+  padding: 20px 24px;
+}
+
+.sol-status {
+  display: flex;
+  gap: 24px;
+  color: var(--color-text-muted);
+}
+.sol-status strong {
+  color: var(--color-text);
+}
+
+.sol-panel {
+  position: relative;
+}
+
+/* --- Win screen --- */
+.sol-win {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--solitaire-win-veil);
+  border-radius: 8px;
+  z-index: 2000;
+  animation: sol-win-in 300ms steps(3);
+}
+@keyframes sol-win-in {
+  from { opacity: 0; }
+}
+.sol-win-card {
+  max-width: 340px;
+}
+.sol-panel .button:focus-visible {
+  outline: 3px solid var(--px-rose);
+  outline-offset: 2px;
+}
+.sol-win-hearts {
+  display: flex;
+  gap: 8px;
+}
+.win-heart {
+  width: 42px;
+  height: 42px;
+  animation: win-hop 0.8s steps(2) infinite;
+}
+.win-heart:nth-child(2) { animation-delay: 0.2s; }
+.win-heart:nth-child(3) { animation-delay: 0.4s; }
+@keyframes win-hop {
+  50% { transform: translateY(-6px); }
+}
+
+.sol-table {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 6px, var(--solitaire-felt-dots) 6px 8px),
+    var(--solitaire-felt);
+  border: 4px solid var(--px-outline);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 4px var(--solitaire-felt-dark);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sol-top,
+.sol-tableau {
+  display: grid;
+  grid-template-columns: repeat(7, var(--card-w));
+  gap: var(--gap);
+}
+.sol-top form {
+  display: contents;
+}
+
+/* --- Piles --- */
+.pile {
+  position: relative;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 3px var(--solitaire-slot);
+}
+.tableau-pile {
+  /* tall enough for every fanned card */
+  height: calc(var(--card-h) + var(--down) * var(--fan-down)
+               + max(var(--up) - 1, 0) * var(--fan-up));
+  min-height: var(--card-h);
+}
+.pile-empty::after,
+.slot-mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--solitaire-slot);
+  font-size: var(--font-size-title);
+  font-weight: 700;
+}
+.pile-empty::after {
+  content: "K";  /* only a king can go here */
+}
+
+.stock {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.stock-again {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--solitaire-slot);
+  font-size: 40px;
+}
+.stock:hover .card,
+.stock:focus-visible .card {
+  transform: translateY(var(--hover-lift));
+}
+
+/* --- Cards --- */
+.card {
+  position: absolute;
+  left: 0;
+  top: calc(var(--down-above, 0) * var(--fan-down) + var(--up-above, 0) * var(--fan-up));
+  width: var(--card-w);
+  height: var(--card-h);
+  border: 3px solid var(--px-outline);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--color-shadow);
+  transition: transform var(--hover-ms) ease-out;
+}
+.stock .card,
+.waste .card,
+.foundation .card {
+  top: 0;
+}
+
+.face-up {
+  background: var(--card-face);
+  box-shadow: inset 0 0 0 3px var(--card-face-edge), 0 3px 0 var(--color-shadow);
+  color: var(--card-black);
+}
+.face-up.red {
+  color: var(--card-red);
+}
+.card-under {
+  transform: translate(-3px, -3px);
+}
+
+.face-down {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* pink gingham: two flat stripes crossing */
+  background:
+    repeating-linear-gradient(0deg, var(--card-back-stripe) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(90deg, var(--card-back-stripe) 0 6px, transparent 6px 12px),
+    var(--card-back);
+  box-shadow: inset 0 0 0 3px var(--card-face), 0 3px 0 var(--color-shadow);
+}
+.card-bow {
+  width: 44px;
+  height: 32px;
+}
+
+.card-corner {
+  position: absolute;
+  left: 5px;
+  top: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+.card-rank {
+  font-size: 18px;
+  font-weight: 700;
+}
+.card-corner .suit {
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+}
+.card-middle {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+}
+.card-middle .suit {
+  width: 28px;
+  height: 28px;
+}
+
+/* --- Dragging --- */
+.card.movable {
+  cursor: grab;
+  touch-action: none;
+}
+.card.dragging {
+  z-index: 1000;
+  cursor: grabbing;
+  transition: none;
+  box-shadow: inset 0 0 0 3px var(--card-face-edge), 0 8px 0 var(--color-shadow);
+}
+.card.returning {
+  transition: transform 160ms ease-out;
+}
+.pile.drop-target {
+  box-shadow: inset 0 0 0 3px var(--px-white);
+}
+
+.sol-actions form {
+  display: contents;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+.sol-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Smaller cards on narrow screens. */
+@media (max-width: 640px) {
+  .sol-panel {
+    --card-w: 42px;
+    --card-h: 60px;
+    --fan-down: 7px;
+    --fan-up: 18px;
+    --gap: 5px;
+    padding: 12px;
+  }
+  .card-rank { font-size: 13px; }
+  .card-corner .suit { width: 9px; height: 9px; }
+  .card-middle .suit { width: 18px; height: 18px; }
+  .card-bow { width: 22px; height: 16px; }
+}
