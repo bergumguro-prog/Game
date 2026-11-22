@@ -26,9 +26,10 @@ OBJECTS = [
                game="fireplace", prompt="sit by the fire"),
     RoomObject("mantel-lavender", "flower-pot-lavender", 34, 5, layer="on-top", on="fireplace"),
     RoomObject("mantel-flowers", "flower-pot", 48, 5, layer="on-top", on="fireplace"),
-    # two armchairs turned toward the fire, one on each side, level with it
-    RoomObject("armchair-left", "armchair-side-right", 14, 15),
-    RoomObject("armchair", "armchair-side", 57, 15),
+    # two armchairs turned toward the fire, level with the round rug, one on
+    # each side of it
+    RoomObject("armchair-left", "armchair-side-right", 12, 33),
+    RoomObject("armchair", "armchair-side", 59, 33),
 
     # --- Flowers ---
     RoomObject("roses-top-right", "flowers-roses", 164, 28, hitbox=(1, 6, 8, 8)),

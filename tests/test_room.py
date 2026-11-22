@@ -542,9 +542,11 @@ def test_living_room_sofa_from_behind_and_armchair_from_the_side():
     assert living["rug-fire"].startswith("round-rug")
 
 
-def test_armchairs_stand_level_with_the_fireplace():
+def test_armchairs_stand_level_with_the_rug_on_each_side_of_it():
     living = {o.id: o for o in world.get("livingroom").objects}
-    bottom = lambda o: o.y + o.size[1]  # noqa: E731
-    assert bottom(living["armchair-left"]) == bottom(living["armchair"]) == bottom(living["fireplace"])
-    assert living["armchair-left"].x + living["armchair-left"].size[0] <= living["fireplace"].x
-    assert living["armchair"].x >= living["fireplace"].x + living["fireplace"].size[0]
+    middle = lambda o: o.y + o.size[1] / 2  # noqa: E731
+    rug, left, right = living["rug-fire"], living["armchair-left"], living["armchair"]
+    assert middle(left) == middle(right)
+    assert abs(middle(left) - middle(rug)) <= 1
+    assert left.x + left.size[0] <= rug.x
+    assert right.x >= rug.x + rug.size[0]
