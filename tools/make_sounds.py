@@ -38,6 +38,17 @@ def tone(freq, seconds, attack=0.005, release=0.06):
     return out
 
 
+def swish(seconds=0.12):
+    """A soft scrubbing swish: quiet noise that rises and falls."""
+    rng = random.Random(3)
+    n = int(RATE * seconds)
+    out, level = [], 0.0
+    for i in range(n):
+        level += (rng.uniform(-1, 1) - level) * 0.35
+        out.append(level * math.sin(math.pi * i / n) * 0.6)
+    return out
+
+
 def knock(seconds=0.09):
     """A short wooden "tok": a low tone that drops quickly, plus a bit of noise."""
     rng = random.Random(1)
@@ -62,6 +73,8 @@ SOUNDS = {
     "back": melody(["G5", "E5", "C5"], 0.07),    # returning to the room
     "select": tone(NOTES["A5"], 0.05),           # selecting something
     "move": knock(),                             # placing a piece
+    "scrub": swish(),                            # scrubbing a dish
+    "sparkle": melody(["E5", "G5", "C6"], 0.05),  # a dish is clean
     "win": melody(["C5", "E5", "G5"], 0.09) + tone(NOTES["C6"], 0.35, release=0.25),
     "lose": melody(["G4", "Eb4"], 0.16) + tone(NOTES["C4"], 0.4, release=0.3),
     "draw": melody(["E5", "D5"], 0.1) + tone(NOTES["E5"], 0.25, release=0.2),
