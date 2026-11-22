@@ -59,6 +59,16 @@
   --px-wall: #f8c9d3;
   --px-wall-speckle: #f0a9ba;
 
+  /* Table decorating: the tablecloth patterns */
+  --cloth-gingham: #fdf0f3;
+  --cloth-gingham-stripe: rgba(244, 166, 184, 0.45);
+  --cloth-mint: #c9ecdc;
+  --cloth-mint-edge: #9fd8c1;
+  --cloth-lace: #fbf1dc;
+  --cloth-lace-dot: #fffaf4;
+  --cloth-stripe: #d9cbef;
+  --cloth-stripe-light: #efe7fa;
+
   /* Baking: the recipe card's lines and inside the fridge and pantry */
   --recipe-line: #f6d9df;
   --fridge-inside: #e6f5ee;
