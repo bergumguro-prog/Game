@@ -80,6 +80,7 @@
   --card-black: #4a2c3a;
   --card-back: #fbd3dc;
   --card-back-stripe: rgba(226, 85, 111, 0.28);
+  --solitaire-win-veil: rgba(253, 244, 230, 0.82);
 
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;

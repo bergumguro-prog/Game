@@ -109,6 +109,35 @@
   document.addEventListener("pointerup", (e) => endDrag(e, false));
   document.addEventListener("pointercancel", (e) => endDrag(e, true));
 
+  // U or Ctrl/Cmd+Z takes back the last move.
+  document.addEventListener("keydown", (e) => {
+    const key = e.key.toLowerCase();
+    const undo = (key === "u" && !e.ctrlKey && !e.metaKey) || (key === "z" && (e.ctrlKey || e.metaKey));
+    if (!undo || e.repeat) return;
+    const button = document.getElementById("sol-undo");
+    if (button && !button.disabled) {
+      e.preventDefault();
+      button.click();
+    }
+  });
+
+  // The clock: counts up from the time the server says the game has been
+  // going, and stops once the game is won. Set up again after every move,
+  // because each move brings a new page section.
+  let ticker = null;
+  function startClock() {
+    clearInterval(ticker);
+    const clock = document.getElementById("sol-time");
+    if (!clock || clock.dataset.running !== "true") return;
+    const began = Date.now() - Number(clock.dataset.seconds) * 1000;
+    ticker = setInterval(() => {
+      const s = Math.floor((Date.now() - began) / 1000);
+      clock.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    }, 1000);
+  }
+  startClock();
+  document.addEventListener("scene:updated", startClock);
+
   // Double-click a card on the waste or the bottom of a tableau pile to
   // send it to a foundation.
   document.addEventListener("dblclick", (e) => {

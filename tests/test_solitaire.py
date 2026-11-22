@@ -267,3 +267,51 @@ def test_empty_stock_offers_to_turn_the_waste_over(client):
 def test_solitaire_static_files_are_served(client):
     for name in ("solitaire.js", "solitaire.css"):
         assert client.get(f"/games/solitaire/static/{name}").status_code == 200
+
+
+# --- Undo, new game and winning (issue #72) ---
+
+def near_won_table(seed=None):
+    """Everything home except the king of spades, waiting on the tableau."""
+    found = [[r + s for r in logic.RANKS] for s in logic.SUITS]
+    king = found[3].pop()
+    return table_with(tableau=[[king]], foundations=found)
+
+
+def test_page_has_undo_new_game_and_a_clock(client):
+    client.get("/games/solitaire/")
+    html = client.get("/games/solitaire/").data.decode()
+    assert 'id="sol-undo"' in html and "disabled" in html.split('id="sol-undo"')[1][:40]
+    assert "New game" in html and 'id="sol-time"' in html
+    client.post("/games/solitaire/move", data={"move": "D"})
+    html = client.get("/games/solitaire/").data.decode()
+    assert "disabled" not in html.split('id="sol-undo"')[1][:40]
+
+
+def test_undo_any_number_of_steps_gives_the_exact_earlier_table(client):
+    with client.session_transaction() as s:
+        s["solitaire"] = {"seed": 2, "moves": [], "started": 0, "won": None}
+    for _ in range(5):
+        client.post("/games/solitaire/move", data={"move": "D"})
+    for _ in range(3):
+        client.post("/games/solitaire/undo")
+    assert saved(client)["moves"] == ["D", "D"]
+    assert logic.replay(2, saved(client)["moves"]) == logic.replay(2, ["D", "D"])
+
+
+def test_winning_shows_the_win_screen(client, monkeypatch):
+    monkeypatch.setattr(logic, "deal", near_won_table)
+    with client.session_transaction() as s:
+        s["solitaire"] = {"seed": 1, "moves": [], "started": 0, "won": None}
+    html = client.get("/games/solitaire/").data.decode()
+    assert "You won!" not in html
+    client.post("/games/solitaire/move", data={"move": "T0>F"})
+    html = client.get("/games/solitaire/").data.decode()
+    assert "You won!" in html and "1 move</strong>" in html
+    assert 'data-sound="win"' in html
+    assert 'data-running="false"' in html
+    # nothing more can happen until a new game, not even undo
+    client.post("/games/solitaire/undo")
+    assert saved(client)["moves"] == ["T0>F"]
+    client.post("/games/solitaire/new")
+    assert "You won!" not in client.get("/games/solitaire/").data.decode()
