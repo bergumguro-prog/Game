@@ -19,9 +19,15 @@
       </form>
 
     {% elif dish %}
-      <p class="dish-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>
-        Dish <strong>{{ state.index + 1 }}</strong> of {{ total }}: a dirty {{ dish.name }}
-      </p>
+      <div class="dish-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>
+        <span>Dish <strong>{{ state.index + 1 }}</strong> of {{ total }}: a dirty {{ dish.name }}</span>
+        <span>Time: <strong id="dish-time" data-seconds="{{ seconds }}">{{ time_text }}</strong></span>
+      </div>
+
+      <div class="washing">
+      <div class="dish-stack" aria-label="{{ left|length }} dirty dishes waiting">
+        {% for name in left %}<span class="mini-slot">{{ mini[name] }}</span>{% endfor %}
+      </div>
 
       <div class="sink" id="sink" data-hold-rate="{{ hold_rate }}" data-drag-pixels="{{ drag_pixels }}">
         <div class="dish-stage" id="dish-stage" data-art-w="{{ dish.w }}" data-art-h="{{ dish.h }}"
@@ -37,6 +43,13 @@
           </svg>
         </div>
         <div class="sponge" id="sponge" hidden>{{ sponge }}</div>
+        <template id="sparkle-art">{{ sparkle }}</template>
+      </div>
+
+      <div class="rack" aria-label="Drying rack: {{ done|length }} clean">
+        {% for name in done %}<span class="mini-slot">{{ mini[name] }}</span>{% endfor %}
+        <span class="mini-slot rack-next" id="rack-next"></span>
+      </div>
       </div>
 
       <form id="dish-clean" method="post" action="{{ url_for('dishes.clean') }}" hidden>
@@ -45,6 +58,13 @@
 
     {% else %}
       <p class="dish-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>All clean! Every dish is sparkling.</p>
+      <p class="dish-stars" aria-label="{{ stars }} out of 3 stars">
+        {% for i in range(3) %}{{ star if i < stars else star_empty }}{% endfor %}
+      </p>
+      <p>Time: <strong>{{ time_text }}</strong> <span class="dish-tip">(a tidy time is {{ par_text }})</span></p>
+      <div class="rack rack-full" aria-label="Drying rack">
+        {% for name in done %}<span class="mini-slot">{{ mini[name] }}</span>{% endfor %}
+      </div>
       <form method="post" action="{{ url_for('dishes.start') }}">
         <button class="button" type="submit">Wash again</button>
       </form>

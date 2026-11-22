@@ -68,14 +68,48 @@
     return spot.hp <= 0 ? 0 : Math.ceil((spot.hp / spot.max) * 3);
   }
 
+  // The clean dish sparkles, slides over to the drying rack, and then the
+  // server is told so it can send the next dish.
   function dishIsClean() {
     done = true;
     scrubbing = false;
-    if (window.scenes) window.scenes.play("select");
+    if (sponge) sponge.hidden = true;
+    if (window.scenes) window.scenes.play("sparkle");
+    const art = document.getElementById("sparkle-art");
+    const box = stage.getBoundingClientRect();
+    const sinkBox = sink.getBoundingClientRect();
+    for (let i = 0; i < 6 && art; i++) {
+      const star = document.createElement("span");
+      star.className = "sparkle";
+      star.innerHTML = art.innerHTML;
+      star.style.left = `${box.left - sinkBox.left + Math.random() * box.width - 15}px`;
+      star.style.top = `${box.top - sinkBox.top + Math.random() * box.height - 15}px`;
+      star.style.animationDelay = `${i * 70}ms`;
+      sink.appendChild(star);
+    }
+    setTimeout(() => {
+      const slot = document.getElementById("rack-next");
+      if (slot && stage) {
+        const from = stage.getBoundingClientRect();
+        const to = slot.getBoundingClientRect();
+        const dx = to.left + to.width / 2 - (from.left + from.width / 2);
+        const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+        stage.style.setProperty("--to-rack", `translate(${dx}px, ${dy}px) scale(0.25)`);
+        stage.classList.add("to-rack");
+      }
+    }, 600);
     setTimeout(() => {
       const form = document.getElementById("dish-clean");
       if (form) form.requestSubmit(); // the server sends the next dish
-    }, 450);
+    }, 1050);
+  }
+
+  let lastScrubSound = 0;
+  function scrubSound() {
+    const now = performance.now();
+    if (now - lastScrubSound < 260 || !window.scenes) return;
+    lastScrubSound = now;
+    window.scenes.play("scrub");
   }
 
   // --- Pointer input (mouse, pen and touch) ---
@@ -121,14 +155,28 @@
         spot.hp -= amount;
         spot.el.dataset.level = level(spot);
       }
-      if (touching) foam();
+      if (touching) { foam(); scrubSound(); }
       if (spots.every((s) => s.hp <= 0)) dishIsClean();
     }
     moved = 0;
     requestAnimationFrame(frame);
   }
 
+  // The clock counts up from the time the server says the round has taken.
+  let ticker = null;
+  function startClock() {
+    clearInterval(ticker);
+    const clock = document.getElementById("dish-time");
+    if (!clock) return;
+    const began = Date.now() - Number(clock.dataset.seconds) * 1000;
+    ticker = setInterval(() => {
+      const s = Math.floor((Date.now() - began) / 1000);
+      clock.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    }, 1000);
+  }
+
   setUp();
+  startClock();
   requestAnimationFrame(frame);
-  document.addEventListener("scene:updated", setUp);
+  document.addEventListener("scene:updated", () => { setUp(); startClock(); });
 })();

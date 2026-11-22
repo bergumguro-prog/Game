@@ -99,3 +99,57 @@ def test_kitchen_sink_opens_dishwashing(client):
 def test_dishes_page_has_a_way_back(client):
     html = client.get("/games/dishes/").data.decode()
     assert 'href="/"' in html and 'data-scene="game"' in html
+
+
+# --- Drying rack, time and stars (issue #54) ---
+
+def test_dirtier_rounds_get_more_time():
+    clean_ish = [{"dish": "fork", "spots": [{"hp": 1.0}]}]
+    dirty = [{"dish": "pan", "spots": [{"hp": 7.0}, {"hp": 7.0}]}]
+    assert logic.par_seconds(dirty) > logic.par_seconds(clean_ish)
+
+
+@pytest.mark.parametrize("seconds,expected", [(10, 3), (60, 3), (61, 2), (90, 2), (91, 1), (500, 1)])
+def test_star_rating(seconds, expected):
+    assert logic.stars(seconds, 60) == expected
+
+
+def test_stack_and_rack_follow_the_round(client):
+    client.post("/games/dishes/start")
+    for i in range(3):
+        client.post("/games/dishes/clean", data={"item": str(i)})
+    html = client.get("/games/dishes/").data.decode()
+    assert 'aria-label="Drying rack: 3 clean"' in html
+    assert f'aria-label="{len(logic.ROUND) - 4} dirty dishes waiting"' in html
+    assert 'id="dish-time"' in html and 'id="rack-next"' in html
+
+
+def finish_round(client, seconds):
+    client.post("/games/dishes/start")
+    with client.session_transaction() as s:
+        game = dict(s["dishes"])
+        game["started"] -= seconds
+        s["dishes"] = game          # put it back so the change is saved
+    for i in range(len(logic.ROUND)):
+        client.post("/games/dishes/clean", data={"item": str(i)})
+    return client.get("/games/dishes/").data.decode()
+
+
+def test_a_quick_round_gets_three_stars_and_the_win_sound(client):
+    html = finish_round(client, 5)
+    assert 'aria-label="3 out of 3 stars"' in html
+    assert 'data-sound="win"' in html
+    assert "Wash again" in html
+
+
+def test_a_slow_round_gets_one_star(client):
+    html = finish_round(client, 3600)
+    assert 'aria-label="1 out of 3 stars"' in html
+    assert 'data-sound="draw"' in html
+    assert "60:0" in html                     # shows the time it took
+
+
+@pytest.mark.parametrize("name", ["scrub", "sparkle"])
+def test_dish_sounds_are_served(client, name):
+    response = client.get(f"/static/sounds/{name}.wav")
+    assert response.status_code == 200 and response.data[:4] == b"RIFF"

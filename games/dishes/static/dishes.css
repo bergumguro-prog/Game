@@ -3,10 +3,78 @@
 
 .dish-panel {
   --dish-scale: 8;        /* one art pixel of a dish = 8 screen pixels */
-  max-width: 520px;
+  max-width: 720px;
 }
 .dish-status {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
   font-weight: 700;
+}
+
+/* Stack of dirty dishes | sink | drying rack */
+.washing {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dish-stack,
+.rack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  width: 84px;
+  min-height: 180px;
+  padding: 8px 4px;
+}
+.dish-stack {
+  background: var(--px-pink-light);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+}
+/* A wooden drying rack: an upright frame with slats. */
+.rack {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 12px, var(--px-wood-light) 12px 16px),
+    var(--px-cream);
+  border: 4px solid var(--px-outline);
+  border-bottom-width: 10px;
+  border-bottom-color: var(--px-wood);
+  border-radius: 8px 8px 4px 4px;
+}
+.rack-full {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: auto;
+  max-width: 420px;
+  min-height: 0;
+}
+.mini-slot {
+  display: flex;
+  justify-content: center;
+  line-height: 0;
+}
+.mini-dish {
+  width: auto;
+  max-width: 72px;
+  height: auto;
+  max-height: 40px;
+}
+.rack-next {
+  min-height: 24px;
+}
+
+.dish-stars {
+  display: flex;
+  gap: 10px;
+}
+.star {
+  width: 54px;
+  height: 54px;
 }
 .dish-tip {
   color: var(--color-text-muted);
@@ -96,6 +164,29 @@
   to { transform: translateY(-14px) scale(0.4); opacity: 0; }
 }
 
+/* A clean dish sparkles, then slides over to the drying rack. */
+.sparkle {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 6;
+  animation: sparkle-pop 0.6s steps(3) forwards;
+}
+.sparkle .sprite {
+  width: 100%;
+  height: 100%;
+}
+@keyframes sparkle-pop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+.dish-stage.to-rack {
+  transition: transform 420ms steps(6);
+  transform: var(--to-rack);
+}
+
 .dish-actions {
   display: flex;
   gap: 12px;
@@ -103,6 +194,10 @@
 }
 
 /* Smaller sink on narrow screens. */
+@media (max-width: 720px) {
+  .washing { flex-wrap: wrap; justify-content: center; }
+  .dish-stack, .rack { flex-direction: row; width: auto; min-height: 48px; }
+}
 @media (max-width: 560px) {
   .dish-panel { --dish-scale: 6; padding: 16px 12px; }
 }

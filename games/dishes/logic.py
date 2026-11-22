@@ -95,3 +95,24 @@ def new_round(seed):
 
 def total_hp(dishes):
     return sum(spot["hp"] for dish in dishes for spot in dish["spots"])
+
+
+# --- Time and stars ------------------------------------------------------------
+# "Par" is how long a round should take: some time per dish (picking it up,
+# the sparkle) plus time for all the scrubbing. A dirtier round gets more time.
+
+SECONDS_PER_DISH = 3.0
+HP_PER_SECOND = 2.5
+
+
+def par_seconds(dishes):
+    return SECONDS_PER_DISH * len(dishes) + total_hp(dishes) / HP_PER_SECOND
+
+
+def stars(seconds, par):
+    """3 stars within par, 2 within half as long again, otherwise 1."""
+    if seconds <= par:
+        return 3
+    if seconds <= par * 1.5:
+        return 2
+    return 1
