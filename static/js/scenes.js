@@ -7,6 +7,9 @@
 // - In a mini-game, Esc goes back to the room.
 // - Any element with data-sound="name" plays that sound when the page loads
 //   (games use it for "win", "lose", "move", ...).
+// - After a form is sent in the background and the new <main> is swapped in,
+//   a "scene:updated" event fires on document, so a game's own script can
+//   set up the new content (the page's scripts don't run again by themselves).
 // - The sound button in the corner mutes/unmutes; the choice is remembered.
 (() => {
   const ENTER_KEY = "scene-enter";
@@ -83,6 +86,7 @@
         window.history.replaceState(null, "", response.url);
       }
       newMain.querySelectorAll("[data-sound]").forEach((el) => play(el.dataset.sound));
+      document.dispatchEvent(new CustomEvent("scene:updated", { detail: { main: newMain } }));
     } catch (err) {
       form.dataset.noLive = "1";
       form.requestSubmit(submitter);

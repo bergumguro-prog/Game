@@ -1,4 +1,4 @@
-"""The main room: the cozy bedroom where the player starts.
+"""The bedroom: where the player starts.
 
 Chess is on the tea table, tic-tac-toe on the little game table and hangman
 in the left bookshelf. Positions are in art pixels; see room/objects.py for
@@ -22,7 +22,7 @@ OBJECTS = [
     RoomObject("rug-tea", "rug-tea", 114, 40, layer="floor"),
     RoomObject("rug-books", "round-rug-small", 22, 74, layer="floor"),
     RoomObject("rug-pink", "rug-pink", 6, 98, layer="floor"),
-    RoomObject("doily-door", "doily", 76, 102, layer="floor"),
+    RoomObject("doily-bottom", "doily", 76, 102, layer="floor"),
     RoomObject("rug-round", "round-rug", 130, 104, layer="floor"),
 
     # --- Bedroom corner ---
@@ -68,15 +68,17 @@ OBJECTS = [
     RoomObject("flower-stand-pot", "flower-pot", 140, 71, layer="on-top", on="flower-stand"),
     RoomObject("plant-right-b", "plant-big", 156, 76, hitbox=(1, 6, 8, 8)),
 
-    # --- By the door ---
-    RoomObject("door-pot-left", "flower-pot", 66, 116),
-    RoomObject("door-pot-right", "flower-pot", 102, 116),
+    # --- Bottom middle ---
+    RoomObject("pot-bottom-left", "flower-pot", 66, 116),
+    RoomObject("pot-bottom-right", "flower-pot", 102, 116),
+    RoomObject("mat-hallway-door", "mat-pink-side", 168, 50, layer="floor"),
 ]
 
 
 room = Room(
-    id="main",
-    name="The Room",
+    id="bedroom",
+    name="Bedroom",
+    theme="bedroom",
     width=176,
     height=128,
     wall_height=26,
@@ -84,6 +86,7 @@ room = Room(
     objects=OBJECTS,
     exits=[
         # the doorway between the two flower pots at the bottom
-        Exit("to-room2", "bottom", 80, to_room="room2", to_exit="to-main"),
+        # the door in the right wall, below the fireplace corner
+        Exit("to-hallway", "right", 52, to_room="hallway", to_exit="to-bedroom"),
     ],
 )

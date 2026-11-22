@@ -13,6 +13,7 @@
   const reach = num(room, "reach");
   const prompt = document.getElementById("prompt");
   const promptText = prompt.querySelector(".prompt-text");
+  const message = document.getElementById("message");
 
   const speed = num(player, "speed");
   const spriteW = player.offsetWidth;
@@ -22,13 +23,22 @@
   let x = num(player, "x");
   let y = num(player, "y");
 
-  // Objects that open a mini-game when you press E.
-  const interactables = [...room.querySelectorAll(".object[data-url]")].map((el) => ({
-    el,
-    url: el.dataset.url,
-    prompt: el.dataset.prompt,
-    x: num(el, "hitX"), y: num(el, "hitY"), w: num(el, "hitW"), h: num(el, "hitH"),
-  }));
+  // Things you can press E at: objects that open a mini-game, and locked
+  // doors (which only say that they're locked).
+  const interactables = [
+    ...[...room.querySelectorAll(".object[data-url]")].map((el) => ({
+      el,
+      url: el.dataset.url,
+      prompt: el.dataset.prompt,
+      x: num(el, "hitX"), y: num(el, "hitY"), w: num(el, "hitW"), h: num(el, "hitH"),
+    })),
+    ...[...room.querySelectorAll(".exit[data-locked]")].map((el) => ({
+      el,
+      locked: el.dataset.locked,
+      prompt: "open the door",
+      x: num(el, "hitX"), y: num(el, "hitY"), w: num(el, "hitW"), h: num(el, "hitH"),
+    })),
+  ];
   let nearest = null;
   let started = false;
   let leaving = false;
@@ -37,6 +47,7 @@
   // feet are in its doorway) goes to the connected room.
   const exits = [...room.querySelectorAll(".exit")].map((el) => ({
     url: el.dataset.url,
+    locked: el.dataset.locked, // set on doors that don't lead anywhere yet
     walk: el.dataset.walk, // "up", "down", "left" or "right"
     x: num(el, "hitX"), y: num(el, "hitY"), w: num(el, "hitW"), h: num(el, "hitH"),
   }));
@@ -64,10 +75,25 @@
     else window.location.href = url;
   }
 
+  // A short speech bubble, e.g. "It's locked... for now".
+  let messageTimer = null;
+  function say(text) {
+    message.textContent = text;
+    message.hidden = false;
+    prompt.hidden = true;
+    if (window.scenes) window.scenes.play("move"); // a wooden knock
+    clearTimeout(messageTimer);
+    messageTimer = setTimeout(() => {
+      message.hidden = true;
+      prompt.hidden = !nearest;
+    }, 2200);
+  }
+
   document.addEventListener("keydown", (e) => {
     if (leaving) return;
     if (e.key.toLowerCase() === "e" && nearest && !e.repeat) {
-      leave(nearest.url, "open");
+      if (nearest.locked) say(nearest.locked);
+      else leave(nearest.url, "open");
       return;
     }
     const dir = KEY_TO_DIRECTION[e.key.toLowerCase()];
@@ -134,7 +160,7 @@
       // little blip, but not for the object you're already next to on page load
       if (window.scenes && started) window.scenes.play("select");
     }
-    prompt.hidden = !nearest;
+    prompt.hidden = !nearest || !message.hidden;
   }
 
   // Remember where the player stood in this room, so coming back from a game
@@ -177,10 +203,12 @@
     // Things lower in the room are drawn in front (same rule as z_index in objects.py).
     player.style.zIndex = 1000 + Math.round(y + spriteH);
     // Keep the "Press E" bubble centered above the player's head.
-    prompt.style.transform =
-      `translate(${Math.round(x + spriteW / 2)}px, ${Math.round(y) - 8}px) translate(-50%, -100%)`;
+    const bubble = `translate(${Math.round(x + spriteW / 2)}px, ${Math.round(y) - 8}px) translate(-50%, -100%)`;
+    prompt.style.transform = bubble;
+    message.style.transform = bubble;
   }
 
+  let bumped = null; // the locked door the player is pushing against
   let last = performance.now();
   function frame(now) {
     const dt = Math.min((now - last) / 1000, 0.05); // cap big jumps after tab switch
@@ -204,7 +232,15 @@
       draw();
       updateNearest();
       const exit = findExit();
-      if (exit) leave(exit.url, "door", "door");
+      if (exit && exit.locked) {
+        // Say it once per bump, not every frame while pushing against it.
+        if (bumped !== exit) say(exit.locked);
+        bumped = exit;
+      } else if (exit) {
+        leave(exit.url, "door", "door");
+      } else {
+        bumped = null;
+      }
     }
     if (!leaving) requestAnimationFrame(frame);
   }

@@ -1,6 +1,6 @@
 """Flask blueprint for the rooms of the hub world.
 
-    /               -> the room the player is in (the main room at first)
+    /               -> the room the player is in (the bedroom at first)
     /rooms/<id>     -> a specific room; also remembers it as the current room
     /rooms/<id>?via=<exit>  -> arrive through a door: the player stands in
                                front of that exit instead of at the start
@@ -56,7 +56,7 @@ def _object_view(obj, by_id):
 
 
 def _exit_view(exit, room):
-    sprite = f"door-{exit.side}"
+    sprite = exit.sprite_name
     x, y = exit.sprite_position(room)
     w, h = sprites.size(sprite)
     tx, ty, tw, th = exit.trigger_rect(room)
@@ -65,6 +65,7 @@ def _exit_view(exit, room):
         "side": exit.side,
         "walk": world.WALK_DIRECTION[exit.side],
         "url": exit.url,
+        "locked": exit.locked if exit.is_locked else None,
         "x": x * S, "y": y * S, "w": w * S, "h": h * S,
         "hit": (tx * S, ty * S, tw * S, th * S),
         "svg": sprites.render(sprite),
