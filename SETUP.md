@@ -65,7 +65,7 @@ Game/
 │   ├── objects.py            # what all rooms share: RoomObject, player settings
 │   ├── rooms/                # one file per room: size, look, doors, furniture
 │   │   ├── main.py           # the main room (chess, tic-tac-toe, hangman)
-│   │   ├── room2.py
+│   │   ├── kitchen.py        # sink, fridge, pantry, table
 │   │   └── room3.py
 │   ├── sprites.py            # pixel art, drawn as grids of letters
 │   ├── templates/
@@ -120,13 +120,23 @@ The full checklist (branches, sprites, sounds) is in CLAUDE.md under
    of `core.game_base.MiniGame` (see the docstring in that file).
 2. Add an interactable object for it in one of the room files in
    `room/rooms/`. If there's already a "coming soon" object waiting for
-   it (Room 2: `arcade`, `puzzles`; Room 3: `piano`, `cards`), use that slug
+   it (kitchen: `dishes`, `baking`, `tablesetting`; Room 3: `piano`, `cards`), use that slug
    for the game and the object opens it automatically.
 3. Add tests in `tests/test_<name>.py`.
 
+## Adding a baking recipe
+Make one new file in `games/baking/recipes/` that defines
+`recipe = Recipe(...)` (copy `blueberry_muffins.py`): its name, the
+ingredients in the order they go into the bowl, the steps for the recipe
+card and the perfect baking time. Ingredients come from
+`games/baking/ingredients.py`, which says whether each one is kept in the
+fridge or the pantry; add new ones there (and an icon in
+`games/baking/art.py`). The new recipe shows up on the baking start screen
+by itself.
+
 ## Adding a new room
 Make one new file in `room/rooms/`, for example `room/rooms/garden.py`, that
-defines `room = Room(...)` (copy `room2.py` to start). It is found
+defines `room = Room(...)` (copy `room3.py` to start). It is found
 automatically and shown at `/rooms/garden`. A room has:
 
 - `id`, `name`: the URL name and the name in the browser tab
