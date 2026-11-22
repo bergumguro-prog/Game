@@ -1,6 +1,6 @@
 """Flask blueprint for the rooms of the hub world.
 
-    /               -> the room the player is in (the main room at first)
+    /               -> the room the player is in (the bedroom at first)
     /rooms/<id>     -> a specific room; also remembers it as the current room
     /rooms/<id>?via=<exit>  -> arrive through a door: the player stands in
                                front of that exit instead of at the start

@@ -77,7 +77,7 @@
 /* --- Room themes ---------------------------------------------------------
    Each room file sets theme="..."; the room page puts it in
    data-room-theme. A theme only changes the frame, wall and floor colors,
-   so the furniture keeps the shared palette above. The main room uses the
+   so the furniture keeps the shared palette above. The bedroom uses the
    defaults. */
 
 /* Kitchen: mint subway tiles, butter-yellow floor tiles and frame. */
@@ -92,8 +92,20 @@
   --px-floor-line: #d4b27a;
 }
 
-/* Room 3: a lavender and strawberry room with a checkered floor. */
-[data-room-theme="room3"] {
+/* Hallway: peachy cream wallpaper over wooden panelling, warm plank floor. */
+[data-room-theme="hallway"] {
+  --color-frame: #efc7c0;
+  --color-frame-light: #f9e3df;
+  --color-frame-dark: #c98e8a;
+  --px-wall: #fbeee2;
+  --px-wall-speckle: #efcfc0;
+  --px-floor: #b98257;
+  --px-floor-alt: #c79063;
+  --px-floor-line: #8a5a3a;
+}
+
+/* Living room: lavender and strawberry, with a checkered floor. */
+[data-room-theme="livingroom"] {
   --color-frame: #dccff0;
   --color-frame-light: #f0e9fa;
   --color-frame-dark: #a68fcf;
