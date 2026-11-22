@@ -1,0 +1,203 @@
+/* Dishwashing: a steel sink full of soapy water.
+   Colors come from static/css/theme.css. */
+
+.dish-panel {
+  --dish-scale: 8;        /* one art pixel of a dish = 8 screen pixels */
+  max-width: 720px;
+}
+.dish-status {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* Stack of dirty dishes | sink | drying rack */
+.washing {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dish-stack,
+.rack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  width: 84px;
+  min-height: 180px;
+  padding: 8px 4px;
+}
+.dish-stack {
+  background: var(--px-pink-light);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+}
+/* A wooden drying rack: an upright frame with slats. */
+.rack {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 12px, var(--px-wood-light) 12px 16px),
+    var(--px-cream);
+  border: 4px solid var(--px-outline);
+  border-bottom-width: 10px;
+  border-bottom-color: var(--px-wood);
+  border-radius: 8px 8px 4px 4px;
+}
+.rack-full {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: auto;
+  max-width: 420px;
+  min-height: 0;
+}
+.mini-slot {
+  display: flex;
+  justify-content: center;
+  line-height: 0;
+}
+.mini-dish {
+  width: auto;
+  max-width: 72px;
+  height: auto;
+  max-height: 40px;
+}
+.rack-next {
+  min-height: 24px;
+}
+
+.dish-stars {
+  display: flex;
+  gap: 10px;
+}
+.star {
+  width: 54px;
+  height: 54px;
+}
+.dish-tip {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* The sink: a steel rim around soapy water with a few flat bubbles. */
+.sink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(46 * var(--dish-scale) * 1px);
+  height: calc(34 * var(--dish-scale) * 1px);
+  background:
+    radial-gradient(circle at 18% 24%, var(--sink-bubble) 0 7px, transparent 7px),
+    radial-gradient(circle at 82% 70%, var(--sink-bubble) 0 10px, transparent 10px),
+    radial-gradient(circle at 74% 18%, var(--sink-bubble) 0 5px, transparent 5px),
+    radial-gradient(circle at 24% 80%, var(--sink-bubble) 0 6px, transparent 6px),
+    var(--sink-water);
+  border: 4px solid var(--px-outline);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 10px var(--px-steel), inset 0 0 0 14px var(--px-steel-dark);
+  cursor: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dish-stage {
+  position: relative;
+  width: calc(var(--art-w) * var(--dish-scale) * 1px);
+  height: calc(var(--art-h) * var(--dish-scale) * 1px);
+}
+.dish-stage .sprite,
+.dirt-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.dish-art {
+  filter: drop-shadow(0 6px 0 var(--color-shadow));
+}
+
+/* Dirt fades in three flat steps as it's scrubbed (dishes.js sets the level). */
+.dirt { transition: opacity 80ms steps(1); }
+.dirt[data-level="3"] { opacity: 1; }
+.dirt[data-level="2"] { opacity: 0.66; }
+.dirt[data-level="1"] { opacity: 0.33; }
+.dirt[data-level="0"] { opacity: 0; }
+
+/* The sponge follows the pointer. */
+.sponge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 36px;
+  pointer-events: none;
+  z-index: 5;
+}
+.sponge .sprite {
+  width: 100%;
+  height: 100%;
+}
+.sponge.scrubbing {
+  animation: scrub-wiggle 0.2s steps(2) infinite;
+}
+@keyframes scrub-wiggle {
+  50% { rotate: -8deg; }
+}
+
+/* Soap bubbles left behind while scrubbing. */
+.foam {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--sink-foam);
+  border: 2px solid var(--px-steel-dark);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: foam-pop 0.7s steps(3) forwards;
+  z-index: 4;
+}
+@keyframes foam-pop {
+  to { transform: translateY(-14px) scale(0.4); opacity: 0; }
+}
+
+/* A clean dish sparkles, then slides over to the drying rack. */
+.sparkle {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 6;
+  animation: sparkle-pop 0.6s steps(3) forwards;
+}
+.sparkle .sprite {
+  width: 100%;
+  height: 100%;
+}
+@keyframes sparkle-pop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+.dish-stage.to-rack {
+  transition: transform 420ms steps(6);
+  transform: var(--to-rack);
+}
+
+.dish-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Smaller sink on narrow screens. */
+@media (max-width: 720px) {
+  .washing { flex-wrap: wrap; justify-content: center; }
+  .dish-stack, .rack { flex-direction: row; width: auto; min-height: 48px; }
+}
+@media (max-width: 560px) {
+  .dish-panel { --dish-scale: 6; padding: 16px 12px; }
+}

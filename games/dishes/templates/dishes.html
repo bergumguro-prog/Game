@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Washing up{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('dishes.static', filename='dishes.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel dish-panel">
+    <h1 class="panel-title">Washing up</h1>
+
+    {% if not state %}
+      <p class="dish-status">A stack of dirty dishes is waiting! Scrub every spot off with the sponge.</p>
+      <p class="dish-tip">Drag the sponge over the dirt, or hold it still. Burnt food on pots and pans takes extra scrubbing.</p>
+      <form method="post" action="{{ url_for('dishes.start') }}">
+        <button class="button" type="submit">Start washing</button>
+      </form>
+
+    {% elif dish %}
+      <div class="dish-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>
+        <span>Dish <strong>{{ state.index + 1 }}</strong> of {{ total }}: a dirty {{ dish.name }}</span>
+        <span>Time: <strong id="dish-time" data-seconds="{{ seconds }}">{{ time_text }}</strong></span>
+      </div>
+
+      <div class="washing">
+      <div class="dish-stack" aria-label="{{ left|length }} dirty dishes waiting">
+        {% for name in left %}<span class="mini-slot">{{ mini[name] }}</span>{% endfor %}
+      </div>
+
+      <div class="sink" id="sink" data-hold-rate="{{ hold_rate }}" data-drag-pixels="{{ drag_pixels }}">
+        <div class="dish-stage" id="dish-stage" data-art-w="{{ dish.w }}" data-art-h="{{ dish.h }}"
+             style="--art-w: {{ dish.w }}; --art-h: {{ dish.h }};">
+          {{ dish.svg }}
+          <svg class="dirt-layer" viewBox="0 0 {{ dish.w }} {{ dish.h }}" shape-rendering="crispEdges" aria-hidden="true">
+            {% for spot in dish.spots %}
+            <g class="dirt dirt-{{ spot.dirt }}" data-x="{{ spot.x }}" data-y="{{ spot.y }}" data-r="{{ spot.r }}"
+               data-hp="{{ spot.hp }}" data-level="3">
+              {% for x, y, color in spot.rects %}<rect class="px-{{ color }}" x="{{ x }}" y="{{ y }}" width="1" height="1"/>{% endfor %}
+            </g>
+            {% endfor %}
+          </svg>
+        </div>
+        <div class="sponge" id="sponge" hidden>{{ sponge }}</div>
+        <template id="sparkle-art">{{ sparkle }}</template>
+      </div>
+
+      <div class="rack" aria-label="Drying rack: {{ done|length }} clean">
+        {% for name in done %}<span class="mini-slot">{{ mini[name] }}</span>{% endfor %}
+        <span class="mini-slot rack-next" id="rack-next"></span>
+      </div>
+      </div>
+
+      <form id="dish-clean" method="post" action="{{ url_for('dishes.clean') }}" hidden>
+        <input type="hidden" name="item" value="{{ state.index }}">
+      </form>
+
+    {% else %}
+      <p class="dish-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>All clean! Every dish is sparkling.</p>
+      <p class="dish-stars" aria-label="{{ stars }} out of 3 stars">
+        {% for i in range(3) %}{{ star if i < stars else star_empty }}{% endfor %}
+      </p>
+      <p>Time: <strong>{{ time_text }}</strong> <span class="dish-tip">(a tidy time is {{ par_text }})</span></p>
+      <div class="rack rack-full" aria-label="Drying rack">
+        {% for name in done %}<span class="mini-slot">{{ mini[name] }}</span>{% endfor %}
+      </div>
+      <form method="post" action="{{ url_for('dishes.start') }}">
+        <button class="button" type="submit">Wash again</button>
+      </form>
+    {% endif %}
+
+    <div class="dish-actions">
+      <a class="button button-mint" href="/">Back to the kitchen</a>
+    </div>
+  </section>
+  <p class="hint">Scrub with the mouse or your finger &middot; <kbd>Esc</kbd> to return to the kitchen</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('dishes.static', filename='dishes.js') }}"></script>
+{% endblock %}
