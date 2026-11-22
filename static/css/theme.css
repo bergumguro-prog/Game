@@ -59,6 +59,16 @@
   --px-wall: #f8c9d3;
   --px-wall-speckle: #f0a9ba;
 
+  /* Baking: the recipe card's lines and inside the fridge and pantry */
+  --recipe-line: #f6d9df;
+  --fridge-inside: #e6f5ee;
+  --pantry-inside: #f8ecd6;
+  --muffin-raw: #fbf1dc;      /* how baked the muffins look in the oven */
+  --muffin-pale: #f6e2a8;
+  --muffin-golden: #e9b35e;
+  --muffin-brown: #b9773f;
+  --muffin-dark: #6e3f28;
+
   /* Dishwashing: soapy water in the sink */
   --sink-water: #cfe9f0;
   --sink-bubble: #eaf6f8;
