@@ -94,13 +94,21 @@ Game/
 │   │   ├── templates/
 │   │   └── static/
 │   │
-│   └── chess/                # →  branch: game/chess
-│       ├── __init__.py
-│       ├── routes.py
-│       ├── logic.py          # uses python-chess
-│       ├── ai.py             # the computer opponent
+│   ├── chess/                # →  branch: game/chess
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   ├── logic.py          # uses python-chess
+│   │   ├── ai.py             # the computer opponent
+│   │   ├── templates/
+│   │   └── static/
+│   │
+│   └── fireplace/            # a cozy scene, not a game  →  branch: fireplace
+│       ├── routes.py         # /games/fireplace/
+│       ├── art.py            # the big fireplace and logs (pixel art)
 │       ├── templates/
 │       └── static/
+│           ├── fireplace.css
+│           └── fireplace.js  # the animated flames, sparks and glow
 │
 ├── docs/
 │   ├── aesthetic/            # mood reference images
