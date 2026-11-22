@@ -21,7 +21,6 @@ OBJECTS = [
     RoomObject("rug-tea", "rug-tea", 114, 40, layer="floor"),
     RoomObject("rug-books", "round-rug-small", 22, 74, layer="floor"),
     RoomObject("rug-pink", "rug-pink", 6, 98, layer="floor"),
-    RoomObject("doily-bottom", "doily", 76, 102, layer="floor"),
     RoomObject("rug-round", "round-rug", 130, 104, layer="floor"),
 
     # --- Bedroom corner ---
@@ -58,12 +57,10 @@ OBJECTS = [
                game="hangman", prompt="play hangman"),
     RoomObject("bookshelf-right", "bookshelf", 38, 62),
 
-    # --- Bottom right ---
-    RoomObject("flower-stand", "nightstand", 138, 78),
-    RoomObject("flower-stand-pot", "flower-pot", 140, 71, layer="on-top", on="flower-stand"),
-
-    # --- By the hallway door ---
-    RoomObject("mat-hallway-door", "mat-pink-side", 168, 50, layer="floor"),
+    # --- Against the right wall, above the hallway door ---
+    RoomObject("flower-stand", "nightstand", 163, 64),
+    RoomObject("flower-stand-pot", "flower-pot", 165, 57, layer="on-top", on="flower-stand"),
+    RoomObject("mat-hallway-door", "mat-pink-side", 168, 86, layer="floor"),
 ]
 
 
@@ -77,7 +74,7 @@ room = Room(
     start=(82, 66),
     objects=OBJECTS,
     exits=[
-        # the door in the right wall, below the dresser corner
-        Exit("to-hallway", "right", 52, to_room="hallway", to_exit="to-bedroom"),
+        # the door low in the right wall, clear of the tea table
+        Exit("to-hallway", "right", 88, to_room="hallway", to_exit="to-bedroom"),
     ],
 )

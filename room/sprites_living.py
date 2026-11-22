@@ -1,29 +1,8 @@
-"""Pixel art for the living room and bedroom: an armchair and a dresser.
+"""Pixel art for the living room and bedroom: a sofa, an armchair and a dresser.
 Same letters as room/sprites.py; room/sprites.py adds LIVING_SPRITES to
 SPRITES.
 """
 from room.sprites_kitchen import _canvas, _rounded_box, _rows  # noqa: F401
-
-# A lavender armchair with a pink seat cushion, seen from the front.
-ARMCHAIR = [
-    "..oooooooooooo..",
-    ".ouuuuuuuuuuuuo.",
-    ".ouvvvvvvvvvvuo.",
-    ".ouvvvvvvvvvvuo.",
-    "oooovvvvvvvvoooo",
-    "ouuovvvvvvvvouuo",
-    "ouvoooooooooovuo",
-    "ouvoppppppppovuo",
-    "ouvolpppppppovuo",
-    "ouvoPPPPPPPPovuo",
-    "oVVooooooooooVVo",
-    "oVVVVVVVVVVVVVVo",
-    "ovvvvvvvvvvvvvvo",
-    "oVVVVVVVVVVVVVVo",
-    "oooooooooooooooo",
-    ".oBo........oBo.",
-]
-
 
 def _dresser(width=24):
     """A cream dresser with four drawers and a round mirror on top."""
@@ -59,50 +38,85 @@ def _dresser(width=24):
     return _rows(c)
 
 
-def _sofa(width=40, height=20):
-    """A pink sofa seen from the front: a buttoned back, round arms, two seat
-    cushions and two lavender pillows."""
-    c = _canvas(width, height)
+# --- Soft, plump pink furniture ----------------------------------------------
+# Built from rounded shapes, each shaded light on top and on its left, darker
+# at the bottom and on its right, with rose seams and buttons.
 
-    def paste(box, x0, y0):
-        for y, row in enumerate(box):
-            for x, ch in enumerate(row):
-                if ch != ".":
-                    c[y0 + y][x0 + x] = ch
-
-    back = _rounded_box(width - 6, 12, 4, "p")
-    for y, row in enumerate(back):
+def _plump(w, h, r):
+    """A shaded rounded shape: outline, then light / pink / dark pink."""
+    box = _rounded_box(w, h, r, "p")
+    for y, row in enumerate(box):
         for x, ch in enumerate(row):
-            if ch == "p" and y == 1:
-                row[x] = "l"                     # light along the top
-            elif ch == "p" and y in (4, 7) and x % 7 == 3:
-                row[x] = "P"                     # buttons
-    paste(back, 3, 0)
-    for x0 in (0, width - 8):                    # arms
-        arm = _rounded_box(8, 13, 3, "p")
-        for x in range(1, 7):
-            if arm[1][x] == "p":
-                arm[1][x] = "l"
-        paste(arm, x0, 6)
-    paste(_rounded_box(7, 6, 2, "v"), 8, 5)      # pillows
-    paste(_rounded_box(7, 6, 2, "v"), width - 15, 5)
-    half = (width - 14) // 2
-    paste(_rounded_box(half + 1, 6, 2, "l"), 7, 9)            # seat cushions
-    paste(_rounded_box(half + 1, 6, 2, "l"), 7 + half, 9)
-    for y in range(9, 15):                       # close the seam between cushions
-        if c[y][7 + half] == ".":
-            c[y][7 + half] = "o"
-    for y in range(14, 18):                      # the front, under the cushions
-        for x in range(6, width - 6):
-            c[y][x] = "o" if y == 17 else "P"
-    for x in (3, 4, width - 5, width - 4):       # little wooden feet
-        c[18][x] = "B"
-        c[19][x] = "o"
+            if ch != "p":
+                continue
+            if y <= 1 or (x <= 1 and y < h - 3):
+                row[x] = "l"
+            elif y >= h - 3 or x >= w - 3:
+                row[x] = "P"
+    return box
+
+
+def _paste(c, box, x0, y0):
+    for y, row in enumerate(box):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                c[y0 + y][x0 + x] = ch
+
+
+def _shade(box, light_rows=2, dark_rows=2):
+    """Flat shading on a rounded box: lighter top rows, darker bottom rows."""
+    h = len(box)
+    for y, row in enumerate(box):
+        for x, ch in enumerate(row):
+            if ch == "p":
+                if 0 < y <= light_rows:
+                    row[x] = "l"
+                elif y >= h - 1 - dark_rows:
+                    row[x] = "P"
+    return box
+
+
+def _sofa_back(width=40, height=17):
+    """The pink sofa seen from behind (it faces the card table): a tall,
+    rounded back with a soft roll along the top, and small, low arms."""
+    c = _canvas(width, height)
+    for x0 in (0, width - 7):                      # small, low arms
+        _paste(c, _shade(_rounded_box(7, 10, 2, "p"), 1, 2), x0, 4)
+    back = _shade(_rounded_box(width - 8, 14, 3, "p"), 2, 3)
+    for x in range(3, width - 11):                 # the seam under the top roll
+        if back[4][x] == "p":
+            back[4][x] = "P"
+    _paste(c, back, 4, 0)
+    for x in (2, 3, width - 4, width - 3):         # wooden feet
+        c[height - 3][x] = c[height - 3][x] if c[height - 3][x] != "." else "o"
+        c[height - 2][x] = "B"
+        c[height - 1][x] = "o"
     return _rows(c)
 
 
+def _armchair_side():
+    """A pink armchair from the side, facing left: a rounded back, a cushion
+    peeking over a soft rolled arm, and little wooden legs."""
+    w, h = 17, 17
+    c = _canvas(w, h)
+    _paste(c, _shade(_rounded_box(6, 15, 2, "p"), 2, 1), 11, 0)       # back
+    _paste(c, _shade(_rounded_box(10, 4, 1, "p"), 1, 0), 2, 4)        # cushion
+    body = _shade(_rounded_box(13, 9, 3, "p"), 2, 2)                  # arm and side
+    body[4][2] = body[5][3] = "P"                                     # where the arm rolls
+    _paste(c, body, 0, 6)
+    for x in (2, 13):                                                 # legs
+        c[15][x] = "B"
+        c[16][x] = "o"
+    return _rows(c)
+
+
+def _mirror_rows(rows):
+    return [row[::-1] for row in rows]
+
+
 LIVING_SPRITES = {
-    "sofa": _sofa(),
-    "armchair": ARMCHAIR,
+    "sofa-back": _sofa_back(),
+    "armchair-side": _armchair_side(),                    # faces left
+    "armchair-side-right": _mirror_rows(_armchair_side()),  # faces right
     "dresser": _dresser(),
 }

@@ -29,9 +29,9 @@ OBJECTS = [
     RoomObject("console-table", "console-table", 92, 20, hitbox=(0, 5, 26, 11)),
     RoomObject("console-flowers", "flower-pot", 101, 13, layer="on-top", on="console-table"),
 
-    # --- Plants ---
-    RoomObject("plant-bottom-left", "plant-big", 4, 94, hitbox=(1, 6, 8, 8)),
-    RoomObject("plant-bottom-right", "plant-big", 114, 94, hitbox=(1, 6, 8, 8)),
+    # --- Flowers ---
+    RoomObject("tulips-bottom-left", "flowers-tulips", 4, 94, hitbox=(1, 6, 8, 8)),
+    RoomObject("daisies-bottom-right", "flowers-daisies", 114, 94, hitbox=(1, 6, 8, 8)),
 ]
 
 room = Room(

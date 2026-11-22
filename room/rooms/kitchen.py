@@ -32,7 +32,10 @@ OBJECTS = [
     RoomObject("stove", "stove", 92, 14, hitbox=(0, 12, 24, 12)),
     RoomObject("fridge", "fridge", 120, 0, hitbox=(0, 26, 20, 12),
                game="baking", prompt="bake muffins"),
-    RoomObject("pantry", "pantry", 146, 0, hitbox=(0, 26, 24, 12),
+    # the counter carries on past the fridge, round the corner and down
+    # the right wall; its cupboards are the pantry
+    RoomObject("counter-corner", "counter-corner", 140, 14, hitbox=(0, 12, 36, 12)),
+    RoomObject("pantry", "counter-side", 156, 25,
                game="baking", prompt="bake muffins"),
 
     # --- Kitchen table ---
@@ -42,8 +45,8 @@ OBJECTS = [
     RoomObject("chair-right", "chair", 106, 70),
 
     # --- Plants ---
-    RoomObject("plant-bottom-left", "plant-big", 4, 106, hitbox=(1, 6, 8, 8)),
-    RoomObject("plant-bottom-right", "plant-big", 150, 106, hitbox=(1, 6, 8, 8)),
+    RoomObject("daisies-bottom-left", "flowers-daisies", 4, 106, hitbox=(1, 6, 8, 8)),
+    RoomObject("tulips-bottom-right", "flowers-tulips", 144, 106, hitbox=(1, 6, 8, 8)),
 ]
 
 room = Room(

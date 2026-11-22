@@ -194,6 +194,39 @@ def _pantry(width=24, height=38):
     return _rows(c)
 
 
+def _side_counter(width=20, height=88):
+    """A counter along a side wall, seen tilted from above like the rest of
+    the room: the cream worktop runs down the wall, a narrow strip of pink
+    cupboard doors shows on its left (the side facing into the room), and the
+    end facing you is a plain pink panel. The top end is open so it joins
+    the corner counter on the back wall."""
+    c = _canvas(width, height)
+    end_h = 12                     # the end panel at the bottom
+    run = height - end_h
+    for y in range(run):
+        c[y][0] = "o"
+        for x in range(1, 6):      # cupboard doors, seen from the side
+            door_line = (y % 16) == 15
+            c[y][x] = "P" if door_line or x == 5 else "p"
+        if y % 16 == 8:
+            c[y][3] = "y"          # knob
+        c[y][6] = "C"              # the worktop's front edge
+        for x in range(7, width - 1):
+            c[y][x] = "w" if x == 7 else ("C" if x == width - 2 else "c")
+        c[y][width - 1] = "o"
+    for x in range(width):         # where the worktop ends
+        c[run][x] = "o"
+    for y in range(run + 1, height):
+        for x in range(width):
+            if x in (0, width - 1) or y == height - 1:
+                c[y][x] = "o"
+            elif y == height - 2:
+                c[y][x] = "P"      # kick plate
+            else:
+                c[y][x] = "l" if x == 1 else ("P" if x >= width - 3 else "p")
+    return _rows(c)
+
+
 # --- Table and chairs ----------------------------------------------------------
 
 def _kitchen_table(width=40):
@@ -309,6 +342,8 @@ KITCHEN_SPRITES = {
     "stove": _stove(),
     "fridge": _fridge(),
     "pantry": _pantry(),
+    "counter-corner": _counter(36),
+    "counter-side": _side_counter(),
     "kitchen-table": _kitchen_table(),
     "chair": CHAIR,
     "pan-rail": _pan_rail(),
