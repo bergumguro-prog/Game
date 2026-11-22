@@ -13,7 +13,6 @@ OBJECTS = [
     RoomObject("window-left", "window", 56, 6, layer="wall"),
     RoomObject("window-right", "window", 78, 6, layer="wall"),
     RoomObject("wall-shelf", "wall-shelf", 102, 13, layer="wall"),
-    RoomObject("shelf-plant", "plant-small", 106, 6, layer="wall"),
     RoomObject("shelf-flowers", "flower-pot", 116, 4, layer="wall"),
 
     # --- Rugs ---
@@ -45,7 +44,6 @@ OBJECTS = [
     # --- Dresser corner ---
     RoomObject("dresser", "dresser", 134, 8, hitbox=(0, 14, 24, 10)),
     RoomObject("dresser-flowers", "flower-pot", 151, 11, layer="on-top", on="dresser"),
-    RoomObject("plant-dresser", "plant-big", 163, 18, hitbox=(1, 6, 8, 8)),
 
     # --- Tea table ---
     RoomObject("bench-left", "bench", 119, 43),
@@ -59,13 +57,10 @@ OBJECTS = [
     RoomObject("bookshelf-left", "bookshelf", 6, 62,
                game="hangman", prompt="play hangman"),
     RoomObject("bookshelf-right", "bookshelf", 38, 62),
-    RoomObject("plant-books", "plant-big", 56, 100, hitbox=(1, 6, 8, 8)),
 
     # --- Bottom right ---
-    RoomObject("plant-right-a", "plant-big", 124, 76, hitbox=(1, 6, 8, 8)),
     RoomObject("flower-stand", "nightstand", 138, 78),
     RoomObject("flower-stand-pot", "flower-pot", 140, 71, layer="on-top", on="flower-stand"),
-    RoomObject("plant-right-b", "plant-big", 156, 76, hitbox=(1, 6, 8, 8)),
 
     # --- By the hallway door ---
     RoomObject("mat-hallway-door", "mat-pink-side", 168, 50, layer="floor"),

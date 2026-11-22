@@ -488,3 +488,8 @@ def test_no_flower_pots_stand_loose_on_the_floor():
 
 def test_living_room_has_a_sofa():
     assert "sofa" in {o.id for o in world.get("livingroom").objects}
+
+
+def test_bedroom_has_no_potted_plants():
+    sprites_used = {o.sprite for o in world.get("bedroom").objects}
+    assert not sprites_used & {"plant-big", "plant-small"}
