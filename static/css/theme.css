@@ -59,6 +59,11 @@
   --px-wall: #f8c9d3;
   --px-wall-speckle: #f0a9ba;
 
+  /* Dishwashing: soapy water in the sink */
+  --sink-water: #cfe9f0;
+  --sink-bubble: #eaf6f8;
+  --sink-foam: #ffffff;
+
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
   --scene-leave-ms: 200ms;
