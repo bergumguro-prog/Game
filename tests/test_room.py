@@ -344,7 +344,7 @@ def test_door_fade_timings_are_theme_variables():
 
 def test_living_room_has_its_games_and_the_fireplace():
     games = {o.id: o.game for o in world.get("livingroom").objects if o.game}
-    assert games == {"piano": "piano", "card-table": "cards", "fireplace": "fireplace"}
+    assert games == {"piano": "piano", "card-table": "solitaire", "fireplace": "fireplace"}
 
 
 def test_placeholder_object_opens_coming_soon_until_its_game_exists():

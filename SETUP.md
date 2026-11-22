@@ -129,7 +129,7 @@ The full checklist (branches, sprites, sounds) is in CLAUDE.md under
    of `core.game_base.MiniGame` (see the docstring in that file).
 2. Add an interactable object for it in one of the room files in
    `room/rooms/`. If there's already a "coming soon" object waiting for
-   it (kitchen: `dishes`, `baking`, `tablesetting`; living room: `piano`, `cards`), use that slug
+   it (kitchen: `dishes`, `baking`, `tablesetting`; living room: `piano`), use that slug
    for the game and the object opens it automatically.
 3. Add tests in `tests/test_<name>.py`.
 
