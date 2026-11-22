@@ -229,11 +229,6 @@
 .sol-actions form {
   display: contents;
 }
-.button:disabled {
-  opacity: 0.5;
-  cursor: default;
-  transform: none;
-}
 .sol-actions {
   display: flex;
   gap: 12px;

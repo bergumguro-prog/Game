@@ -51,3 +51,85 @@ def test_piano_page_has_every_key():
 def test_living_room_piano_opens_the_piano():
     html = create_app().test_client().get("/rooms/livingroom").data.decode()
     assert 'data-url="/games/piano/"' in html
+
+
+# --- Repeat the tune (issue #74) ---
+
+@pytest.fixture
+def client():
+    return create_app().test_client()
+
+
+def state(client):
+    with client.session_transaction() as s:
+        return s["piano"]
+
+
+def test_tunes_grow_by_one_note_and_keep_their_start():
+    for length in range(1, logic.MAX_LENGTH):
+        assert logic.tune(7, length + 1)[:length] == logic.tune(7, length)
+    assert all(n in logic.TUNE_NOTES for n in logic.tune(7, logic.MAX_LENGTH))
+    assert logic.tune(7, 10) != logic.tune(8, 10)
+
+
+def test_checking_a_played_tune():
+    tune = logic.tune(3, 5)
+    assert logic.is_correct(3, 5, tune)
+    assert not logic.is_correct(3, 5, tune[:4])
+    wrong = tune[:2] + ["E5"] + tune[3:]
+    assert not logic.is_correct(3, 5, wrong)
+    assert logic.correct_so_far(3, 5, wrong) == 2
+
+
+def test_free_play_is_the_default_and_modes_switch(client):
+    html = client.get("/games/piano/").data.decode()
+    assert "Play anything you like!" in html and 'id="tune"' not in html
+    client.post("/games/piano/mode", data={"mode": "repeat"})
+    assert state(client)["mode"] == "repeat"
+    client.post("/games/piano/mode", data={"mode": "jazz"})
+    assert state(client)["mode"] == "repeat"
+
+
+def test_a_right_answer_makes_the_tune_longer(client):
+    client.post("/games/piano/repeat/start")
+    s = state(client)
+    html = client.get("/games/piano/").data.decode()
+    tune = logic.tune(s["seed"], logic.START_LENGTH)
+    assert f'data-notes="{",".join(tune)}"' in html
+    client.post("/games/piano/repeat/answer", data={"notes": ",".join(tune)})
+    s = state(client)
+    assert s["length"] == logic.START_LENGTH + 1 and s["result"] == "right"
+    assert s["best"] == logic.START_LENGTH
+
+
+def test_a_wrong_note_ends_the_round_and_keeps_the_best(client):
+    with client.session_transaction() as sess:
+        sess["piano"] = {"mode": "repeat", "seed": 3, "length": 6, "best": 5}
+    tune = logic.tune(3, 6)
+    played = tune[:3] + ["E5" if tune[3] != "E5" else "C4"]
+    client.post("/games/piano/repeat/answer", data={"notes": ",".join(played)})
+    s = state(client)
+    assert s["result"] == "wrong" and s["reached"] == 5 and s["best"] == 5
+    html = client.get("/games/piano/").data.decode()
+    assert "tunes of 5 notes" in html and 'id="tune"' not in html
+    # answering again after losing does nothing
+    client.post("/games/piano/repeat/answer", data={"notes": ",".join(tune)})
+    assert state(client)["result"] == "wrong"
+    # starting again keeps the best
+    client.post("/games/piano/repeat/start")
+    assert state(client)["best"] == 5 and state(client)["length"] == logic.START_LENGTH
+
+
+def test_garbled_answers_are_ignored(client):
+    client.post("/games/piano/repeat/start")
+    client.post("/games/piano/repeat/answer", data={"notes": "C4,<script>,G9"})
+    assert state(client)["result"] is None
+
+
+def test_playing_the_whole_tune_wins(client):
+    with client.session_transaction() as sess:
+        sess["piano"] = {"mode": "repeat", "seed": 4, "length": logic.MAX_LENGTH, "best": 0}
+    tune = logic.tune(4, logic.MAX_LENGTH)
+    client.post("/games/piano/repeat/answer", data={"notes": ",".join(tune)})
+    assert state(client)["result"] == "done"
+    assert "whole tune" in client.get("/games/piano/").data.decode()

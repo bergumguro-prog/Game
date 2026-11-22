@@ -9,8 +9,50 @@
 }
 
 .piano-status {
+  max-width: 460px;
   min-height: 1.4em;
   font-weight: 700;
+}
+
+/* Free play / Repeat the tune tabs */
+.piano-modes {
+  display: flex;
+  gap: 8px;
+}
+.piano-mode {
+  padding: 6px 14px;
+  background: var(--px-cream);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.piano-mode:hover {
+  background: var(--px-pink-light);
+}
+.piano-mode-active {
+  background: var(--px-pink);
+  color: var(--px-outline);
+}
+
+.piano-repeat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.piano-score {
+  display: flex;
+  gap: 24px;
+  color: var(--color-text-muted);
+}
+.piano-score strong {
+  color: var(--color-text);
+}
+.piano-keys.listening .piano-key {
+  cursor: default;
 }
 
 .piano {
