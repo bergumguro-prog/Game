@@ -93,7 +93,7 @@
 /* The candle flames on the mantel flicker. */
 .sprite-hearth .px-yellow,
 .sprite-hearth .px-fire {
-  animation: candle 0.9s steps(2) infinite;
+  animation: candle 1.6s steps(2) infinite;
 }
 @keyframes candle {
   50% { fill: var(--px-white); }

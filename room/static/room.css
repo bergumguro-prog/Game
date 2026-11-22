@@ -101,7 +101,7 @@
 /* The fire flickers. */
 .sprite-fireplace .px-fire,
 .sprite-fireplace .px-yellow {
-  animation: flicker 0.6s steps(2) infinite;
+  animation: flicker 1.2s steps(2) infinite;
 }
 @keyframes flicker {
   50% { fill: var(--px-yellow); }

@@ -16,7 +16,7 @@
   const W = canvas.width;
   const H = canvas.height;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const STEP_MS = reduceMotion ? 120 : 55; // how often the fire moves on
+  const STEP_MS = reduceMotion ? 200 : 110; // how often the fire moves on (bigger = calmer)
 
   // --- Size: the biggest whole-number scale that fits the window ---
   const frameW = Number(hearth.dataset.frameW);

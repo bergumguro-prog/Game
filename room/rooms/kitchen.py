@@ -44,7 +44,6 @@ OBJECTS = [
     # --- Plants ---
     RoomObject("plant-bottom-left", "plant-big", 4, 106, hitbox=(1, 6, 8, 8)),
     RoomObject("plant-bottom-right", "plant-big", 150, 106, hitbox=(1, 6, 8, 8)),
-    RoomObject("pot-left", "flower-pot", 6, 60),
 ]
 
 room = Room(

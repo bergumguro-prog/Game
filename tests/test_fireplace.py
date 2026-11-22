@@ -85,3 +85,11 @@ def test_fireplace_follows_the_mute_button():
     assert "sound:toggle" in js and "isMuted" in js
     scenes = open("static/js/scenes.js").read()
     assert "isMuted" in scenes and "sound:toggle" in scenes
+
+
+def test_the_fire_moves_calmly():
+    """The fire moves on at most about 10 times a second (issue #96)."""
+    import re
+    js = open("games/fireplace/static/fireplace.js").read()
+    normal = int(re.search(r"STEP_MS = reduceMotion \? (\d+) : (\d+)", js).group(2))
+    assert normal >= 100
