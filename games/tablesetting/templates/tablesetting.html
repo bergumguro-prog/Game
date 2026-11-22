@@ -24,6 +24,15 @@
               <span class="menu-art">{{ item.art[item.colors[0]] }}</span>
               <span class="menu-name">{{ item.name }}</span>
             </button>
+            {% if item.colors|length > 1 %}
+            <div class="swatches" role="group" aria-label="{{ item.name }} colors">
+              {% for color in item.colors %}
+              <button class="swatch{% if loop.first %} swatch-on{% endif %}" type="button"
+                      data-item="{{ item.id }}" data-color="{{ color }}"
+                      style="--swatch: var(--px-{{ color }});" aria-label="{{ color }}"></button>
+              {% endfor %}
+            </div>
+            {% endif %}
           </div>
           {% endfor %}
         </div>
@@ -31,6 +40,13 @@
       </aside>
 
       <div class="table-area">
+        <div class="cloths" role="group" aria-label="Tablecloth">
+          <span class="cloths-label">Tablecloth:</span>
+          {% for key, name in cloths.items() %}
+          <button class="cloth-choice{% if key == cloth %} cloth-on{% endif %}" type="button"
+                  data-cloth="{{ key }}" title="{{ name }}" aria-label="{{ name }}"></button>
+          {% endfor %}
+        </div>
         <div class="table-top" id="table" data-w="{{ table.w }}" data-h="{{ table.h }}"
              data-max="{{ table.max }}" data-cloth="{{ cloth }}"
              style="--tw: {{ table.w }}; --th: {{ table.h }};"
@@ -38,6 +54,8 @@
         <div class="table-tools">
           <button class="button button-mint" type="button" id="rotate-item" disabled>Rotate <kbd>R</kbd></button>
           <button class="button button-mint" type="button" id="remove-item" disabled>Remove <kbd>Del</kbd></button>
+          <button class="button" type="button" id="clear-table">Clear table</button>
+          <button class="button button-mint" type="button" id="undo-clear" hidden>Undo clear</button>
         </div>
         <p class="table-tip">Drag things onto the table. Click one to pick it, drag it to move it, or drag it off the table to put it away.</p>
       </div>

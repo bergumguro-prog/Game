@@ -77,6 +77,46 @@
   max-height: 44px;
 }
 
+/* Color swatches under each menu item */
+.swatches {
+  display: flex;
+  gap: 3px;
+}
+.swatch {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  background: var(--swatch);
+  border: 2px solid var(--px-outline);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.swatch-on {
+  box-shadow: 0 0 0 2px var(--px-white), 0 0 0 4px var(--px-rose);
+}
+
+/* Tablecloth choices: little squares showing each pattern */
+.cloths {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cloths-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+.cloth-choice {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 3px solid var(--px-outline);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.cloth-on {
+  box-shadow: 0 0 0 3px var(--px-white), 0 0 0 6px var(--px-rose);
+}
+
 /* --- The table: a wooden top with a cloth on it --- */
 .table-area {
   display: flex;
@@ -99,24 +139,30 @@
   touch-action: none;
 }
 /* Tablecloth patterns, all flat colors (no smooth gradients). */
-.table-top[data-cloth="gingham"] {
+.table-top[data-cloth="gingham"],
+.cloth-choice[data-cloth="gingham"] {
   background:
     repeating-linear-gradient(0deg, var(--cloth-gingham-stripe) 0 12px, transparent 12px 24px),
     repeating-linear-gradient(90deg, var(--cloth-gingham-stripe) 0 12px, transparent 12px 24px),
     var(--cloth-gingham);
 }
-.table-top[data-cloth="mint"] {
+.table-top[data-cloth="mint"],
+.cloth-choice[data-cloth="mint"] {
   background: var(--cloth-mint);
+}
+.table-top[data-cloth="mint"] {
   box-shadow:
     inset 0 0 0 8px var(--cloth-mint-edge),
     0 0 0 14px var(--px-wood), 0 0 0 18px var(--px-outline), 0 22px 0 18px var(--color-shadow);
 }
-.table-top[data-cloth="lace"] {
+.table-top[data-cloth="lace"],
+.cloth-choice[data-cloth="lace"] {
   background:
     radial-gradient(circle, var(--cloth-lace-dot) 0 3px, transparent 3px) 0 0 / 18px 18px,
     var(--cloth-lace);
 }
-.table-top[data-cloth="stripes"] {
+.table-top[data-cloth="stripes"],
+.cloth-choice[data-cloth="stripes"] {
   background:
     repeating-linear-gradient(90deg, var(--cloth-stripe) 0 18px, var(--cloth-stripe-light) 18px 36px);
 }
@@ -160,6 +206,10 @@
   opacity: 0.4;
 }
 
+/* .button sets display, which would otherwise beat the hidden attribute */
+.table-tools [hidden] {
+  display: none;
+}
 .table-tools,
 .table-actions {
   display: flex;

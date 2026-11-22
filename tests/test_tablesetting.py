@@ -54,3 +54,32 @@ def test_kitchen_table_opens_table_decorating(client):
 def test_page_has_a_way_back(client):
     html = client.get("/games/tablesetting/").data.decode()
     assert 'href="/"' in html and 'data-scene="game"' in html
+
+
+# --- Colors, tablecloths and clear table (issue #60) ---
+
+def test_items_with_several_colors_have_swatches(client):
+    html = client.get("/games/tablesetting/").data.decode()
+    for item in catalog.ITEMS.values():
+        if len(item.colors) > 1:
+            for color in item.colors:
+                assert f'class="swatch' in html
+                assert f'data-item="{item.id}" data-color="{color}"' in html
+
+
+def test_plates_and_tablecloths_have_several_choices():
+    assert len(catalog.ITEMS["plate"].colors) >= 3
+    assert len(catalog.CLOTHS) >= 4
+
+
+def test_page_has_tablecloth_choices_and_clear_table(client):
+    html = client.get("/games/tablesetting/").data.decode()
+    for key in catalog.CLOTHS:
+        assert f'class="cloth-choice' in html and f'data-cloth="{key}"' in html
+    assert 'id="clear-table"' in html and 'id="undo-clear"' in html
+
+
+def test_tablecloth_colors_are_theme_variables():
+    theme = open("static/css/theme.css").read()
+    for var in ("--cloth-gingham:", "--cloth-mint:", "--cloth-lace:", "--cloth-stripe:"):
+        assert var in theme
