@@ -266,6 +266,8 @@ def test_exit_ids_are_unique(room):
 
 @each_exit
 def test_every_door_leads_to_a_door_that_leads_back(room, exit):
+    if exit.is_locked:
+        pytest.skip("locked doors don't lead anywhere yet")
     other_room = world.get(exit.to_room)
     assert other_room is not None, f"{exit.to_room} doesn't exist"
     other = other_room.exit(exit.to_exit)
@@ -299,7 +301,7 @@ def test_every_room_can_be_reached_from_the_bedroom():
     seen, todo = {"bedroom"}, ["bedroom"]
     while todo:
         for exit in world.get(todo.pop()).exits:
-            if exit.to_room not in seen:
+            if not exit.is_locked and exit.to_room not in seen:
                 seen.add(exit.to_room)
                 todo.append(exit.to_room)
     assert seen == set(world.rooms())
@@ -426,3 +428,33 @@ def test_matching_doors_are_on_opposite_walls(room, exit):
     other = world.get(exit.to_room).exit(exit.to_exit)
     opposite = {"left": "right", "right": "left", "top": "bottom", "bottom": "top"}
     assert other.side == opposite[exit.side]
+
+
+# --- The locked front door (issue #66) ---
+
+def test_hallway_front_door_is_locked_and_looks_like_an_outside_door():
+    door = world.get("hallway").exit("to-outside")
+    assert door.side == "top"
+    assert door.is_locked and door.url is None
+    assert door.locked == "It's locked... for now"
+    assert door.sprite_name == "front-door"
+
+
+def test_locked_doors_show_their_message_instead_of_a_link():
+    html = create_app().test_client().get("/rooms/hallway").data.decode()
+    assert 'data-exit="to-outside"' in html
+    assert 'data-locked="It&#39;s locked... for now"' in html
+    assert 'id="message"' in html
+    front = html[html.index('data-exit="to-outside"'):][:400]
+    assert "data-url" not in front
+
+
+def test_only_the_front_door_is_locked():
+    locked = [(r.id, e.id) for r in ROOMS for e in r.exits if e.is_locked]
+    assert locked == [("hallway", "to-outside")]
+
+
+def test_a_door_with_a_room_is_not_locked():
+    door = world.Exit("x", "top", 10, to_room="bedroom", to_exit="to-hallway")
+    assert not door.is_locked
+    assert door.url == "/rooms/bedroom?via=to-hallway"
