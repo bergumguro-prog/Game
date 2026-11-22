@@ -69,6 +69,31 @@
   --fireplace-glow-2: rgba(255, 150, 80, 0.2);
   --fireplace-glow-3: rgba(255, 140, 90, 0.1);
 
+  /* Table decorating: the tablecloth patterns */
+  --cloth-gingham: #fdf0f3;
+  --cloth-gingham-stripe: rgba(244, 166, 184, 0.45);
+  --cloth-mint: #c9ecdc;
+  --cloth-mint-edge: #9fd8c1;
+  --cloth-lace: #fbf1dc;
+  --cloth-lace-dot: #fffaf4;
+  --cloth-stripe: #d9cbef;
+  --cloth-stripe-light: #efe7fa;
+
+  /* Baking: the recipe card's lines and inside the fridge and pantry */
+  --recipe-line: #f6d9df;
+  --fridge-inside: #e6f5ee;
+  --pantry-inside: #f8ecd6;
+  --muffin-raw: #fbf1dc;      /* how baked the muffins look in the oven */
+  --muffin-pale: #f6e2a8;
+  --muffin-golden: #e9b35e;
+  --muffin-brown: #b9773f;
+  --muffin-dark: #6e3f28;
+
+  /* Dishwashing: soapy water in the sink */
+  --sink-water: #cfe9f0;
+  --sink-bubble: #eaf6f8;
+  --sink-foam: #ffffff;
+
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
   --scene-leave-ms: 200ms;
