@@ -32,8 +32,10 @@ OBJECTS = [
     RoomObject("stove", "stove", 92, 14, hitbox=(0, 12, 24, 12)),
     RoomObject("fridge", "fridge", 120, 0, hitbox=(0, 26, 20, 12),
                game="baking", prompt="bake muffins"),
-    # open pantry shelves along the whole right wall
-    RoomObject("pantry", "pantry-wall", 158, 20, hitbox=(0, 8, 18, 88),
+    # the counter carries on past the fridge, round the corner and down
+    # the right wall; its cupboards are the pantry
+    RoomObject("counter-corner", "counter-corner", 140, 14, hitbox=(0, 12, 36, 12)),
+    RoomObject("pantry", "counter-side", 156, 25,
                game="baking", prompt="bake muffins"),
 
     # --- Kitchen table ---

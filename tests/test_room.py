@@ -521,16 +521,22 @@ def test_bedroom_door_is_clear_of_the_tea_table():
     assert is_free(bedroom, arrival[0], arrival[1])
 
 
-def test_kitchen_pantry_runs_along_the_right_wall():
+def test_kitchen_pantry_is_a_counter_along_the_right_wall():
     kitchen = world.get("kitchen")
-    pantry = next(o for o in kitchen.objects if o.id == "pantry")
+    by_id = {o.id: o for o in kitchen.objects}
+    pantry, corner = by_id["pantry"], by_id["counter-corner"]
     w, h = pantry.size
     assert pantry.x + w == kitchen.width
-    assert h >= (kitchen.height - kitchen.wall_height) * 0.8
+    assert h >= (kitchen.height - kitchen.wall_height) * 0.7
     assert pantry.game == "baking"
+    # the corner counter on the back wall reaches the wall and meets the side run
+    assert corner.x + corner.size[0] == kitchen.width
+    assert pantry.y <= corner.y + corner.size[1]
 
 
 def test_living_room_sofa_from_behind_and_armchair_from_the_side():
     living = {o.id: o.sprite for o in world.get("livingroom").objects}
     assert living["sofa"] == "sofa-back"
     assert living["armchair"] == "armchair-side"
+    assert living["armchair-left"] == "armchair-side-right"
+    assert living["rug-fire"].startswith("round-rug")

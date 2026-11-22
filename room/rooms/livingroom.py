@@ -16,7 +16,7 @@ OBJECTS = [
     RoomObject("hanging-plant", "hanging-plant", 164, 0, layer="wall"),
 
     # --- Rugs and doormats ---
-    RoomObject("rug-fire", "rug-lavender", 29, 34, layer="floor"),
+    RoomObject("rug-fire", "round-rug-lavender-small", 29, 35, layer="floor"),
     RoomObject("rug-piano", "rug-lavender", 112, 36, layer="floor"),
     RoomObject("rug-cards", "round-rug-lavender", 56, 72, layer="floor"),
     RoomObject("mat-side-door", "mat-lavender-side", 1, 60, layer="floor"),
@@ -26,8 +26,9 @@ OBJECTS = [
                game="fireplace", prompt="sit by the fire"),
     RoomObject("mantel-lavender", "flower-pot-lavender", 34, 5, layer="on-top", on="fireplace"),
     RoomObject("mantel-flowers", "flower-pot", 48, 5, layer="on-top", on="fireplace"),
-    # an armchair turned toward the fire, seen from the side
-    RoomObject("armchair", "armchair-side", 60, 30),
+    # two armchairs turned toward the fire, one on each side
+    RoomObject("armchair-left", "armchair-side-right", 10, 26),
+    RoomObject("armchair", "armchair-side", 58, 26),
 
     # --- Flowers ---
     RoomObject("roses-top-right", "flowers-roses", 164, 28, hitbox=(1, 6, 8, 8)),
@@ -42,7 +43,7 @@ OBJECTS = [
     RoomObject("card-pouf-right", "pouf-pink", 103, 84),
 
     # --- A sofa under the card table, facing it (seen from behind) ---
-    RoomObject("sofa", "sofa-back", 67, 100, hitbox=(0, 4, 40, 13)),
+    RoomObject("sofa", "sofa-back", 66, 98, hitbox=(0, 3, 44, 17)),
 ]
 
 room = Room(
