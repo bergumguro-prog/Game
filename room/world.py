@@ -36,16 +36,32 @@ class Exit:
     `at` is where along the wall the doorway starts: its x for a door in the
     top (back) or bottom wall, its y for a door in the left or right wall.
     The door on the other side must point back to this one.
+
+    A door without `to_room` is locked: walking into it (or pressing E next
+    to it) shows `locked` instead of going anywhere. To open it later, give
+    it a `to_room` and `to_exit` and make that room.
     """
     id: str
     side: str          # "top", "bottom", "left" or "right"
     at: int
-    to_room: str
-    to_exit: str
+    to_room: str = None
+    to_exit: str = None
+    locked: str = "It's locked... for now"  # only used while to_room is None
+    sprite: str = None  # draw this instead of the usual door for its wall
+
+    @property
+    def is_locked(self):
+        return self.to_room is None
 
     @property
     def url(self):
+        if self.is_locked:
+            return None
         return f"/rooms/{self.to_room}?via={self.to_exit}"
+
+    @property
+    def sprite_name(self):
+        return self.sprite or f"door-{self.side}"
 
     def trigger_rect(self, room):
         """Where the player's feet must be (while walking toward the door)
@@ -78,7 +94,9 @@ class Exit:
         """Top-left of the door's sprite. Doors in the back wall stand on the
         floor line; the others sit on the room's edge, over its outline."""
         if self.side == "top":
-            return (self.at, room.wall_height - sprites.size("door-top")[1] + 1)
+            # wider doors (like the front door) are centered on the doorway
+            w, h = sprites.size(self.sprite_name)
+            return (self.at - (w - DOOR_WIDTH) // 2, room.wall_height - h + 1)
         if self.side == "bottom":
             return (self.at - 1, room.height - 2)
         if self.side == "left":
