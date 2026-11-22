@@ -475,3 +475,16 @@ def test_fireplace_opens_the_fireplace_scene():
     fireplace = next(o for o in world.get("livingroom").objects if o.id == "fireplace")
     assert fireplace.game == "fireplace"
     assert fireplace.prompt == "sit by the fire"
+
+
+# --- Fewer floor flowers and a sofa (issue #96) ---
+
+def test_no_flower_pots_stand_loose_on_the_floor():
+    for room in ROOMS:
+        for o in room.objects:
+            if o.sprite.startswith("flower-pot"):
+                assert o.layer in ("on-top", "wall"), f"{room.id}: {o.id} is loose on the floor"
+
+
+def test_living_room_has_a_sofa():
+    assert "sofa" in {o.id for o in world.get("livingroom").objects}
