@@ -1,8 +1,8 @@
 """The living room: a fireplace, a piano and a card table.
 
-The piano and the card table open "coming soon" until their games exist.
-To make one real, create games/<slug>/ with the same slug (for example
-games/cards/ with slug = "cards"); nothing here has to change.
+    fireplace  -> the fireplace scene (games/fireplace)
+    card table -> Klondike solitaire (games/solitaire)
+    piano      -> the piano (games/piano; "coming soon" until it exists)
 """
 from room.objects import RoomObject
 from room.world import Exit, Room
@@ -38,7 +38,7 @@ OBJECTS = [
     RoomObject("piano", "piano", 112, 12, hitbox=(0, 12, 30, 9),
                game="piano", prompt="play piano"),
     RoomObject("card-table", "card-table", 74, 78, hitbox=(0, 2, 26, 16),
-               game="cards", prompt="play cards"),
+               game="solitaire", prompt="play solitaire"),
     RoomObject("card-pouf-left", "pouf-pink", 61, 84),
     RoomObject("card-pouf-right", "pouf-pink", 103, 84),
 ]

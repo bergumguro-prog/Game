@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Solitaire{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel">
+    <h1 class="panel-title">Solitaire</h1>
+    <p {% if sound %}data-sound="{{ sound }}"{% endif %}>
+      {% if won %}You won in {{ moves }} moves!{% else %}Moves: {{ moves }}{% endif %}
+    </p>
+    <p>Stock: {{ table.stock|length }} &middot; Waste: {{ table.waste[-1] if table.waste else "-" }}</p>
+    <form method="post" action="{{ url_for('solitaire.move') }}">
+      <input name="move" aria-label="Move" placeholder="e.g. D or T0>F">
+      <button class="button" type="submit">Move</button>
+    </form>
+    <a class="button button-mint" href="/">Back to the living room</a>
+  </section>
+</main>
+{% endblock %}
