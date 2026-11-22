@@ -11,7 +11,53 @@
 }
 
 .sol-status {
-  font-weight: 700;
+  display: flex;
+  gap: 24px;
+  color: var(--color-text-muted);
+}
+.sol-status strong {
+  color: var(--color-text);
+}
+
+.sol-panel {
+  position: relative;
+}
+
+/* --- Win screen --- */
+.sol-win {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--solitaire-win-veil);
+  border-radius: 8px;
+  z-index: 2000;
+  animation: sol-win-in 300ms steps(3);
+}
+@keyframes sol-win-in {
+  from { opacity: 0; }
+}
+.sol-win-card {
+  max-width: 340px;
+}
+.sol-panel .button:focus-visible {
+  outline: 3px solid var(--px-rose);
+  outline-offset: 2px;
+}
+.sol-win-hearts {
+  display: flex;
+  gap: 8px;
+}
+.win-heart {
+  width: 42px;
+  height: 42px;
+  animation: win-hop 0.8s steps(2) infinite;
+}
+.win-heart:nth-child(2) { animation-delay: 0.2s; }
+.win-heart:nth-child(3) { animation-delay: 0.4s; }
+@keyframes win-hop {
+  50% { transform: translateY(-6px); }
 }
 
 .sol-table {
@@ -180,6 +226,14 @@
   box-shadow: inset 0 0 0 3px var(--px-white);
 }
 
+.sol-actions form {
+  display: contents;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
 .sol-actions {
   display: flex;
   gap: 12px;

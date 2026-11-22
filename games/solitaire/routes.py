@@ -134,6 +134,8 @@ class Solitaire(MiniGame):
                 bow=sprites.render("card-bow", "card-bow"),
                 moves=len(game["moves"]),
                 seconds=seconds,
+                time_text=f"{seconds // 60}:{seconds % 60:02d}",
+                heart=sprites.render("suit-heart", "win-heart"),
                 won=game["won"] is not None,
                 can_undo=bool(game["moves"]) and game["won"] is None,
                 sound=session.pop(SOUND_KEY, None),

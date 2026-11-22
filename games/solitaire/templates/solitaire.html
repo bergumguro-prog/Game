@@ -21,9 +21,11 @@
 <main class="scene">
   <section class="panel sol-panel">
     <h1 class="panel-title">Solitaire</h1>
-    <p class="sol-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>
-      {% if won %}You won in {{ moves }} moves!{% else %}Moves: {{ moves }}{% endif %}
-    </p>
+    <div class="sol-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>
+      <span>Moves: <strong>{{ moves }}</strong></span>
+      <span>Time: <strong id="sol-time" data-seconds="{{ seconds }}"
+                          data-running="{{ 'false' if won else 'true' }}">{{ time_text }}</strong></span>
+    </div>
 
     <div class="sol-table" id="sol-table">
       <div class="sol-top">
@@ -74,10 +76,33 @@
     </form>
 
     <div class="sol-actions">
+      <form method="post" action="{{ url_for('solitaire.undo') }}">
+        <button class="button button-mint" type="submit" id="sol-undo"
+                {% if not can_undo %}disabled{% endif %}>Undo</button>
+      </form>
+      <form method="post" action="{{ url_for('solitaire.new') }}">
+        <button class="button button-mint" type="submit">New game</button>
+      </form>
       <a class="button button-mint" href="/">Back to the living room</a>
     </div>
+
+    {% if won %}
+    <div class="sol-win" role="dialog" aria-labelledby="sol-win-title">
+      <div class="panel sol-win-card">
+        <h2 class="panel-title" id="sol-win-title">You won!</h2>
+        <p class="sol-win-hearts" aria-hidden="true">{% for _ in range(3) %}{{ heart }}{% endfor %}</p>
+        <p>All 52 cards are home in <strong>{{ moves }} move{{ "" if moves == 1 else "s" }}</strong> and <strong>{{ time_text }}</strong>.</p>
+        <div class="sol-actions">
+          <form method="post" action="{{ url_for('solitaire.new') }}">
+            <button class="button" type="submit" autofocus>Play again</button>
+          </form>
+          <a class="button button-mint" href="/">Back to the living room</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </section>
-  <p class="hint">Drag cards between piles &middot; double-click to send a card home &middot; click the stock to draw &middot; <kbd>Esc</kbd> to leave</p>
+  <p class="hint">Drag cards between piles &middot; double-click to send a card home &middot; click the stock to draw &middot; <kbd>U</kbd> to undo &middot; <kbd>Esc</kbd> to leave</p>
 </main>
 {% endblock %}
 
