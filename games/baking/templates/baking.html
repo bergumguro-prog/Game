@@ -2,20 +2,98 @@
 
 {% block title %}Baking{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('baking.static', filename='baking.css') }}">
+{% endblock %}
+
 {% block content %}
 <main class="scene">
-  <section class="panel">
+  <section class="panel bake-panel">
     <h1 class="panel-title">Baking</h1>
+
     {% if not bake %}
-      {% for r in recipes %}
-      <form method="post" action="{{ url_for('baking.start') }}">
-        <button class="button" type="submit" name="recipe" value="{{ r.id }}">Bake {{ r.name|lower }}</button>
-      </form>
-      {% endfor %}
+      <p>What shall we bake today?</p>
+      <div class="bake-choices">
+        {% for r in recipes %}
+        <form method="post" action="{{ url_for('baking.start') }}">
+          <button class="button" type="submit" name="recipe" value="{{ r.id }}">{{ r.name }}</button>
+        </form>
+        {% endfor %}
+      </div>
     {% else %}
-      <p>{{ recipe.name }}: {{ bake.phase }}</p>
+      <p class="bake-message"{% if sound %} data-sound="{{ sound }}"{% endif %}>
+        {%- if message -%}{{ message }}
+        {%- elif bake.phase == "gather" and not bake.counter and not bake.bowl -%}Open the fridge or the pantry and take out what the recipe needs.
+        {%- elif bake.phase == "gather" -%}Click things on the counter to put them in the bowl, in the order on the card.
+        {%- endif -%}
+      </p>
+
+      <div class="bake-layout">
+        <aside class="recipe-card" aria-label="Recipe card">
+          <h2 class="recipe-title">{{ recipe.name }}</h2>
+          <h3 class="recipe-heading">You need</h3>
+          <ol class="recipe-ingredients">
+            {% for item in recipe.ingredients %}
+            <li class="ing-{{ states[item] }}">{{ icons[item] }}<span>{{ ingredients[item].name }}</span></li>
+            {% endfor %}
+          </ol>
+          <h3 class="recipe-heading">Steps</h3>
+          <ol class="recipe-steps">
+            {% for line in recipe.steps %}
+            <li class="{% if loop.index0 == step %}step-now{% elif step is not none and loop.index0 < step or bake.phase == 'done' %}step-done{% endif %}">{{ line }}</li>
+            {% endfor %}
+          </ol>
+        </aside>
+
+        <div class="bake-kitchen">
+          {% if bake.phase == "gather" %}
+          <div class="storage">
+            {% for place, art in (("fridge", fridge), ("pantry", pantry)) %}
+            <form method="post" action="{{ url_for('baking.open_place') }}">
+              <button class="storage-door{% if bake.open == place %} storage-open{% endif %}" type="submit"
+                      name="place" value="{{ '' if bake.open == place else place }}">
+                {{ art }}<span>{{ "Close" if bake.open == place else "Open" }} the {{ place }}</span>
+              </button>
+            </form>
+            {% endfor %}
+          </div>
+
+          {% if bake.open %}
+          <div class="shelf shelf-{{ bake.open }}" aria-label="Inside the {{ bake.open }}">
+            {% for item in shelf %}
+            <form method="post" action="{{ url_for('baking.pick') }}">
+              <button class="ing-button" type="submit" name="item" value="{{ item.id }}"
+                      {% if item.id in bake.counter or item.id in bake.bowl %}disabled{% endif %}>
+                {{ icons[item.id] }}<span>{{ item.name }}</span>
+              </button>
+            </form>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="counter" aria-label="The counter">
+            {% for item in bake.counter %}
+            <form method="post" action="{{ url_for('baking.add') }}">
+              <button class="ing-button" type="submit" name="item" value="{{ item }}"
+                      title="Put the {{ ingredients[item].name }} in the bowl">
+                {{ icons[item] }}<span>{{ ingredients[item].name }}</span>
+              </button>
+            </form>
+            {% else %}
+            <p class="counter-empty">The counter is empty.</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {% block bake_more %}{% endblock %}
+        </div>
+      </div>
     {% endif %}
-    <a class="button button-mint" href="/">Back to the kitchen</a>
+
+    <div class="bake-actions">
+      <a class="button button-mint" href="/">Back to the kitchen</a>
+    </div>
   </section>
+  <p class="hint">Click to open, pick and add &middot; <kbd>Esc</kbd> to return to the kitchen</p>
 </main>
 {% endblock %}

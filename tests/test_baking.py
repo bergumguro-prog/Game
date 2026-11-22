@@ -224,3 +224,40 @@ def test_unknown_recipe_and_garbled_actions_are_ignored(client):
     client.post("/games/baking/open", data={"place": "attic"})
     client.post("/games/baking/pick", data={"item": "<script>"})
     assert saved(client) == logic.new_bake(MUFFINS)
+
+
+# --- Gathering page (issue #56) ---
+
+def test_open_fridge_shows_its_items_including_ones_not_in_the_recipe(client):
+    client.post("/games/baking/start", data={"recipe": MUFFINS})
+    client.post("/games/baking/open", data={"place": "fridge"})
+    html = client.get("/games/baking/").data.decode()
+    for item in ingredients.kept_in("fridge"):
+        assert f'name="item" value="{item.id}"' in html
+    assert 'value="flour"' not in html.split('class="shelf')[1].split("</div>")[0]
+
+
+def test_recipe_card_tracks_each_ingredient(client):
+    client.post("/games/baking/start", data={"recipe": MUFFINS})
+    client.post("/games/baking/open", data={"place": "pantry"})
+    client.post("/games/baking/pick", data={"item": "flour"})
+    client.post("/games/baking/pick", data={"item": "sugar"})
+    client.post("/games/baking/add", data={"item": "flour"})
+    html = client.get("/games/baking/").data.decode()
+    card = html.split('class="recipe-card"')[1].split("</aside>")[0]
+    assert card.count("ing-in-bowl") == 1 and card.count("ing-on-counter") == 1
+    assert card.count("ing-needed") == 6
+
+
+def test_wrong_pick_says_so_once(client):
+    client.post("/games/baking/start", data={"recipe": MUFFINS})
+    client.post("/games/baking/open", data={"place": "fridge"})
+    client.post("/games/baking/pick", data={"item": "pickles"})
+    html = client.get("/games/baking/").data.decode()
+    assert "Pickles isn&#39;t in this recipe" in html or "Pickles isn't in this recipe" in html
+    assert "isn" not in client.get("/games/baking/").data.decode().split("bake-message")[1][:120]
+
+
+def test_ingredient_icons_exist_for_everything():
+    from games.baking import art
+    assert set(art.ICONS) == set(ingredients.INGREDIENTS)
