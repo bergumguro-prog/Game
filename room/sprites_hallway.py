@@ -125,7 +125,64 @@ def _panelled_wall_tile(height):
     return rows
 
 
+def _front_door(width=22, height=27):
+    """The front door: a mint door with a window, a wreath and a brass knob,
+    in a stone frame with a step in front."""
+    c = _canvas(width, height)
+    for y in range(height - 2):
+        for x in range(width):
+            if x in (0, width - 1) or y == 0:
+                c[y][x] = "o"
+            elif x in (1, 2) or x in (width - 3, width - 2) or y in (1, 2):
+                c[y][x] = "T" if x == width - 2 else "t"
+    left, right, top = 3, width - 4, 3
+    for y in range(top, height - 2):
+        for x in range(left, right + 1):
+            edge = x in (left, right) or y == top
+            c[y][x] = "o" if edge else ("j" if x == left + 1 else "m")
+    # window near the top
+    for y in range(5, 10):
+        for x in range(6, width - 6):
+            edge = x in (6, width - 7) or y in (5, 9) or x == width // 2 or y == 7
+            c[y][x] = "o" if edge else ("w" if (x, y) == (7, 6) else "j")
+    # wreath with a red bow
+    cx, cy = width // 2, 14
+    for y in range(cy - 3, cy + 4):
+        for x in range(cx - 3, cx + 4):
+            d = (x - cx + 0.5) ** 2 + (y - cy + 0.5) ** 2
+            if 4 <= d <= 12:
+                c[y][x] = "G" if (x + y) % 3 == 0 else "g"
+    c[cy + 3][cx - 1] = c[cy + 3][cx] = "e"
+    c[cy + 2][cx - 2] = c[cy + 2][cx + 1] = "e"
+    # lower panels and the knob
+    for x0, x1 in ((6, cx - 2), (cx + 1, width - 7)):  # two lower panels
+        for y in range(19, height - 4):
+            for x in range(x0, x1 + 1):
+                if x in (x0, x1) or y in (19, height - 5):
+                    c[y][x] = "M"
+    c[16][width - 7] = "y"
+    for x in range(width):
+        c[height - 2][x] = "t" if 0 < x < width - 1 else "o"
+        c[height - 1][x] = "o"
+    return _rows(c)
+
+
+LANTERN = [
+    "..oo..",
+    ".oBBo.",
+    "oooooo",
+    "oyyyyo",
+    "oywyyo",
+    "oyyyyo",
+    "oooooo",
+    ".oBBo.",
+    "..oo..",
+]
+
+
 HALLWAY_SPRITES = {
+    "front-door": _front_door(),
+    "lantern": LANTERN,
     "coat-rack": _coat_rack(),
     "shoe-bench": _shoe_bench(),
     "console-table": _console_table(),

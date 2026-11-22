@@ -1,7 +1,12 @@
 """The hallway: the middle of the house.
 
 Doors: left to the bedroom, right to the living room, bottom to the kitchen,
-and the front door at the top (locked until there is an outside area).
+and the front door at the top.
+
+The front door is locked because there is no outside yet. To open it:
+make room/rooms/outside.py with a door back, e.g.
+    Exit("to-hallway", "bottom", 80, to_room="hallway", to_exit="to-outside")
+and give the front door below `to_room="outside", to_exit="to-hallway"`.
 """
 from room.objects import RoomObject
 from room.world import Exit, Room
@@ -9,6 +14,8 @@ from room.world import Exit, Room
 OBJECTS = [
     # --- On the back wall ---
     RoomObject("picture", "picture", 10, 7, layer="wall"),
+    RoomObject("lantern-left", "lantern", 46, 9, layer="wall"),
+    RoomObject("lantern-right", "lantern", 76, 9, layer="wall"),
     RoomObject("mirror", "mirror", 99, 3, layer="wall"),
 
     # --- Rugs and doormats ---
@@ -42,5 +49,7 @@ room = Room(
         Exit("to-bedroom", "left", 60, to_room="bedroom", to_exit="to-hallway"),
         Exit("to-livingroom", "right", 60, to_room="livingroom", to_exit="to-hallway"),
         Exit("to-kitchen", "bottom", 55, to_room="kitchen", to_exit="to-hallway"),
+        # the front door: no to_room yet, so it's locked
+        Exit("to-outside", "top", 56, sprite="front-door"),
     ],
 )
