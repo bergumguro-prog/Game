@@ -314,9 +314,9 @@ def test_rooms_show_their_doors():
 
 def test_coming_through_a_door_stands_in_front_of_it():
     client = create_app().test_client()
-    exit = world.get("kitchen").exit("to-bedroom")
+    exit = world.get("kitchen").exit("to-hallway")
     x, y, facing = exit.arrival(world.get("kitchen"))
-    html = client.get("/rooms/kitchen?via=to-bedroom").data.decode()
+    html = client.get("/rooms/kitchen?via=to-hallway").data.decode()
     S = sprites.SCALE
     assert f'data-x="{x * S}" data-y="{y * S}"' in html
     assert f'data-facing="{facing}"' in html
@@ -328,7 +328,7 @@ def test_coming_through_a_door_stands_in_front_of_it():
 
 def test_walking_through_a_door_changes_the_current_room():
     client = create_app().test_client()
-    client.get("/rooms/livingroom?via=to-kitchen")
+    client.get("/rooms/livingroom?via=to-hallway")
     assert b'data-room-id="livingroom"' in client.get("/").data
 
 
@@ -396,3 +396,33 @@ def test_rooms_have_their_new_names():
     assert world.get("livingroom").name == "Living room"
     assert world.get("hallway").name == "Hallway"
     assert world.DEFAULT_ROOM == "bedroom"
+
+
+# --- How the rooms connect (issue #65) ---
+
+HOUSE_MAP = {
+    # (room, wall) -> room on the other side
+    ("bedroom", "right"): "hallway",
+    ("hallway", "left"): "bedroom",
+    ("hallway", "bottom"): "kitchen",
+    ("kitchen", "top"): "hallway",
+    ("hallway", "right"): "livingroom",
+    ("livingroom", "left"): "hallway",
+}
+
+
+def test_doors_match_the_house_map():
+    doors = {
+        (room.id, exit.side): exit.to_room
+        for room in ROOMS for exit in room.exits if exit.to_room
+    }
+    assert doors == HOUSE_MAP
+
+
+@each_exit
+def test_matching_doors_are_on_opposite_walls(room, exit):
+    if not exit.to_room:
+        return
+    other = world.get(exit.to_room).exit(exit.to_exit)
+    opposite = {"left": "right", "right": "left", "top": "bottom", "bottom": "top"}
+    assert other.side == opposite[exit.side]

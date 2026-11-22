@@ -22,7 +22,6 @@ OBJECTS = [
 
     # --- Rugs and doormats ---
     RoomObject("mat-door", "mat-pink", 6, 29, layer="floor"),
-    RoomObject("mat-side-door", "mat-pink-side", 168, 68, layer="floor"),
     RoomObject("rug-table", "rug-kitchen", 54, 62, layer="floor"),
 
     # --- Counters along the back wall ---
@@ -60,7 +59,6 @@ room = Room(
     start=(80, 92),
     objects=OBJECTS,
     exits=[
-        Exit("to-bedroom", "top", 8, to_room="bedroom", to_exit="to-kitchen"),
-        Exit("to-livingroom", "right", 70, to_room="livingroom", to_exit="to-kitchen"),
+        Exit("to-hallway", "top", 8, to_room="hallway", to_exit="to-kitchen"),
     ],
 )
