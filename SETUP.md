@@ -133,6 +133,16 @@ The full checklist (branches, sprites, sounds) is in CLAUDE.md under
    for the game and the object opens it automatically.
 3. Add tests in `tests/test_<name>.py`.
 
+## Adding a baking recipe
+Make one new file in `games/baking/recipes/` that defines
+`recipe = Recipe(...)` (copy `blueberry_muffins.py`): its name, the
+ingredients in the order they go into the bowl, the steps for the recipe
+card and the perfect baking time. Ingredients come from
+`games/baking/ingredients.py`, which says whether each one is kept in the
+fridge or the pantry; add new ones there (and an icon in
+`games/baking/art.py`). The new recipe shows up on the baking start screen
+by itself.
+
 ## Adding a new room
 Make one new file in `room/rooms/`, for example `room/rooms/garden.py`, that
 defines `room = Room(...)` (copy `livingroom.py` to start). It is found
