@@ -841,6 +841,7 @@ from room.sprites_flowers import FLOWER_SPRITES  # noqa: E402
 
 SPRITES.update(FLOWER_SPRITES)
 SPRITES["runner"] = _rug(18, 74, "P", "p", "l", "y")
+SPRITES["round-rug-lavender-small"] = _recolor(_round_rug(30, 14), {"P": "V", "p": "v", "l": "u"})
 SPRITES["rug-kitchen"] = _round_rug(60, 32)
 SPRITES["mat-pink-side"] = _rug(7, 20, "P", "p", "w", "y")
 SPRITES["mat-pink"] = _rug(20, 7, "P", "p", "w", "y")

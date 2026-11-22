@@ -194,51 +194,36 @@ def _pantry(width=24, height=38):
     return _rows(c)
 
 
-def _pantry_wall(width=18, height=96):
-    """Open pantry shelves along a side wall, seen from above: a wooden
-    frame with shelves, and on them jars (colored lids), flour sacks and
-    little boxes. The front edge (toward the room) is on the left."""
+def _side_counter(width=20, height=88):
+    """A counter along a side wall, seen tilted from above like the rest of
+    the room: the cream worktop runs down the wall, a narrow strip of pink
+    cupboard doors shows on its left (the side facing into the room), and the
+    end facing you is a plain pink panel. The top end is open so it joins
+    the corner counter on the back wall."""
     c = _canvas(width, height)
-    for y in range(height):
+    end_h = 12                     # the end panel at the bottom
+    run = height - end_h
+    for y in range(run):
+        c[y][0] = "o"
+        for x in range(1, 6):      # cupboard doors, seen from the side
+            door_line = (y % 16) == 15
+            c[y][x] = "P" if door_line or x == 5 else "p"
+        if y % 16 == 8:
+            c[y][3] = "y"          # knob
+        c[y][6] = "C"              # the worktop's front edge
+        for x in range(7, width - 1):
+            c[y][x] = "w" if x == 7 else ("C" if x == width - 2 else "c")
+        c[y][width - 1] = "o"
+    for x in range(width):         # where the worktop ends
+        c[run][x] = "o"
+    for y in range(run + 1, height):
         for x in range(width):
-            if x in (0, width - 1) or y in (0, height - 1):
+            if x in (0, width - 1) or y == height - 1:
                 c[y][x] = "o"
-            elif x in (1, 2):
-                c[y][x] = "b" if x == 1 else "B"       # the front edge
-            elif x == width - 2:
-                c[y][x] = "B"                          # against the wall
+            elif y == height - 2:
+                c[y][x] = "P"      # kick plate
             else:
-                c[y][x] = "n"                          # shelf boards
-    for y in range(24, height - 1, 24):                # the shelf sections
-        for x in range(1, width - 1):
-            c[y][x] = "o"
-            if y + 1 < height - 1:
-                c[y + 1][x] = "b"
-
-    def jar(x0, y0, lid):
-        for dy, row in enumerate([".ooo.", "o" + lid * 3 + "o", "o" + lid + "w" + lid + "o",
-                                  "o" + lid * 3 + "o", ".ooo."]):
-            for dx, ch in enumerate(row):
-                if ch != ".":
-                    c[y0 + dy][x0 + dx] = ch
-
-    def sack(x0, y0):
-        for dy, row in enumerate(["..oo..", ".occo.", "occcco", "ocCcco", "occcco", ".oooo."]):
-            for dx, ch in enumerate(row):
-                if ch != ".":
-                    c[y0 + dy][x0 + dx] = ch
-
-    def box(x0, y0, color):
-        for dy, row in enumerate(["ooooo", "o" + color * 3 + "o", "o" + color + "w" + color + "o",
-                                  "o" + color * 3 + "o", "ooooo"]):
-            for dx, ch in enumerate(row):
-                c[y0 + dy][x0 + dx] = ch
-
-    # what's on each shelf (fixed, so the art always looks the same)
-    jar(4, 3, "e"); jar(10, 3, "y"); sack(5, 10); box(11, 13, "m"); jar(4, 17, "P")
-    sack(4, 28); jar(11, 28, "g"); box(4, 37, "p"); jar(10, 37, "v"); jar(6, 43, "y")
-    jar(4, 52, "M"); jar(10, 52, "e"); sack(10, 59); box(4, 61, "y")
-    box(5, 76, "m"); jar(11, 76, "P"); sack(4, 84); jar(11, 86, "y")
+                c[y][x] = "l" if x == 1 else ("P" if x >= width - 3 else "p")
     return _rows(c)
 
 
@@ -357,7 +342,8 @@ KITCHEN_SPRITES = {
     "stove": _stove(),
     "fridge": _fridge(),
     "pantry": _pantry(),
-    "pantry-wall": _pantry_wall(),
+    "counter-corner": _counter(36),
+    "counter-side": _side_counter(),
     "kitchen-table": _kitchen_table(),
     "chair": CHAIR,
     "pan-rail": _pan_rail(),
