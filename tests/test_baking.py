@@ -261,3 +261,52 @@ def test_wrong_pick_says_so_once(client):
 def test_ingredient_icons_exist_for_everything():
     from games.baking import art
     assert set(art.ICONS) == set(ingredients.INGREDIENTS)
+
+
+# --- Bowl, mixing, tin and oven page (issue #57) ---
+
+def bake_in_session(client, bake):
+    with client.session_transaction() as s:
+        s["baking"] = bake
+
+
+def test_mixing_shows_a_stir_button_with_progress(client):
+    bake = gathered(logic.new_bake(MUFFINS))
+    for item in muffins().ingredients:
+        logic.add_to_bowl(bake, item)
+    logic.stir(bake)
+    bake_in_session(client, bake)
+    html = client.get("/games/baking/").data.decode()
+    assert f"Stir (1/{muffins().stirs})" in html
+    assert "sprite-bowl-lumpy" in html
+
+
+def test_bowl_looks_smooth_once_mixed():
+    from games.baking import routes
+    bake = ready_for_oven()
+    bake["phase"] = "pour"
+    assert routes.bowl_sprite(bake) == "bowl-smooth"
+    assert routes.bowl_sprite(logic.new_bake(MUFFINS)) == "bowl-empty"
+
+
+def test_oven_page_knows_the_recipe_timing(client):
+    bake = ready_for_oven()
+    logic.put_in_oven(bake, 0)
+    bake_in_session(client, bake)
+    html = client.get("/games/baking/").data.decode()
+    low, high = muffins().bake
+    assert 'id="oven"' in html
+    assert f'data-from="{low}"' in html and f'data-to="{high}"' in html
+    assert f'data-burnt="{muffins().burnt_after}"' in html
+    assert "Take them out!" in html
+
+
+def test_ding_sound_is_served(client):
+    response = client.get("/static/sounds/ding.wav")
+    assert response.status_code == 200 and response.data[:4] == b"RIFF"
+
+
+def test_oven_muffin_colors_are_theme_variables():
+    theme = open("static/css/theme.css").read()
+    for stage in ("raw", "pale", "golden", "brown", "dark"):
+        assert f"--muffin-{stage}:" in theme
