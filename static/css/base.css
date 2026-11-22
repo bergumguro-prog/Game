@@ -94,6 +94,11 @@ body {
 .button-mint {
   background: var(--px-mint);
 }
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
 .button-mint:hover {
   background: var(--px-mint-light);
 }
