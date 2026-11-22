@@ -493,3 +493,44 @@ def test_living_room_has_a_sofa():
 def test_bedroom_has_no_potted_plants():
     sprites_used = {o.sprite for o in world.get("bedroom").objects}
     assert not sprites_used & {"plant-big", "plant-small"}
+
+
+# --- Room touch-ups (issue #112) ---
+
+def test_no_round_green_plants_anywhere():
+    for room in ROOMS:
+        used = {o.sprite for o in room.objects}
+        assert not used & {"plant-big", "plant-small"}, room.id
+
+
+def test_bedroom_has_no_lace_rug_on_the_floor_and_a_nightstand_by_the_wall():
+    bedroom = {o.id: o for o in world.get("bedroom").objects}
+    assert "doily-bottom" not in bedroom
+    stand = bedroom["flower-stand"]
+    assert stand.x + stand.size[0] >= world.get("bedroom").width - 1
+
+
+def test_bedroom_door_is_clear_of_the_tea_table():
+    bedroom = world.get("bedroom")
+    trigger = bedroom.exit("to-hallway").trigger_rect(bedroom)
+    arrival = bedroom.exit("to-hallway").arrival(bedroom)
+    tea = [o for o in bedroom.objects if o.id in ("tea-table", "bench-right")]
+    for o in tea:
+        tx, ty, tw, th = o.hitbox_rect
+        assert ty + th < trigger[1]          # the door is below the tea set
+    assert is_free(bedroom, arrival[0], arrival[1])
+
+
+def test_kitchen_pantry_runs_along_the_right_wall():
+    kitchen = world.get("kitchen")
+    pantry = next(o for o in kitchen.objects if o.id == "pantry")
+    w, h = pantry.size
+    assert pantry.x + w == kitchen.width
+    assert h >= (kitchen.height - kitchen.wall_height) * 0.8
+    assert pantry.game == "baking"
+
+
+def test_living_room_sofa_from_behind_and_armchair_from_the_side():
+    living = {o.id: o.sprite for o in world.get("livingroom").objects}
+    assert living["sofa"] == "sofa-back"
+    assert living["armchair"] == "armchair-side"
