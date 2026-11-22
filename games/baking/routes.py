@@ -83,6 +83,23 @@ def bowl_sprite(bake):
     return "bowl-lumpy"
 
 
+def muffin_look(bake):
+    """Which muffin picture to show: the color from the oven timing, flat if
+    there were lots of mistakes."""
+    timing = {tuple(m) for m in bake["mistakes"] if m[0] in ("pale", "dark")}
+    if ("dark", "very") in timing:
+        look = "very-dark"
+    elif ("pale", "very") in timing:
+        look = "very-pale"
+    elif ("dark", "a bit") in timing:
+        look = "dark"
+    elif ("pale", "a bit") in timing:
+        look = "pale"
+    else:
+        look = "golden"
+    return f"muffin-{look}" + ("-flat" if logic.stars(bake) == 1 else "")
+
+
 def ingredient_state(bake, item):
     if item in bake["bowl"]:
         return "in-bowl"
@@ -117,6 +134,11 @@ class Baking(MiniGame):
                 oven=sprites.render("oven", "oven-art"),
                 oven_muffins=sprites.render("oven-muffins", "oven-muffins-art"),
                 oven_seconds=round(now() - bake["oven_start"], 1) if bake and bake["phase"] == "baking" else 0,
+                stars=logic.stars(bake) if bake and bake["phase"] == "done" else 0,
+                notes=logic.notes(bake) if bake and bake["phase"] == "done" else [],
+                muffin=sprites.render(muffin_look(bake), "muffin-art") if bake and bake["phase"] == "done" else None,
+                star=sprites.render("bake-star", "bake-star"),
+                star_empty=sprites.render("bake-star-empty", "bake-star"),
                 fridge=sprites.render("fridge", "storage-art"),
                 pantry=sprites.render("pantry", "storage-art"),
                 message=session.pop(MESSAGE_KEY, None),
@@ -156,7 +178,11 @@ class Baking(MiniGame):
 
         @bp.route("/take-out", methods=["POST"])
         def take_out():
-            return act(logic.take_out, now(), sound=None)
+            response = act(logic.take_out, now(), sound=None)
+            bake = load_bake()
+            if bake and bake["phase"] == "done":
+                session[SOUND_KEY] = "win" if logic.stars(bake) == 3 else "draw"
+            return response
 
 
 game = Baking()

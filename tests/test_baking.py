@@ -310,3 +310,53 @@ def test_oven_muffin_colors_are_theme_variables():
     theme = open("static/css/theme.css").read()
     for stage in ("raw", "pale", "golden", "brown", "dark"):
         assert f"--muffin-{stage}:" in theme
+
+
+# --- Results (issue #58) ---
+
+def finished(mistakes):
+    bake = logic.new_bake(MUFFINS)
+    bake.update(phase="done", bowl=list(muffins().ingredients), baked_for=9.0, mistakes=mistakes)
+    return bake
+
+
+@pytest.mark.parametrize("mistakes,look", [
+    ([], "muffin-golden"),
+    ([["pale", "a bit"]], "muffin-pale"),
+    ([["order", "sugar"], ["dark", "a bit"]], "muffin-dark"),
+    ([["wrong", "cheese"], ["dark", "very"], ["dark", "very"]], "muffin-very-dark-flat"),
+    ([["pale", "very"], ["pale", "very"], ["order", "salt"]], "muffin-very-pale-flat"),
+])
+def test_muffins_look_better_with_more_stars(mistakes, look):
+    from games.baking import routes
+    assert routes.muffin_look(finished(mistakes)) == look
+
+
+def test_results_show_stars_muffins_and_notes(client):
+    bake_in_session(client, finished([["wrong", "pickles"], ["order", "sugar"]]))
+    html = client.get("/games/baking/").data.decode()
+    assert 'aria-label="2 out of 3 stars"' in html
+    assert html.count("sprite-muffin-golden") == 3
+    assert "Not in the recipe: pickles." in html
+    assert "Bake again" in html
+
+
+def test_perfect_results_say_so(client):
+    bake_in_session(client, finished([]))
+    html = client.get("/games/baking/").data.decode()
+    assert 'aria-label="3 out of 3 stars"' in html and "Perfect!" in html
+
+
+def test_taking_out_plays_a_sound_by_stars(client, monkeypatch):
+    bake = ready_for_oven()
+    logic.put_in_oven(bake, 1000.0)
+    bake_in_session(client, bake)
+    monkeypatch.setattr("games.baking.routes.now", lambda: 1009.0)
+    client.post("/games/baking/take-out")
+    assert 'data-sound="win"' in client.get("/games/baking/").data.decode()
+
+
+def test_bake_again_starts_fresh(client):
+    bake_in_session(client, finished([["dark", "a bit"]]))
+    client.post("/games/baking/start", data={"recipe": MUFFINS})
+    assert saved(client) == logic.new_bake(MUFFINS)

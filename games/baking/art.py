@@ -347,3 +347,59 @@ BIG_ART = {
     "oven-muffins": _oven_muffins(),
 }
 sprites.SPRITES.update(BIG_ART)
+
+
+# --- Finished muffins and stars --------------------------------------------------
+
+def _muffin(domed, top):
+    """A big muffin for the results. `top` is the color letter of its top;
+    flat muffins (lots of mistakes) have a low top."""
+    case = [
+        "oooooooooooooo",
+        ".opPpPpPpPpPo.",
+        ".opPpPpPpPpPo.",
+        "..opPpPpPpPo..",
+        "..opPpPpPpPo..",
+        "..oooooooooo..",
+    ]
+    if domed:
+        dome = [
+            "....oooooo....",
+            "..ooTTTTTToo..",
+            ".oTTTVTTTTTTo.",
+            "oTTTTTTTVTTTTo",
+            "oTTVTTTTTTTVTo",
+            "oTTTTTTTTTTTTo",
+        ]
+    else:
+        dome = [
+            "..............",
+            "..............",
+            "..............",
+            "..oooooooooo..",
+            ".oTTTVTTTTVTo.",
+            "oTTTTTTTTTTTTo",
+        ]
+    return [row.replace("T", top) for row in dome] + case
+
+
+# top colors: how the muffins were baked
+MUFFIN_TOPS = {"golden": "n", "pale": "y", "very-pale": "c", "dark": "b", "very-dark": "B"}
+
+for look, letter in MUFFIN_TOPS.items():
+    sprites.SPRITES[f"muffin-{look}"] = _muffin(True, letter)
+    sprites.SPRITES[f"muffin-{look}-flat"] = _muffin(False, letter)
+
+BAKE_STAR = [
+    "....o....",
+    "...oyo...",
+    "oooyyyooo",
+    "oyyyyyyyo",
+    ".oyyyyyo.",
+    "..oyyyo..",
+    ".oyyoyyo.",
+    ".oyo.oyo.",
+    ".oo...oo.",
+]
+sprites.SPRITES["bake-star"] = BAKE_STAR
+sprites.SPRITES["bake-star-empty"] = [row.replace("y", "C") for row in BAKE_STAR]
