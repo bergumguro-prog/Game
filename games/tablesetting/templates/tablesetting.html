@@ -48,7 +48,8 @@
           {% endfor %}
         </div>
         <div class="table-top" id="table" data-w="{{ table.w }}" data-h="{{ table.h }}"
-             data-max="{{ table.max }}" data-cloth="{{ cloth }}"
+             data-max="{{ table.max }}" data-cloth="{{ cloth }}" data-items="{{ items_json }}"
+             data-save="{{ url_for('tablesetting.save') }}"
              style="--tw: {{ table.w }}; --th: {{ table.h }};"
              aria-label="The kitchen table"></div>
         <div class="table-tools">
@@ -57,6 +58,7 @@
           <button class="button" type="button" id="clear-table">Clear table</button>
           <button class="button button-mint" type="button" id="undo-clear" hidden>Undo clear</button>
         </div>
+        <p class="table-saved" id="table-saved" aria-live="polite"></p>
         <p class="table-tip">Drag things onto the table. Click one to pick it, drag it to move it, or drag it off the table to put it away.</p>
       </div>
     </div>
@@ -76,4 +78,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('tablesetting.static', filename='tablesetting.js') }}"></script>
+<script src="{{ url_for('tablesetting.static', filename='tablesetting-save.js') }}"></script>
 {% endblock %}
