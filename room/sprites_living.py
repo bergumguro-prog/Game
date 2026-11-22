@@ -59,9 +59,9 @@ def _dresser(width=24):
     return _rows(c)
 
 
-def _sofa_back(width=38, height=17):
-    """A lavender sofa seen from behind (it faces the fireplace), with two
-    pink cushions peeking over the back."""
+def _sofa(width=40, height=20):
+    """A pink sofa seen from the front: a buttoned back, round arms, two seat
+    cushions and two lavender pillows."""
     c = _canvas(width, height)
 
     def paste(box, x0, y0):
@@ -70,25 +70,39 @@ def _sofa_back(width=38, height=17):
                 if ch != ".":
                     c[y0 + y][x0 + x] = ch
 
-    paste(_rounded_box(8, 6, 2, "p"), 8, 0)            # cushions
-    paste(_rounded_box(8, 6, 2, "p"), width - 16, 0)
-    paste(_rounded_box(8, 14, 3, "V"), 0, 2)           # arms
-    paste(_rounded_box(8, 14, 3, "V"), width - 8, 2)
-    back = _rounded_box(width - 10, 13, 3, "v")       # the back
+    back = _rounded_box(width - 6, 12, 4, "p")
     for y, row in enumerate(back):
         for x, ch in enumerate(row):
-            if ch == "v" and y == 1:
-                row[x] = "u"                           # light along the top
-            elif ch == "v" and y in (6, 9) and x % 6 == 3:
-                row[x] = "V"                           # buttons
-    paste(back, 5, 3)
-    for x in (2, 3, width - 4, width - 3):             # little wooden feet
-        c[height - 1][x] = "B"
+            if ch == "p" and y == 1:
+                row[x] = "l"                     # light along the top
+            elif ch == "p" and y in (4, 7) and x % 7 == 3:
+                row[x] = "P"                     # buttons
+    paste(back, 3, 0)
+    for x0 in (0, width - 8):                    # arms
+        arm = _rounded_box(8, 13, 3, "p")
+        for x in range(1, 7):
+            if arm[1][x] == "p":
+                arm[1][x] = "l"
+        paste(arm, x0, 6)
+    paste(_rounded_box(7, 6, 2, "v"), 8, 5)      # pillows
+    paste(_rounded_box(7, 6, 2, "v"), width - 15, 5)
+    half = (width - 14) // 2
+    paste(_rounded_box(half + 1, 6, 2, "l"), 7, 9)            # seat cushions
+    paste(_rounded_box(half + 1, 6, 2, "l"), 7 + half, 9)
+    for y in range(9, 15):                       # close the seam between cushions
+        if c[y][7 + half] == ".":
+            c[y][7 + half] = "o"
+    for y in range(14, 18):                      # the front, under the cushions
+        for x in range(6, width - 6):
+            c[y][x] = "o" if y == 17 else "P"
+    for x in (3, 4, width - 5, width - 4):       # little wooden feet
+        c[18][x] = "B"
+        c[19][x] = "o"
     return _rows(c)
 
 
 LIVING_SPRITES = {
-    "sofa-back": _sofa_back(),
+    "sofa": _sofa(),
     "armchair": ARMCHAIR,
     "dresser": _dresser(),
 }

@@ -27,8 +27,6 @@ OBJECTS = [
     RoomObject("mantel-plant", "plant-small", 36, 7, layer="on-top", on="fireplace"),
     RoomObject("mantel-flowers", "flower-pot", 48, 5, layer="on-top", on="fireplace"),
     RoomObject("armchair", "armchair", 60, 28),
-    # a sofa facing the fire, seen from behind
-    RoomObject("sofa", "sofa-back", 16, 46, hitbox=(0, 4, 38, 13)),
 
     # --- Plants ---
     RoomObject("plant-top-right", "plant-big", 164, 28, hitbox=(1, 6, 8, 8)),
@@ -41,6 +39,9 @@ OBJECTS = [
                game="solitaire", prompt="play solitaire"),
     RoomObject("card-pouf-left", "pouf-pink", 61, 84),
     RoomObject("card-pouf-right", "pouf-pink", 103, 84),
+
+    # --- A sofa at the bottom of the room, under the card table ---
+    RoomObject("sofa", "sofa", 67, 100, hitbox=(0, 7, 40, 12)),
 ]
 
 room = Room(
@@ -52,7 +53,7 @@ room = Room(
     width=176,
     height=120,
     wall_height=26,
-    start=(80, 100),
+    start=(132, 96),
     objects=OBJECTS,
     exits=[
         Exit("to-hallway", "left", 62, to_room="hallway", to_exit="to-livingroom"),
