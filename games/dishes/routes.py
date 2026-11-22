@@ -43,6 +43,11 @@ def save_state(state):
     session[SESSION_KEY] = state
 
 
+def clock(seconds):
+    seconds = int(seconds)
+    return f"{seconds // 60}:{seconds % 60:02d}"
+
+
 def dish_view(dish):
     w, h = sprites.size(f"dish-{dish['dish']}")
     return {
@@ -69,7 +74,10 @@ class Dishes(MiniGame):
         def index():
             state = load_state()
             dishes = logic.new_round(state["seed"]) if state else []
-            current = dishes[state["index"]] if state and state["index"] < len(dishes) else None
+            index = state["index"] if state else 0
+            current = dishes[index] if state and index < len(dishes) else None
+            seconds = int(((state["finished"] or time.time()) - state["started"])) if state else 0
+            par = logic.par_seconds(dishes) if dishes else 0
             return render_template(
                 "dishes.html",
                 game=self,
@@ -79,6 +87,16 @@ class Dishes(MiniGame):
                 hold_rate=logic.HOLD_RATE,
                 drag_pixels=logic.DRAG_PIXELS,
                 sponge=sprites.render("sponge", "sponge-art"),
+                done=[d["dish"] for d in dishes[:index]],
+                left=[d["dish"] for d in dishes[index + 1:]],
+                mini={name: sprites.render(f"dish-{name}", "mini-dish") for name in logic.DISHES},
+                seconds=seconds,
+                time_text=clock(seconds),
+                par_text=clock(par),
+                stars=logic.stars(seconds, par) if state and state["finished"] else 0,
+                star=sprites.render("star", "star"),
+                star_empty=sprites.render("star-empty", "star"),
+                sparkle=sprites.render("sparkle", "sparkle-art"),
                 sound=session.pop(SOUND_KEY, None),
             )
 
@@ -100,6 +118,9 @@ class Dishes(MiniGame):
                     state["index"] += 1
                     if state["index"] == len(logic.ROUND):
                         state["finished"] = time.time()
+                        dishes = logic.new_round(state["seed"])
+                        got = logic.stars(state["finished"] - state["started"], logic.par_seconds(dishes))
+                        session[SOUND_KEY] = "win" if got == 3 else "draw"
                     save_state(state)
             return redirect(url_for(".index"))
 

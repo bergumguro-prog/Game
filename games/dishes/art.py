@@ -139,6 +139,26 @@ SPONGE = [
     "oooooooooooo",
 ]
 
+STAR = [
+    "....o....",
+    "...oyo...",
+    "oooyyyooo",
+    "oyyyyyyyo",
+    ".oyyyyyo.",
+    "..oyyyo..",
+    ".oyyoyyo.",
+    ".oyo.oyo.",
+    ".oo...oo.",
+]
+
+SPARKLE = [
+    "..w..",
+    "..y..",
+    "wywyw",
+    "..y..",
+    "..w..",
+]
+
 DISH_ART = {
     "plate": plate(), "cup": cup(), "pot": pot(), "pan": pan(),
     "fork": fork(), "spoon": spoon(), "knife": knife(),
@@ -146,3 +166,6 @@ DISH_ART = {
 
 sprites.SPRITES.update({f"dish-{name}": rows for name, rows in DISH_ART.items()})
 sprites.SPRITES["sponge"] = SPONGE
+sprites.SPRITES["star"] = STAR
+sprites.SPRITES["star-empty"] = [row.replace("y", "C") for row in STAR]
+sprites.SPRITES["sparkle"] = SPARKLE
