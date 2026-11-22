@@ -83,3 +83,59 @@ def test_tablecloth_colors_are_theme_variables():
     theme = open("static/css/theme.css").read()
     for var in ("--cloth-gingham:", "--cloth-mint:", "--cloth-lace:", "--cloth-stripe:"):
         assert var in theme
+
+
+# --- Saving the table (issue #61) ---
+
+from games.tablesetting import logic  # noqa: E402
+
+GOOD = {"cloth": "lace", "items": [
+    {"id": "plate", "color": "mint", "x": 10, "y": 12, "r": 0},
+    {"id": "knife", "color": "pink", "x": 30, "y": 12, "r": 1},
+]}
+
+
+def test_a_good_table_is_stored_small():
+    assert logic.clean(GOOD) == {"cloth": "lace", "items": [
+        ["plate", "mint", 10, 12, 0], ["knife", "pink", 30, 12, 1]]}
+
+
+@pytest.mark.parametrize("change", [
+    {"cloth": "velvet"},
+    {"items": [{"id": "sofa", "color": "pink", "x": 0, "y": 0, "r": 0}]},
+    {"items": [{"id": "plate", "color": "black", "x": 0, "y": 0, "r": 0}]},
+    {"items": [{"id": "plate", "color": "pink", "x": 999, "y": 0, "r": 0}]},
+    {"items": [{"id": "plate", "color": "pink", "x": -1, "y": 0, "r": 0}]},
+    {"items": [{"id": "plate", "color": "pink", "x": 1.5, "y": 0, "r": 0}]},
+    {"items": [{"id": "plate", "color": "pink", "x": 0, "y": 0, "r": 4}]},
+    {"items": [{"id": "plate", "color": "pink", "x": 0, "y": 0, "r": 0}] * (catalog.MAX_ITEMS + 1)},
+    {"items": "everything"},
+])
+def test_bad_tables_are_refused(change):
+    with pytest.raises(ValueError):
+        logic.clean({**GOOD, **change})
+
+
+def test_saving_and_coming_back(client):
+    response = client.post("/games/tablesetting/save", json=GOOD)
+    assert response.status_code == 200 and response.get_json() == {"ok": True, "count": 2}
+    client.get("/rooms/kitchen")                    # walk away...
+    html = client.get("/games/tablesetting/").data.decode()   # ...and come back
+    assert 'data-cloth="lace"' in html
+    assert "&#34;id&#34;: &#34;plate&#34;" in html or '"id": "plate"' in html
+
+
+def test_a_bad_save_changes_nothing(client):
+    client.post("/games/tablesetting/save", json=GOOD)
+    response = client.post("/games/tablesetting/save", json={"cloth": "velvet", "items": []})
+    assert response.status_code == 400
+    with client.session_transaction() as s:
+        assert s["tablesetting"]["cloth"] == "lace"
+    assert client.post("/games/tablesetting/save", data="not json").status_code == 400
+
+
+def test_a_broken_saved_table_starts_empty(client):
+    with client.session_transaction() as s:
+        s["tablesetting"] = {"cloth": "gingham", "items": [["plate", "pink", 5000, 0, 0]]}
+    html = client.get("/games/tablesetting/").data.decode()
+    assert 'data-items="[]"' in html
