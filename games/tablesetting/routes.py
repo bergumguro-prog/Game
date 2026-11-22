@@ -4,12 +4,22 @@ A free, creative mode with no score: drag plates, cups, cutlery, napkins,
 candles, flowers and treats onto the kitchen table, then move, rotate or
 remove them. The items are in catalog.py and the art in art.py; the editor
 itself is static/tablesetting.js.
+
+The table is saved in the Flask session after every change, so it's still
+there next time you come back to the kitchen.
+
+    GET  /games/tablesetting/       the table, as you left it
+    POST /games/tablesetting/save   the whole table as JSON (see logic.py)
 """
-from flask import render_template
+import json
+
+from flask import jsonify, render_template, request, session
 
 from core.game_base import MiniGame
-from games.tablesetting import catalog
+from games.tablesetting import catalog, logic
 from room import sprites
+
+SESSION_KEY = "tablesetting"
 
 
 def menu():
@@ -36,14 +46,25 @@ class TableSetting(MiniGame):
     def register_routes(self, bp):
         @bp.route("/")
         def index():
+            saved = logic.for_editor(session.get(SESSION_KEY))
             return render_template(
                 "tablesetting.html",
                 game=self,
                 menu=menu(),
                 table={"w": catalog.TABLE_W, "h": catalog.TABLE_H, "max": catalog.MAX_ITEMS},
-                cloth=catalog.DEFAULT_CLOTH,
+                cloth=saved["cloth"],
                 cloths=catalog.CLOTHS,
+                items_json=json.dumps(saved["items"]),
             )
+
+        @bp.route("/save", methods=["POST"])
+        def save():
+            try:
+                table = logic.clean(request.get_json(silent=True))
+            except ValueError as problem:
+                return jsonify(ok=False, error=str(problem)), 400
+            session[SESSION_KEY] = table
+            return jsonify(ok=True, count=len(table["items"]))
 
 
 game = TableSetting()
