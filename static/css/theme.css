@@ -69,6 +69,11 @@
   --muffin-brown: #b9773f;
   --muffin-dark: #6e3f28;
 
+  /* Dishwashing: soapy water in the sink */
+  --sink-water: #cfe9f0;
+  --sink-bubble: #eaf6f8;
+  --sink-foam: #ffffff;
+
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
   --scene-leave-ms: 200ms;
