@@ -16,7 +16,8 @@ import time
 from flask import redirect, render_template, request, session, url_for
 
 from core.game_base import MiniGame
-from games.solitaire import logic
+from games.solitaire import logic, pieces
+from room import sprites
 
 SESSION_KEY = "solitaire"
 SOUND_KEY = "solitaire_sound"   # sound to play on the next page load
@@ -66,6 +67,57 @@ def play_move(game, table, move):
     return True
 
 
+def card_view(card, source=None, index=None, down_above=0, up_above=0, movable=False):
+    """What the template needs to draw one face-up card."""
+    return {
+        "card": card,
+        "rank": "10" if card[0] == "T" else card[0],
+        "red": logic.is_red(card),
+        "suit": sprites.render(pieces.SUIT_SPRITES[card[1]], "suit"),
+        "name": card_name(card),
+        "source": source,
+        "index": index,
+        "down_above": down_above,
+        "up_above": up_above,
+        "movable": movable,
+    }
+
+
+RANK_NAMES = {"A": "Ace", "T": "10", "J": "Jack", "Q": "Queen", "K": "King"}
+SUIT_NAMES = {"H": "hearts", "D": "diamonds", "C": "clubs", "S": "spades"}
+
+
+def card_name(card):
+    return f"{RANK_NAMES.get(card[0], card[0])} of {SUIT_NAMES[card[1]]}"
+
+
+def table_view(table):
+    """The table laid out for the template: tableau piles with how far down
+    each card is fanned, the waste's top card and each foundation's top."""
+    piles = []
+    for p, pile in enumerate(table.tableau):
+        cards, down, up = [], 0, 0
+        for i, (card, face_up) in enumerate(pile):
+            if face_up:
+                cards.append(card_view(card, f"T{p}", i, down, up, movable=True))
+                up += 1
+            else:
+                cards.append({"face_down": True, "down_above": down, "up_above": up})
+                down += 1
+        piles.append({"id": f"T{p}", "cards": cards, "down": down, "up": up})
+    return {
+        "stock": len(table.stock),
+        "waste": card_view(table.waste[-1], "W", movable=True) if table.waste else None,
+        "waste_under": len(table.waste) > 1,
+        "foundations": [
+            {"id": f"F{i}", "top": card_view(f[-1], f"F{i}", movable=True) if f else None,
+             "count": len(f)}
+            for i, f in enumerate(table.foundations)
+        ],
+        "piles": piles,
+    }
+
+
 class Solitaire(MiniGame):
     slug = "solitaire"
     title = "Solitaire"
@@ -78,7 +130,8 @@ class Solitaire(MiniGame):
             return render_template(
                 "solitaire.html",
                 game=self,
-                table=table,
+                view=table_view(table),
+                bow=sprites.render("card-bow", "card-bow"),
                 moves=len(game["moves"]),
                 seconds=seconds,
                 won=game["won"] is not None,

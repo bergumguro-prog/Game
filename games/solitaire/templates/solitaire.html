@@ -2,19 +2,85 @@
 
 {% block title %}Solitaire{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('solitaire.static', filename='solitaire.css') }}">
+{% endblock %}
+
+{% macro face_up(c) -%}
+<div class="card face-up{% if c.red %} red{% endif %}{% if c.movable %} movable{% endif %}"
+     {% if c.source %}data-src="{{ c.source }}"{% endif %}
+     {% if c.index is not none %}data-index="{{ c.index }}"{% endif %}
+     data-card="{{ c.card }}" aria-label="{{ c.name }}"
+     style="--down-above: {{ c.down_above }}; --up-above: {{ c.up_above }};">
+  <span class="card-corner"><span class="card-rank">{{ c.rank }}</span>{{ c.suit }}</span>
+  <span class="card-middle">{{ c.suit }}</span>
+</div>
+{%- endmacro %}
+
 {% block content %}
 <main class="scene">
-  <section class="panel">
+  <section class="panel sol-panel">
     <h1 class="panel-title">Solitaire</h1>
-    <p {% if sound %}data-sound="{{ sound }}"{% endif %}>
+    <p class="sol-status"{% if sound %} data-sound="{{ sound }}"{% endif %}>
       {% if won %}You won in {{ moves }} moves!{% else %}Moves: {{ moves }}{% endif %}
     </p>
-    <p>Stock: {{ table.stock|length }} &middot; Waste: {{ table.waste[-1] if table.waste else "-" }}</p>
-    <form method="post" action="{{ url_for('solitaire.move') }}">
-      <input name="move" aria-label="Move" placeholder="e.g. D or T0>F">
-      <button class="button" type="submit">Move</button>
+
+    <div class="sol-table" id="sol-table">
+      <div class="sol-top">
+        <form method="post" action="{{ url_for('solitaire.move') }}">
+          <button class="pile stock{% if not view.stock %} stock-empty{% endif %}" type="submit"
+                  name="move" value="D"
+                  aria-label="{% if view.stock %}Draw a card ({{ view.stock }} left){% else %}Turn the waste over{% endif %}">
+            {% if view.stock %}<span class="card face-down">{{ bow }}</span>{% else %}<span class="stock-again" aria-hidden="true">&#8635;</span>{% endif %}
+          </button>
+        </form>
+
+        <div class="pile waste">
+          {% if view.waste_under %}<div class="card face-up card-under" aria-hidden="true"></div>{% endif %}
+          {% if view.waste %}{{ face_up(view.waste) }}{% endif %}
+        </div>
+
+        <div class="sol-gap"></div>
+
+        {% for f in view.foundations %}
+        <div class="pile foundation" data-drop="F" aria-label="Foundation">
+          {% if f.top %}{{ face_up(f.top) }}{% else %}<span class="slot-mark" aria-hidden="true">A</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="sol-tableau">
+        {% for pile in view.piles %}
+        <div class="pile tableau-pile{% if not pile.cards %} pile-empty{% endif %}" data-drop="{{ pile.id }}"
+             style="--down: {{ pile.down }}; --up: {{ pile.up }};">
+          {% for c in pile.cards %}
+            {% if c.face_down %}
+            <div class="card face-down" style="--down-above: {{ c.down_above }}; --up-above: {{ c.up_above }};">{{ bow }}</div>
+            {% else %}
+            {{ face_up(c) }}
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# solitaire.js fills these in and sends them; the server checks the rules #}
+    <form id="sol-move" method="post" action="{{ url_for('solitaire.move') }}" hidden>
+      <input type="hidden" name="move">
     </form>
-    <a class="button button-mint" href="/">Back to the living room</a>
+    <form id="sol-auto" method="post" action="{{ url_for('solitaire.auto') }}" hidden>
+      <input type="hidden" name="from">
+    </form>
+
+    <div class="sol-actions">
+      <a class="button button-mint" href="/">Back to the living room</a>
+    </div>
   </section>
+  <p class="hint">Drag cards between piles &middot; double-click to send a card home &middot; click the stock to draw &middot; <kbd>Esc</kbd> to leave</p>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('solitaire.static', filename='solitaire.js') }}"></script>
 {% endblock %}
