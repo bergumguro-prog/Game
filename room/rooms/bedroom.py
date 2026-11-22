@@ -42,11 +42,10 @@ OBJECTS = [
     RoomObject("pouf-corner-mint", "pouf-mint", 28, 110),
     RoomObject("pouf-round", "pouf-pink", 137, 109),
 
-    # --- Fireplace corner ---
-    RoomObject("fireplace", "fireplace", 134, 14),
-    RoomObject("mantel-plant", "plant-small", 138, 7, layer="on-top", on="fireplace"),
-    RoomObject("mantel-flowers", "flower-pot", 150, 5, layer="on-top", on="fireplace"),
-    RoomObject("plant-fireplace", "plant-big", 163, 18, hitbox=(1, 6, 8, 8)),
+    # --- Dresser corner ---
+    RoomObject("dresser", "dresser", 134, 8, hitbox=(0, 14, 24, 10)),
+    RoomObject("dresser-flowers", "flower-pot", 151, 11, layer="on-top", on="dresser"),
+    RoomObject("plant-dresser", "plant-big", 163, 18, hitbox=(1, 6, 8, 8)),
 
     # --- Tea table ---
     RoomObject("bench-left", "bench", 119, 43),
@@ -86,7 +85,7 @@ room = Room(
     objects=OBJECTS,
     exits=[
         # the doorway between the two flower pots at the bottom
-        # the door in the right wall, below the fireplace corner
+        # the door in the right wall, below the dresser corner
         Exit("to-hallway", "right", 52, to_room="hallway", to_exit="to-bedroom"),
     ],
 )

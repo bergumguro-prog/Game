@@ -342,9 +342,9 @@ def test_door_fade_timings_are_theme_variables():
 
 # --- Placeholder games in the new rooms (issue #46) ---
 
-def test_living_room_has_one_or_two_game_objects():
-    games = [o for o in world.get("livingroom").objects if o.game]
-    assert 1 <= len(games) <= 2
+def test_living_room_has_its_games_and_the_fireplace():
+    games = {o.id: o.game for o in world.get("livingroom").objects if o.game}
+    assert games == {"piano": "piano", "card-table": "cards", "fireplace": "fireplace"}
 
 
 def test_placeholder_object_opens_coming_soon_until_its_game_exists():
@@ -458,3 +458,19 @@ def test_a_door_with_a_room_is_not_locked():
     door = world.Exit("x", "top", 10, to_room="bedroom", to_exit="to-hallway")
     assert not door.is_locked
     assert door.url == "/rooms/bedroom?via=to-hallway"
+
+
+# --- The fireplace moved to the living room (issue #67) ---
+
+def test_fireplace_is_in_the_living_room_not_the_bedroom():
+    assert "fireplace" in {o.id for o in world.get("livingroom").objects}
+    bedroom = {o.id: o for o in world.get("bedroom").objects}
+    assert "fireplace" not in bedroom
+    assert not any(o.on == "fireplace" for o in bedroom.values())
+    assert "dresser" in bedroom
+
+
+def test_fireplace_opens_the_fireplace_scene():
+    fireplace = next(o for o in world.get("livingroom").objects if o.id == "fireplace")
+    assert fireplace.game == "fireplace"
+    assert fireplace.prompt == "sit by the fire"
