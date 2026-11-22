@@ -81,6 +81,7 @@
     const fromMenu = e.target.closest(".menu-item");
     const onTable = e.target.closest(".placed");
     if (!fromMenu && !onTable) {
+      // clicking the bare table puts down what you picked (but swatches keep it)
       if (table.contains(e.target) && selected !== null) select(null);
       return;
     }
@@ -173,10 +174,65 @@
     if (table) render();
   });
 
+  // --- Colors and tablecloths ---
+  // A swatch changes the color of that menu item (what you'll place next),
+  // and of the picked item on the table if it's the same kind of thing.
+  function chooseColor(swatch) {
+    const id = swatch.dataset.item;
+    const color = swatch.dataset.color;
+    const button = document.querySelector(`.menu-item[data-item="${id}"]`);
+    button.dataset.color = color;
+    button.querySelector(".menu-art").innerHTML = art(id, color);
+    swatch.parentElement.querySelectorAll(".swatch").forEach((s) =>
+      s.classList.toggle("swatch-on", s === swatch));
+    if (selected !== null && items[selected].id === id) {
+      items[selected].color = color;
+      changed();
+    }
+    if (window.scenes) window.scenes.play("select");
+  }
+
+  function chooseCloth(button) {
+    table.dataset.cloth = button.dataset.cloth;
+    document.querySelectorAll(".cloth-choice").forEach((b) =>
+      b.classList.toggle("cloth-on", b === button));
+    if (window.scenes) window.scenes.play("select");
+    changed();
+  }
+
+  // Clear the table, with a moment to change your mind.
+  let cleared = null;
+  let undoTimer = null;
+  function clearTable() {
+    if (!items.length) return;
+    cleared = items;
+    items = [];
+    selected = null;
+    changed();
+    const undo = document.getElementById("undo-clear");
+    undo.hidden = false;
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(() => { undo.hidden = true; cleared = null; }, 6000);
+    if (window.scenes) window.scenes.play("back");
+  }
+  function undoClear() {
+    if (!cleared) return;
+    items = cleared;
+    cleared = null;
+    document.getElementById("undo-clear").hidden = true;
+    changed();
+  }
+
   // --- Buttons and keys ---
   document.addEventListener("click", (e) => {
     if (e.target.closest("#rotate-item")) rotate();
     if (e.target.closest("#remove-item")) remove();
+    if (e.target.closest("#clear-table")) clearTable();
+    if (e.target.closest("#undo-clear")) undoClear();
+    const swatch = e.target.closest(".swatch");
+    if (swatch) chooseColor(swatch);
+    const cloth = e.target.closest(".cloth-choice");
+    if (cloth) chooseCloth(cloth);
   });
   document.addEventListener("keydown", (e) => {
     if (!table || e.ctrlKey || e.metaKey || e.altKey) return;

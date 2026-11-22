@@ -42,6 +42,7 @@ class TableSetting(MiniGame):
                 menu=menu(),
                 table={"w": catalog.TABLE_W, "h": catalog.TABLE_H, "max": catalog.MAX_ITEMS},
                 cloth=catalog.DEFAULT_CLOTH,
+                cloths=catalog.CLOTHS,
             )
 
 
