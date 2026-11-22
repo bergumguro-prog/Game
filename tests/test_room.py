@@ -6,7 +6,7 @@ from app import create_app
 from core.game_base import MiniGame
 from room import objects, sprites, world
 
-MAIN = world.get("main")
+MAIN = world.get("bedroom")
 ROOMS = list(world.rooms().values())
 each_room = pytest.mark.parametrize("room", ROOMS, ids=lambda r: r.id)
 
@@ -46,14 +46,14 @@ def test_unknown_room_is_404():
 
 def test_start_with_main_room_then_remember_the_current_room():
     client = create_app().test_client()
-    assert b'data-room-id="main"' in client.get("/").data
-    client.get("/rooms/room2")
+    assert b'data-room-id="bedroom"' in client.get("/").data
+    client.get("/rooms/kitchen")
     # "/" is where Esc and "Back to the room" go after a mini-game.
-    assert b'data-room-id="room2"' in client.get("/").data
+    assert b'data-room-id="kitchen"' in client.get("/").data
 
 
 def test_there_are_at_least_three_rooms():
-    assert {"main", "room2", "room3"} <= set(world.rooms())
+    assert {"bedroom", "hallway", "kitchen", "livingroom"} <= set(world.rooms())
 
 
 def test_static_files_are_served():
@@ -266,6 +266,8 @@ def test_exit_ids_are_unique(room):
 
 @each_exit
 def test_every_door_leads_to_a_door_that_leads_back(room, exit):
+    if exit.is_locked:
+        pytest.skip("locked doors don't lead anywhere yet")
     other_room = world.get(exit.to_room)
     assert other_room is not None, f"{exit.to_room} doesn't exist"
     other = other_room.exit(exit.to_exit)
@@ -295,41 +297,41 @@ def test_every_door_can_be_reached_on_foot(room, exit):
     assert can_reach(walkable_spots(room), exit.trigger_rect(room), 0), exit.id
 
 
-def test_every_room_can_be_reached_from_the_main_room():
-    seen, todo = {"main"}, ["main"]
+def test_every_room_can_be_reached_from_the_bedroom():
+    seen, todo = {"bedroom"}, ["bedroom"]
     while todo:
         for exit in world.get(todo.pop()).exits:
-            if exit.to_room not in seen:
+            if not exit.is_locked and exit.to_room not in seen:
                 seen.add(exit.to_room)
                 todo.append(exit.to_room)
     assert seen == set(world.rooms())
 
 
 def test_rooms_show_their_doors():
-    html = create_app().test_client().get("/rooms/room2").data.decode()
-    for exit in world.get("room2").exits:
+    html = create_app().test_client().get("/rooms/kitchen").data.decode()
+    for exit in world.get("kitchen").exits:
         assert f'data-exit="{exit.id}"' in html
         assert f'data-url="{exit.url}"' in html
 
 
 def test_coming_through_a_door_stands_in_front_of_it():
     client = create_app().test_client()
-    exit = world.get("room2").exit("to-main")
-    x, y, facing = exit.arrival(world.get("room2"))
-    html = client.get("/rooms/room2?via=to-main").data.decode()
+    exit = world.get("kitchen").exit("to-hallway")
+    x, y, facing = exit.arrival(world.get("kitchen"))
+    html = client.get("/rooms/kitchen?via=to-hallway").data.decode()
     S = sprites.SCALE
     assert f'data-x="{x * S}" data-y="{y * S}"' in html
     assert f'data-facing="{facing}"' in html
     assert 'data-arrived="true"' in html
     # A made-up exit just uses the room's normal start spot.
-    html = client.get("/rooms/room2?via=nowhere").data.decode()
+    html = client.get("/rooms/kitchen?via=nowhere").data.decode()
     assert 'data-arrived' not in html
 
 
 def test_walking_through_a_door_changes_the_current_room():
     client = create_app().test_client()
-    client.get("/rooms/room3?via=to-room2")
-    assert b'data-room-id="room3"' in client.get("/").data
+    client.get("/rooms/livingroom?via=to-hallway")
+    assert b'data-room-id="livingroom"' in client.get("/").data
 
 
 def test_door_fade_timings_are_theme_variables():
@@ -340,24 +342,135 @@ def test_door_fade_timings_are_theme_variables():
 
 # --- Placeholder games in the new rooms (issue #46) ---
 
-@pytest.mark.parametrize("room_id", ["room2", "room3"])
-def test_new_rooms_have_one_or_two_game_objects(room_id):
-    games = [o for o in world.get(room_id).objects if o.game]
-    assert 1 <= len(games) <= 2
+def test_living_room_has_its_games_and_the_fireplace():
+    games = {o.id: o.game for o in world.get("livingroom").objects if o.game}
+    assert games == {"piano": "piano", "card-table": "cards", "fireplace": "fireplace"}
 
 
 def test_placeholder_object_opens_coming_soon_until_its_game_exists():
     """Swapping a placeholder for a real game only needs a game with the
     same slug: the room links to it automatically."""
-    class Arcade(MiniGame):
-        slug = "arcade"
-        title = "Arcade"
+    class Piano(MiniGame):
+        slug = "piano"
+        title = "Piano"
 
         def register_routes(self, bp):
             pass
 
     app = create_app()
     client = app.test_client()
-    assert 'data-url="/games/placeholder/?game=Arcade+games"' in client.get("/rooms/room2").data.decode()
-    app.extensions["games"]["arcade"] = Arcade()
-    assert 'data-url="/games/arcade/"' in client.get("/rooms/room2").data.decode()
+    assert 'data-url="/games/placeholder/?game=Piano"' in client.get("/rooms/livingroom").data.decode()
+    app.extensions["games"]["piano"] = Piano()
+    assert 'data-url="/games/piano/"' in client.get("/rooms/livingroom").data.decode()
+
+
+# --- The kitchen (issue #52) ---
+
+def test_room2_became_the_kitchen():
+    assert world.get("room2") is None
+    kitchen = world.get("kitchen")
+    assert kitchen.name == "Kitchen"
+    assert create_app().test_client().get("/rooms/kitchen").status_code == 200
+
+
+def test_kitchen_objects_open_the_three_kitchen_games():
+    games = {o.id: o.game for o in world.get("kitchen").objects if o.game}
+    assert games == {
+        "sink": "dishes",
+        "fridge": "baking",
+        "pantry": "baking",
+        "kitchen-table": "tablesetting",
+    }
+
+
+@pytest.mark.parametrize("old_id", ["room2", "room3", "main"])
+def test_an_old_room_id_in_the_session_falls_back_to_the_bedroom(old_id):
+    client = create_app().test_client()
+    with client.session_transaction() as session:
+        session["room"] = old_id
+    assert b'data-room-id="bedroom"' in client.get("/").data
+
+
+# --- The hallway (issue #64) ---
+
+def test_rooms_have_their_new_names():
+    assert world.get("bedroom").name == "Bedroom"
+    assert world.get("livingroom").name == "Living room"
+    assert world.get("hallway").name == "Hallway"
+    assert world.DEFAULT_ROOM == "bedroom"
+
+
+# --- How the rooms connect (issue #65) ---
+
+HOUSE_MAP = {
+    # (room, wall) -> room on the other side
+    ("bedroom", "right"): "hallway",
+    ("hallway", "left"): "bedroom",
+    ("hallway", "bottom"): "kitchen",
+    ("kitchen", "top"): "hallway",
+    ("hallway", "right"): "livingroom",
+    ("livingroom", "left"): "hallway",
+}
+
+
+def test_doors_match_the_house_map():
+    doors = {
+        (room.id, exit.side): exit.to_room
+        for room in ROOMS for exit in room.exits if exit.to_room
+    }
+    assert doors == HOUSE_MAP
+
+
+@each_exit
+def test_matching_doors_are_on_opposite_walls(room, exit):
+    if not exit.to_room:
+        return
+    other = world.get(exit.to_room).exit(exit.to_exit)
+    opposite = {"left": "right", "right": "left", "top": "bottom", "bottom": "top"}
+    assert other.side == opposite[exit.side]
+
+
+# --- The locked front door (issue #66) ---
+
+def test_hallway_front_door_is_locked_and_looks_like_an_outside_door():
+    door = world.get("hallway").exit("to-outside")
+    assert door.side == "top"
+    assert door.is_locked and door.url is None
+    assert door.locked == "It's locked... for now"
+    assert door.sprite_name == "front-door"
+
+
+def test_locked_doors_show_their_message_instead_of_a_link():
+    html = create_app().test_client().get("/rooms/hallway").data.decode()
+    assert 'data-exit="to-outside"' in html
+    assert 'data-locked="It&#39;s locked... for now"' in html
+    assert 'id="message"' in html
+    front = html[html.index('data-exit="to-outside"'):][:400]
+    assert "data-url" not in front
+
+
+def test_only_the_front_door_is_locked():
+    locked = [(r.id, e.id) for r in ROOMS for e in r.exits if e.is_locked]
+    assert locked == [("hallway", "to-outside")]
+
+
+def test_a_door_with_a_room_is_not_locked():
+    door = world.Exit("x", "top", 10, to_room="bedroom", to_exit="to-hallway")
+    assert not door.is_locked
+    assert door.url == "/rooms/bedroom?via=to-hallway"
+
+
+# --- The fireplace moved to the living room (issue #67) ---
+
+def test_fireplace_is_in_the_living_room_not_the_bedroom():
+    assert "fireplace" in {o.id for o in world.get("livingroom").objects}
+    bedroom = {o.id: o for o in world.get("bedroom").objects}
+    assert "fireplace" not in bedroom
+    assert not any(o.on == "fireplace" for o in bedroom.values())
+    assert "dresser" in bedroom
+
+
+def test_fireplace_opens_the_fireplace_scene():
+    fireplace = next(o for o in world.get("livingroom").objects if o.id == "fireplace")
+    assert fireplace.game == "fireplace"
+    assert fireplace.prompt == "sit by the fire"

@@ -7,7 +7,12 @@
 // - In a mini-game, Esc goes back to the room.
 // - Any element with data-sound="name" plays that sound when the page loads
 //   (games use it for "win", "lose", "move", ...).
+// - After a form is sent in the background and the new <main> is swapped in,
+//   a "scene:updated" event fires on document, so a game's own script can
+//   set up the new content (the page's scripts don't run again by themselves).
 // - The sound button in the corner mutes/unmutes; the choice is remembered.
+//   scenes.isMuted() tells a page whether sound is off, and a "sound:toggle"
+//   event fires on document when it changes (for looping sounds).
 (() => {
   const ENTER_KEY = "scene-enter";
   const MUTE_KEY = "sound-muted";
@@ -83,6 +88,7 @@
         window.history.replaceState(null, "", response.url);
       }
       newMain.querySelectorAll("[data-sound]").forEach((el) => play(el.dataset.sound));
+      document.dispatchEvent(new CustomEvent("scene:updated", { detail: { main: newMain } }));
     } catch (err) {
       form.dataset.noLive = "1";
       form.requestSubmit(submitter);
@@ -120,11 +126,12 @@
       muted = !muted;
       store.set("localStorage", MUTE_KEY, muted ? "1" : "0");
       showMute();
+      document.dispatchEvent(new CustomEvent("sound:toggle", { detail: { muted } }));
       play("select");
       button.blur(); // so Space/Enter don't toggle it again by accident
     });
     showMute();
   }
 
-  window.scenes = { goTo, play };
+  window.scenes = { goTo, play, isMuted: () => muted };
 })();

@@ -64,9 +64,10 @@ Game/
 │   ├── world.py              # the Room type; finds every room in rooms/
 │   ├── objects.py            # what all rooms share: RoomObject, player settings
 │   ├── rooms/                # one file per room: size, look, doors, furniture
-│   │   ├── main.py           # the main room (chess, tic-tac-toe, hangman)
-│   │   ├── room2.py
-│   │   └── room3.py
+│   │   ├── bedroom.py        # where you start (chess, tic-tac-toe, hangman)
+│   │   ├── hallway.py        # joins the other rooms; front door
+│   │   ├── kitchen.py        # sink, fridge, pantry, table
+│   │   └── livingroom.py     # piano, card table
 │   ├── sprites.py            # pixel art, drawn as grids of letters
 │   ├── templates/
 │   │   └── room.html
@@ -93,13 +94,21 @@ Game/
 │   │   ├── templates/
 │   │   └── static/
 │   │
-│   └── chess/                # →  branch: game/chess
-│       ├── __init__.py
-│       ├── routes.py
-│       ├── logic.py          # uses python-chess
-│       ├── ai.py             # the computer opponent
+│   ├── chess/                # →  branch: game/chess
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   ├── logic.py          # uses python-chess
+│   │   ├── ai.py             # the computer opponent
+│   │   ├── templates/
+│   │   └── static/
+│   │
+│   └── fireplace/            # a cozy scene, not a game  →  branch: fireplace
+│       ├── routes.py         # /games/fireplace/
+│       ├── art.py            # the big fireplace and logs (pixel art)
 │       ├── templates/
 │       └── static/
+│           ├── fireplace.css
+│           └── fireplace.js  # the animated flames, sparks and glow
 │
 ├── docs/
 │   ├── aesthetic/            # mood reference images
@@ -120,13 +129,23 @@ The full checklist (branches, sprites, sounds) is in CLAUDE.md under
    of `core.game_base.MiniGame` (see the docstring in that file).
 2. Add an interactable object for it in one of the room files in
    `room/rooms/`. If there's already a "coming soon" object waiting for
-   it (Room 2: `arcade`, `puzzles`; Room 3: `piano`, `cards`), use that slug
+   it (kitchen: `dishes`, `baking`, `tablesetting`; living room: `piano`, `cards`), use that slug
    for the game and the object opens it automatically.
 3. Add tests in `tests/test_<name>.py`.
 
+## Adding a baking recipe
+Make one new file in `games/baking/recipes/` that defines
+`recipe = Recipe(...)` (copy `blueberry_muffins.py`): its name, the
+ingredients in the order they go into the bowl, the steps for the recipe
+card and the perfect baking time. Ingredients come from
+`games/baking/ingredients.py`, which says whether each one is kept in the
+fridge or the pantry; add new ones there (and an icon in
+`games/baking/art.py`). The new recipe shows up on the baking start screen
+by itself.
+
 ## Adding a new room
 Make one new file in `room/rooms/`, for example `room/rooms/garden.py`, that
-defines `room = Room(...)` (copy `room2.py` to start). It is found
+defines `room = Room(...)` (copy `livingroom.py` to start). It is found
 automatically and shown at `/rooms/garden`. A room has:
 
 - `id`, `name`: the URL name and the name in the browser tab
@@ -137,6 +156,9 @@ automatically and shown at `/rooms/garden`. A room has:
   `Exit("to-garden", "right", 60, to_room="garden", to_exit="to-main")`
   is a door in the right wall, starting 60 art pixels down. The room it
   leads to needs a matching `Exit` that points back.
+  An `Exit` without `to_room` is locked: it says "It's locked... for now"
+  (or its own `locked=` text). The hallway's front door works like this until
+  there is an outside area; `room/rooms/hallway.py` explains how to open it.
 - `objects`: the furniture, as `RoomObject`s
 
 Then run `python -m pytest`: the tests check that everything is inside the
