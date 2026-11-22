@@ -50,6 +50,35 @@ def knock(seconds=0.09):
     return out
 
 
+def crackle(seconds=8.0, fade=0.5):
+    """A soft fireplace crackle that loops without a seam: a quiet, low
+    rumble with little wooden pops. The end is blended into the start."""
+    rng = random.Random(7)
+    total = int(RATE * (seconds + fade))
+    out = [0.0] * total
+    # low rumble: smoothed noise
+    level = 0.0
+    for i in range(total):
+        level += (rng.uniform(-1, 1) - level) * 0.02
+        out[i] = level * 0.9
+    # pops: tiny bursts that die away fast, some louder than others
+    t = 0.05
+    while t < seconds + fade - 0.1:
+        start = int(t * RATE)
+        size = rng.choice((0.25, 0.4, 0.6, 1.0))
+        length = int(RATE * rng.uniform(0.004, 0.02))
+        for j in range(length):
+            out[start + j] += rng.uniform(-1, 1) * size * math.exp(-j / (length / 4))
+        t += rng.expovariate(9)  # about nine pops a second
+    # blend the extra bit at the end into the start, so it loops smoothly
+    n = int(RATE * seconds)
+    f = int(RATE * fade)
+    for i in range(f):
+        mix = i / f
+        out[i] = out[i] * mix + out[n + i] * (1 - mix)
+    return [s * 0.55 for s in out[:n]]
+
+
 def melody(notes, step, length=None):
     samples = []
     for name in notes:
@@ -65,6 +94,8 @@ SOUNDS = {
     "win": melody(["C5", "E5", "G5"], 0.09) + tone(NOTES["C6"], 0.35, release=0.25),
     "lose": melody(["G4", "Eb4"], 0.16) + tone(NOTES["C4"], 0.4, release=0.3),
     "draw": melody(["E5", "D5"], 0.1) + tone(NOTES["E5"], 0.25, release=0.2),
+    # the fireplace scene (loops)
+    "crackle": crackle(),
     # walking through a door: a soft wooden "tok" and a little chime
     "door": [0.6 * v for v in knock(0.06)] + tone(NOTES["E5"], 0.06) + tone(NOTES["A5"], 0.16, release=0.14),
 }

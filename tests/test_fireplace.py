@@ -57,3 +57,31 @@ def test_fireplace_colors_are_theme_variables():
     for var in ("--fireplace-wall", "--fireplace-inside", "--fireplace-inside-line",
                 "--fireplace-glow-1"):
         assert f"{var}:" in theme
+
+
+# --- Crackling sound (issue #69) ---
+
+def test_crackle_sound_is_served():
+    response = create_app().test_client().get("/static/sounds/crackle.wav")
+    assert response.status_code == 200
+    assert response.data[:4] == b"RIFF"
+
+
+def test_crackle_loops_without_a_jump():
+    """The end of the loop flows into its start (no click at the seam)."""
+    import struct
+    import wave
+
+    with wave.open("static/sounds/crackle.wav") as w:
+        n = w.getnframes()
+        data = struct.unpack(f"<{n}h", w.readframes(n))
+    assert n / w.getframerate() >= 4
+    assert abs(data[-1] - data[0]) < 2000
+
+
+def test_fireplace_follows_the_mute_button():
+    js = open("games/fireplace/static/fireplace.js").read()
+    assert "crackle.wav" in js and "loop = true" in js
+    assert "sound:toggle" in js and "isMuted" in js
+    scenes = open("static/js/scenes.js").read()
+    assert "isMuted" in scenes and "sound:toggle" in scenes
