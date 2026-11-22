@@ -9,9 +9,9 @@ from room.world import Exit, Room
 
 OBJECTS = [
     # --- On the back wall ---
-    RoomObject("window", "window", 8, 6, layer="wall"),
-    RoomObject("picture", "picture", 82, 8, layer="wall"),
-    RoomObject("picture-flower", "picture-flower", 98, 9, layer="wall"),
+    RoomObject("picture", "picture", 1, 8, layer="wall"),
+    RoomObject("window", "window", 79, 6, layer="wall"),
+    RoomObject("picture-flower", "picture-flower", 100, 9, layer="wall"),
     RoomObject("clock", "wall-clock", 148, 6, layer="wall"),
     RoomObject("hanging-plant", "hanging-plant", 164, 0, layer="wall"),
 
@@ -26,9 +26,9 @@ OBJECTS = [
                game="fireplace", prompt="sit by the fire"),
     RoomObject("mantel-lavender", "flower-pot-lavender", 34, 5, layer="on-top", on="fireplace"),
     RoomObject("mantel-flowers", "flower-pot", 48, 5, layer="on-top", on="fireplace"),
-    # two armchairs turned toward the fire, one on each side
-    RoomObject("armchair-left", "armchair-side-right", 10, 26),
-    RoomObject("armchair", "armchair-side", 58, 26),
+    # two armchairs turned toward the fire, one on each side, level with it
+    RoomObject("armchair-left", "armchair-side-right", 14, 15),
+    RoomObject("armchair", "armchair-side", 57, 15),
 
     # --- Flowers ---
     RoomObject("roses-top-right", "flowers-roses", 164, 28, hitbox=(1, 6, 8, 8)),
@@ -43,7 +43,7 @@ OBJECTS = [
     RoomObject("card-pouf-right", "pouf-pink", 103, 84),
 
     # --- A sofa under the card table, facing it (seen from behind) ---
-    RoomObject("sofa", "sofa-back", 66, 98, hitbox=(0, 3, 44, 17)),
+    RoomObject("sofa", "sofa-back", 67, 100, hitbox=(0, 4, 40, 13)),
 ]
 
 room = Room(
