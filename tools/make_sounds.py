@@ -60,6 +60,7 @@ def melody(notes, step, length=None):
 SOUNDS = {
     "open": melody(["C5", "E5", "G5"], 0.07),    # entering a mini-game
     "back": melody(["G5", "E5", "C5"], 0.07),    # returning to the room
+    "ding": tone(NOTES["E5"] * 2, 0.6, release=0.55),  # the oven: they're golden
     "select": tone(NOTES["A5"], 0.05),           # selecting something
     "move": knock(),                             # placing a piece
     "win": melody(["C5", "E5", "G5"], 0.09) + tone(NOTES["C6"], 0.35, release=0.25),
