@@ -1,0 +1,184 @@
+/* Table decorating: a menu of things next to a wooden kitchen table.
+   Colors come from static/css/theme.css. */
+
+.table-panel {
+  --ts: 6px;          /* one art pixel on the table = 6 screen pixels */
+  max-width: 980px;
+}
+
+.table-layout {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+/* --- The menu --- */
+.table-menu {
+  flex: 0 0 236px;
+  max-height: 470px;
+  overflow-y: auto;
+  padding: 10px;
+  background: var(--px-cream);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+  text-align: left;
+}
+.menu-heading {
+  margin: 8px 0 6px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.menu-heading:first-child {
+  margin-top: 0;
+}
+.menu-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.menu-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  padding: 6px 2px;
+  background: var(--px-white);
+  border: 3px solid var(--px-outline);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 11px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.menu-item:hover {
+  background: var(--px-pink-light);
+}
+.menu-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+}
+.menu-art .item-art {
+  width: auto;
+  height: auto;
+  max-width: 48px;
+  max-height: 44px;
+}
+
+/* --- The table: a wooden top with a cloth on it --- */
+.table-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.table-top {
+  position: relative;
+  width: calc(var(--tw) * var(--ts));
+  height: calc(var(--th) * var(--ts));
+  border: 4px solid var(--px-outline);
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 14px var(--px-wood),
+    0 0 0 18px var(--px-outline),
+    0 22px 0 18px var(--color-shadow);
+  margin: 18px;
+  overflow: hidden;
+  touch-action: none;
+}
+/* Tablecloth patterns, all flat colors (no smooth gradients). */
+.table-top[data-cloth="gingham"] {
+  background:
+    repeating-linear-gradient(0deg, var(--cloth-gingham-stripe) 0 12px, transparent 12px 24px),
+    repeating-linear-gradient(90deg, var(--cloth-gingham-stripe) 0 12px, transparent 12px 24px),
+    var(--cloth-gingham);
+}
+.table-top[data-cloth="mint"] {
+  background: var(--cloth-mint);
+  box-shadow:
+    inset 0 0 0 8px var(--cloth-mint-edge),
+    0 0 0 14px var(--px-wood), 0 0 0 18px var(--px-outline), 0 22px 0 18px var(--color-shadow);
+}
+.table-top[data-cloth="lace"] {
+  background:
+    radial-gradient(circle, var(--cloth-lace-dot) 0 3px, transparent 3px) 0 0 / 18px 18px,
+    var(--cloth-lace);
+}
+.table-top[data-cloth="stripes"] {
+  background:
+    repeating-linear-gradient(90deg, var(--cloth-stripe) 0 18px, var(--cloth-stripe-light) 18px 36px);
+}
+
+/* --- Things on the table --- */
+.placed {
+  position: absolute;
+  left: calc(var(--x) * var(--ts));
+  top: calc(var(--y) * var(--ts));
+  width: calc(var(--w) * var(--ts));
+  height: calc(var(--h) * var(--ts));
+  transform: rotate(calc(var(--r) * 90deg));
+  cursor: grab;
+  touch-action: none;
+  line-height: 0;
+  filter: drop-shadow(0 4px 0 var(--color-shadow));
+}
+.placed .item-art,
+.drag-ghost .item-art {
+  width: 100%;
+  height: 100%;
+}
+.placed.selected {
+  outline: 3px dashed var(--px-rose);
+  outline-offset: 4px;
+}
+.placed.dragging,
+.drag-ghost {
+  cursor: grabbing;
+  opacity: 0.85;
+  z-index: 1000;
+}
+.drag-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  line-height: 0;
+}
+.placed.leaving {
+  opacity: 0.4;
+}
+
+.table-tools,
+.table-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.table-tip {
+  max-width: 560px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+@media (max-width: 980px) {
+  .table-layout { flex-direction: column; align-items: center; }
+  .table-menu { flex: none; width: 100%; max-height: 220px; }
+  .menu-group { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 680px) {
+  .table-panel { --ts: 3px; padding: 14px 10px; }
+  .table-top { margin: 12px; }
+}
