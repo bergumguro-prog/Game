@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Decorate the table{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('tablesetting.static', filename='tablesetting.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel table-panel">
+    <h1 class="panel-title">Decorate the table</h1>
+
+    <div class="table-layout">
+      <aside class="table-menu" aria-label="Things to put on the table">
+        {% for group in menu %}
+        <h2 class="menu-heading">{{ group.name }}</h2>
+        <div class="menu-group">
+          {% for item in group.entries %}
+          <div class="menu-entry">
+            <button class="menu-item" type="button" data-item="{{ item.id }}"
+                    data-color="{{ item.colors[0] }}" data-w="{{ item.w }}" data-h="{{ item.h }}"
+                    aria-label="Drag a {{ item.name|lower }} onto the table">
+              <span class="menu-art">{{ item.art[item.colors[0]] }}</span>
+              <span class="menu-name">{{ item.name }}</span>
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </aside>
+
+      <div class="table-area">
+        <div class="table-top" id="table" data-w="{{ table.w }}" data-h="{{ table.h }}"
+             data-max="{{ table.max }}" data-cloth="{{ cloth }}"
+             style="--tw: {{ table.w }}; --th: {{ table.h }};"
+             aria-label="The kitchen table"></div>
+        <div class="table-tools">
+          <button class="button button-mint" type="button" id="rotate-item" disabled>Rotate <kbd>R</kbd></button>
+          <button class="button button-mint" type="button" id="remove-item" disabled>Remove <kbd>Del</kbd></button>
+        </div>
+        <p class="table-tip">Drag things onto the table. Click one to pick it, drag it to move it, or drag it off the table to put it away.</p>
+      </div>
+    </div>
+
+    {# The art for every item in every color, for the editor to copy. #}
+    {% for group in menu %}{% for item in group.entries %}{% for color, svg in item.art.items() %}
+    <template id="art-{{ item.id }}-{{ color }}">{{ svg }}</template>
+    {% endfor %}{% endfor %}{% endfor %}
+
+    <div class="table-actions">
+      <a class="button button-mint" href="/">Back to the kitchen</a>
+    </div>
+  </section>
+  <p class="hint">Drag to place and move &middot; <kbd>R</kbd> to rotate &middot; <kbd>Del</kbd> to remove &middot; <kbd>Esc</kbd> to return to the kitchen</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('tablesetting.static', filename='tablesetting.js') }}"></script>
+{% endblock %}
