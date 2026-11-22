@@ -183,4 +183,38 @@
     requestAnimationFrame(frame); // the browser pauses this in hidden tabs
   }
   requestAnimationFrame(frame);
+
+  // --- Crackling sound ---
+  // Web Audio loops the sound with no gap. It follows the mute button, and
+  // browsers may only allow sound after a click or key press, so it also
+  // tries again then.
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  const audio = new AudioContext();
+  const volume = audio.createGain();
+  volume.connect(audio.destination);
+  const isMuted = () => (window.scenes ? window.scenes.isMuted() : false);
+
+  function applyMute() {
+    volume.gain.value = isMuted() ? 0 : 0.9;
+    if (!isMuted() && audio.state === "suspended") audio.resume().catch(() => {});
+  }
+  fetch("/static/sounds/crackle.wav")
+    .then((response) => response.arrayBuffer())
+    .then((bytes) => audio.decodeAudioData(bytes))
+    .then((buffer) => {
+      const source = audio.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.connect(volume);
+      source.start();
+      applyMute();
+    })
+    .catch(() => { /* no sound: the fire still burns */ });
+
+  document.addEventListener("sound:toggle", applyMute);
+  ["keydown", "pointerdown"].forEach((type) =>
+    document.addEventListener(type, applyMute, { once: true }));
+  // Stop crackling when leaving the page.
+  window.addEventListener("pagehide", () => audio.close().catch(() => {}));
 })();
