@@ -69,6 +69,18 @@
   --fireplace-glow-2: rgba(255, 150, 80, 0.2);
   --fireplace-glow-3: rgba(255, 140, 90, 0.1);
 
+  /* Solitaire: the felt table and the cards */
+  --solitaire-felt: #9fd8c1;
+  --solitaire-felt-dark: #6fb39b;
+  --solitaire-felt-dots: rgba(111, 179, 155, 0.35);
+  --solitaire-slot: #6fb39b;
+  --card-face: #fffaf4;
+  --card-face-edge: #fbd3dc;
+  --card-red: #c8323f;
+  --card-black: #4a2c3a;
+  --card-back: #fbd3dc;
+  --card-back-stripe: rgba(226, 85, 111, 0.28);
+
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
   --scene-leave-ms: 200ms;
