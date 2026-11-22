@@ -1,4 +1,4 @@
-"""The main room: the cozy bedroom where the player starts.
+"""The bedroom: where the player starts.
 
 Chess is on the tea table, tic-tac-toe on the little game table and hangman
 in the left bookshelf. Positions are in art pixels; see room/objects.py for
@@ -13,7 +13,6 @@ OBJECTS = [
     RoomObject("window-left", "window", 56, 6, layer="wall"),
     RoomObject("window-right", "window", 78, 6, layer="wall"),
     RoomObject("wall-shelf", "wall-shelf", 102, 13, layer="wall"),
-    RoomObject("shelf-plant", "plant-small", 106, 6, layer="wall"),
     RoomObject("shelf-flowers", "flower-pot", 116, 4, layer="wall"),
 
     # --- Rugs ---
@@ -22,7 +21,6 @@ OBJECTS = [
     RoomObject("rug-tea", "rug-tea", 114, 40, layer="floor"),
     RoomObject("rug-books", "round-rug-small", 22, 74, layer="floor"),
     RoomObject("rug-pink", "rug-pink", 6, 98, layer="floor"),
-    RoomObject("doily-door", "doily", 76, 102, layer="floor"),
     RoomObject("rug-round", "round-rug", 130, 104, layer="floor"),
 
     # --- Bedroom corner ---
@@ -42,11 +40,9 @@ OBJECTS = [
     RoomObject("pouf-corner-mint", "pouf-mint", 28, 110),
     RoomObject("pouf-round", "pouf-pink", 137, 109),
 
-    # --- Fireplace corner ---
-    RoomObject("fireplace", "fireplace", 134, 14),
-    RoomObject("mantel-plant", "plant-small", 138, 7, layer="on-top", on="fireplace"),
-    RoomObject("mantel-flowers", "flower-pot", 150, 5, layer="on-top", on="fireplace"),
-    RoomObject("plant-fireplace", "plant-big", 163, 18, hitbox=(1, 6, 8, 8)),
+    # --- Dresser corner ---
+    RoomObject("dresser", "dresser", 134, 8, hitbox=(0, 14, 24, 10)),
+    RoomObject("dresser-flowers", "flower-pot", 151, 11, layer="on-top", on="dresser"),
 
     # --- Tea table ---
     RoomObject("bench-left", "bench", 119, 43),
@@ -60,30 +56,25 @@ OBJECTS = [
     RoomObject("bookshelf-left", "bookshelf", 6, 62,
                game="hangman", prompt="play hangman"),
     RoomObject("bookshelf-right", "bookshelf", 38, 62),
-    RoomObject("plant-books", "plant-big", 56, 100, hitbox=(1, 6, 8, 8)),
 
-    # --- Bottom right ---
-    RoomObject("plant-right-a", "plant-big", 124, 76, hitbox=(1, 6, 8, 8)),
-    RoomObject("flower-stand", "nightstand", 138, 78),
-    RoomObject("flower-stand-pot", "flower-pot", 140, 71, layer="on-top", on="flower-stand"),
-    RoomObject("plant-right-b", "plant-big", 156, 76, hitbox=(1, 6, 8, 8)),
-
-    # --- By the door ---
-    RoomObject("door-pot-left", "flower-pot", 66, 116),
-    RoomObject("door-pot-right", "flower-pot", 102, 116),
+    # --- Against the right wall, above the hallway door ---
+    RoomObject("flower-stand", "nightstand", 163, 64),
+    RoomObject("flower-stand-pot", "flower-pot", 165, 57, layer="on-top", on="flower-stand"),
+    RoomObject("mat-hallway-door", "mat-pink-side", 168, 86, layer="floor"),
 ]
 
 
 room = Room(
-    id="main",
-    name="The Room",
+    id="bedroom",
+    name="Bedroom",
+    theme="bedroom",
     width=176,
     height=128,
     wall_height=26,
     start=(82, 66),
     objects=OBJECTS,
     exits=[
-        # the doorway between the two flower pots at the bottom
-        Exit("to-room2", "bottom", 80, to_room="room2", to_exit="to-main"),
+        # the door low in the right wall, clear of the tea table
+        Exit("to-hallway", "right", 88, to_room="hallway", to_exit="to-bedroom"),
     ],
 )

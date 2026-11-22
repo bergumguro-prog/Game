@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Decorate the table{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('tablesetting.static', filename='tablesetting.css') }}">
+{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel table-panel">
+    <h1 class="panel-title">Decorate the table</h1>
+
+    <div class="table-layout">
+      <aside class="table-menu" aria-label="Things to put on the table">
+        {% for group in menu %}
+        <h2 class="menu-heading">{{ group.name }}</h2>
+        <div class="menu-group">
+          {% for item in group.entries %}
+          <div class="menu-entry">
+            <button class="menu-item" type="button" data-item="{{ item.id }}"
+                    data-color="{{ item.colors[0] }}" data-w="{{ item.w }}" data-h="{{ item.h }}"
+                    aria-label="Drag a {{ item.name|lower }} onto the table">
+              <span class="menu-art">{{ item.art[item.colors[0]] }}</span>
+              <span class="menu-name">{{ item.name }}</span>
+            </button>
+            {% if item.colors|length > 1 %}
+            <div class="swatches" role="group" aria-label="{{ item.name }} colors">
+              {% for color in item.colors %}
+              <button class="swatch{% if loop.first %} swatch-on{% endif %}" type="button"
+                      data-item="{{ item.id }}" data-color="{{ color }}"
+                      style="--swatch: var(--px-{{ color }});" aria-label="{{ color }}"></button>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </aside>
+
+      <div class="table-area">
+        <div class="cloths" role="group" aria-label="Tablecloth">
+          <span class="cloths-label">Tablecloth:</span>
+          {% for key, name in cloths.items() %}
+          <button class="cloth-choice{% if key == cloth %} cloth-on{% endif %}" type="button"
+                  data-cloth="{{ key }}" title="{{ name }}" aria-label="{{ name }}"></button>
+          {% endfor %}
+        </div>
+        <div class="table-top" id="table" data-w="{{ table.w }}" data-h="{{ table.h }}"
+             data-max="{{ table.max }}" data-cloth="{{ cloth }}" data-items="{{ items_json }}"
+             data-save="{{ url_for('tablesetting.save') }}"
+             style="--tw: {{ table.w }}; --th: {{ table.h }};"
+             aria-label="The kitchen table"></div>
+        <div class="table-tools">
+          <button class="button button-mint" type="button" id="rotate-item" disabled>Rotate <kbd>R</kbd></button>
+          <button class="button button-mint" type="button" id="remove-item" disabled>Remove <kbd>Del</kbd></button>
+          <button class="button" type="button" id="clear-table">Clear table</button>
+          <button class="button button-mint" type="button" id="undo-clear" hidden>Undo clear</button>
+        </div>
+        <p class="table-saved" id="table-saved" aria-live="polite"></p>
+        <p class="table-tip">Drag things onto the table. Click one to pick it, drag it to move it, or drag it off the table to put it away.</p>
+      </div>
+    </div>
+
+    {# The art for every item in every color, for the editor to copy. #}
+    {% for group in menu %}{% for item in group.entries %}{% for color, svg in item.art.items() %}
+    <template id="art-{{ item.id }}-{{ color }}">{{ svg }}</template>
+    {% endfor %}{% endfor %}{% endfor %}
+
+    <div class="table-actions">
+      <a class="button button-mint" href="/">Back to the kitchen</a>
+    </div>
+  </section>
+  <p class="hint">Drag to place and move &middot; <kbd>R</kbd> to rotate &middot; <kbd>Del</kbd> to remove &middot; <kbd>Esc</kbd> to return to the kitchen</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('tablesetting.static', filename='tablesetting.js') }}"></script>
+<script src="{{ url_for('tablesetting.static', filename='tablesetting-save.js') }}"></script>
+{% endblock %}

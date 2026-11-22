@@ -101,7 +101,7 @@
 /* The fire flickers. */
 .sprite-fireplace .px-fire,
 .sprite-fireplace .px-yellow {
-  animation: flicker 0.6s steps(2) infinite;
+  animation: flicker 1.2s steps(2) infinite;
 }
 @keyframes flicker {
   50% { fill: var(--px-yellow); }
@@ -166,7 +166,8 @@
   transform: translateY(var(--hover-lift));
 }
 .object[data-url]:hover .sprite,
-.object.near .sprite {
+.object.near .sprite,
+.exit.near .sprite {
   filter:
     drop-shadow(4px 0 0 var(--px-white))
     drop-shadow(-4px 0 0 var(--px-white))
@@ -192,6 +193,9 @@
 }
 @keyframes prompt-pop {
   from { opacity: 0; }
+}
+.message {
+  background: var(--px-pink-light);
 }
 .prompt[hidden] {
   display: none;
