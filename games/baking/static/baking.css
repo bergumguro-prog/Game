@@ -1,0 +1,284 @@
+/* Baking: a recipe card next to the fridge, pantry and counter.
+   Colors come from static/css/theme.css. */
+
+.bake-panel {
+  max-width: 820px;
+}
+.bake-message {
+  max-width: 560px;
+  min-height: 1.4em;
+  font-weight: 700;
+}
+.bake-choices,
+.bake-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bake-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* --- The recipe card: lined cream paper with a pink edge --- */
+.recipe-card {
+  flex: 0 0 240px;
+  padding: 14px 16px;
+  background:
+    repeating-linear-gradient(transparent 0 23px, var(--recipe-line) 23px 24px),
+    var(--px-white);
+  border: 4px solid var(--px-outline);
+  border-left: 12px solid var(--px-pink);
+  border-radius: 6px;
+  box-shadow: 0 6px 0 var(--color-shadow);
+}
+.recipe-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+.recipe-heading {
+  margin: 10px 0 4px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.recipe-ingredients,
+.recipe-steps {
+  margin: 0;
+  padding-left: 22px;
+  font-size: var(--font-size-small);
+}
+.recipe-ingredients li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 24px;
+}
+.recipe-ingredients .ing-icon {
+  width: 20px;
+  height: 20px;
+}
+.ing-on-counter span {
+  color: var(--px-pink-dark);
+}
+.ing-in-bowl span {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+.recipe-steps li {
+  line-height: 20px;
+  margin-bottom: 4px;
+}
+.step-now {
+  font-weight: 700;
+  background: var(--px-pink-light);
+}
+.step-done {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+/* --- Fridge, pantry and counter --- */
+.bake-kitchen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.storage {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+.storage-door {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  background: var(--px-cream);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+  font: inherit;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+.storage-door:hover,
+.storage-open {
+  background: var(--px-pink-light);
+}
+.storage-art {
+  width: 80px;
+  height: auto;
+}
+
+.shelf,
+.counter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px;
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+}
+.shelf-fridge {
+  background: var(--fridge-inside);
+}
+.shelf-pantry {
+  background:
+    repeating-linear-gradient(transparent 0 58px, var(--px-wood-light) 58px 64px),
+    var(--pantry-inside);
+}
+.counter {
+  min-height: 96px;
+  background: var(--px-cream);
+  border-bottom: 10px solid var(--px-pink);
+}
+.counter-empty {
+  align-self: center;
+  color: var(--color-text-muted);
+}
+
+.ing-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 84px;
+  padding: 6px 4px;
+  background: var(--px-white);
+  border: 3px solid var(--px-outline);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform var(--hover-ms) ease-out;
+}
+.ing-button:hover:enabled {
+  transform: translateY(var(--hover-lift));
+  background: var(--px-pink-light);
+}
+.ing-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.ing-button .ing-icon {
+  width: 48px;
+  height: 48px;
+}
+
+@media (max-width: 720px) {
+  .bake-layout { flex-direction: column; align-items: stretch; }
+  .recipe-card { flex: none; }
+}
+
+/* --- Bowl, tin and oven --- */
+.station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  background: var(--px-cream);
+  border: 4px solid var(--px-outline);
+  border-radius: 8px;
+}
+.station-note {
+  color: var(--color-text-muted);
+}
+.bowl-art {
+  width: 256px;
+  height: auto;
+}
+.bowl-mixing {
+  animation: bowl-wobble 0.5s steps(2) 1;
+}
+@keyframes bowl-wobble {
+  50% { rotate: -3deg; }
+}
+.tin-art {
+  width: 288px;
+  height: auto;
+}
+
+.oven {
+  position: relative;
+  width: 352px;   /* 44 art pixels x 8 */
+  line-height: 0;
+}
+.oven-art {
+  width: 100%;
+  height: auto;
+}
+/* The muffins sit in the oven window (window starts 7 art pixels from the
+   left and 14 from the top; each art pixel is 8 screen pixels). */
+.oven-window {
+  position: absolute;
+  left: calc(7 * 8px);
+  top: calc(18 * 8px);
+  width: calc(30 * 8px);
+}
+.oven-muffins-art {
+  width: 100%;
+  height: auto;
+}
+/* How baked the muffins look, in flat steps. */
+.oven[data-stage="raw"] .oven-muffins-art .px-yellow { fill: var(--muffin-raw); }
+.oven[data-stage="pale"] .oven-muffins-art .px-yellow { fill: var(--muffin-pale); }
+.oven[data-stage="golden"] .oven-muffins-art .px-yellow { fill: var(--muffin-golden); }
+.oven[data-stage="brown"] .oven-muffins-art .px-yellow { fill: var(--muffin-brown); }
+.oven[data-stage="dark"] .oven-muffins-art .px-yellow { fill: var(--muffin-dark); }
+/* the heating element glows */
+.oven-art .px-fire {
+  animation: oven-glow 1s steps(2) infinite;
+}
+@keyframes oven-glow {
+  50% { fill: var(--px-yellow); }
+}
+
+@media (max-width: 560px) {
+  .oven { width: 264px; }
+  .oven-window { left: calc(7 * 6px); top: calc(18 * 6px); width: calc(30 * 6px); }
+  .bowl-art { width: 192px; }
+  .tin-art { width: 216px; }
+}
+
+/* --- Results --- */
+.results-title {
+  margin: 0;
+  font-size: 22px;
+}
+.results-stars {
+  display: flex;
+  gap: 10px;
+}
+.bake-star {
+  width: 54px;
+  height: 54px;
+}
+/* three muffins on a cream plate */
+.plate {
+  display: flex;
+  gap: 6px;
+  padding: 10px 26px 16px;
+  background: var(--px-white);
+  border: 4px solid var(--px-outline);
+  border-radius: 50%;
+  box-shadow: inset 0 -8px 0 var(--px-cream-dark), 0 6px 0 var(--color-shadow);
+}
+.muffin-art {
+  width: 84px;
+  height: 72px;
+}
+.results-notes {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-text-muted);
+}
