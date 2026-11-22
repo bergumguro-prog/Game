@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Baking{% endblock %}
+
+{% block content %}
+<main class="scene">
+  <section class="panel">
+    <h1 class="panel-title">Baking</h1>
+    {% if not bake %}
+      {% for r in recipes %}
+      <form method="post" action="{{ url_for('baking.start') }}">
+        <button class="button" type="submit" name="recipe" value="{{ r.id }}">Bake {{ r.name|lower }}</button>
+      </form>
+      {% endfor %}
+    {% else %}
+      <p>{{ recipe.name }}: {{ bake.phase }}</p>
+    {% endif %}
+    <a class="button button-mint" href="/">Back to the kitchen</a>
+  </section>
+</main>
+{% endblock %}
