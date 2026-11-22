@@ -59,6 +59,16 @@
   --px-wall: #f8c9d3;
   --px-wall-speckle: #f0a9ba;
 
+  /* Fireplace scene: an evening wall, the dark inside of the fireplace and
+     the warm light around it */
+  --fireplace-wall: #7a4d5c;
+  --fireplace-floor: #5b3446;
+  --fireplace-inside: #3a2230;
+  --fireplace-inside-line: #2c1824;
+  --fireplace-glow-1: rgba(255, 170, 90, 0.34);
+  --fireplace-glow-2: rgba(255, 150, 80, 0.2);
+  --fireplace-glow-3: rgba(255, 140, 90, 0.1);
+
   /* Motion: scene fades and hover effects */
   --scene-enter-ms: 260ms;
   --scene-leave-ms: 200ms;
